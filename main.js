@@ -1,16 +1,30 @@
+//Creo clase con su constructor que recibe parámetro inicializado en 0
 class ProductManager {
   constructor(products = []) {
     this.products = products;
   }
+
+  //Creo método para crear id autoincrementable
   static id = 0;
 
+  //Creo método para ingresar productos al array vacío
   addProduct(product) {
-    const { title, description, price, thumbnail, code, stock } = product;
+    const {
+      title,
+      description,
+      price,
+      thumbnail,
+      code,
+      stock
+    } = product;
 
     const busquedaCod = (el) => el.code === code;
 
+    //Validación para buscar código de producto
     if (this.products.some(busquedaCod)) {
       console.log(`El ${code} ya está ingresado.`);
+
+      //Validación para que el producto quede ingresado una vez completos todos los campos
     } else if (
       title === "" ||
       description === "" ||
@@ -22,6 +36,8 @@ class ProductManager {
       console.log(
         "Para que el producto sea agregado correctamente, todos los campos tienen que estar completos"
       );
+
+      //Agregado de producto con sus propiedades y id autoincrementable
     } else {
       const productsNew = this.products.push({
         ...product,
@@ -31,27 +47,31 @@ class ProductManager {
       return productsNew;
     }
   }
-
+  //Creo método para devolver el array de productos
   getProducts() {
     return this.products;
   }
-
+  //Creo método para buscar id de producto
   getProductsById(id) {
     const busquedaId = (el) => el.id === id;
 
     if (!this.products.find(busquedaId)) {
       console.log(`El id: ${id} no se encuentra en la lista. Puede continuar buscando.`);
 
-    } else {   
-      console.log(`El id: ${id} pertenece al producto: `, this.products[id] );
+    } else {
+      console.log(`El id: ${id} pertenece al producto: `, this.products[id]);
     }
   }
 }
 
+
+//Instancia para mostrar array vacío
 const test = new ProductManager();
-const productTest = new ProductManager();
 
 console.log(test.getProducts());
+
+//Instancia para agregar productos
+const productTest = new ProductManager();
 
 productTest.addProduct({
   title: "Producto Prueba",
@@ -80,6 +100,8 @@ productTest.addProduct({
   stock: 25,
 });
 
+
+//Producto para validar code repetido
 productTest.addProduct({
   title: "Arbol de Jade",
   description: "Suculenta",
@@ -89,6 +111,7 @@ productTest.addProduct({
   stock: 25,
 });
 
+//Producto para validar campo incompleto
 productTest.addProduct({
   title: "",
   description: "Suculenta Colgante",
@@ -98,6 +121,10 @@ productTest.addProduct({
   stock: 25,
 });
 
+
+//Invoco instancia que mostrar productos agregados
 console.log(productTest.getProducts());
 
+//Invoco instancia para mostrar búsqueda de id
 productTest.getProductsById(2);
+productTest.getProductsById(8);
