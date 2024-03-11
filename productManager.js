@@ -6,18 +6,36 @@ class ProductManager {
   //Variable para generar id autoincrementable
   static id = 0;
 
-  constructor() {
-    this.path = "./array-product.json";
-    this.products = [];
+  constructor(path, products = []) {
+    this.path = path;
+    this.products = products;
+    this.init();
   }
 
-  
+  //Método para verificar la existencia del archivo e imprimir el id
+  async init() {
+    try {
+      const file = fs.existsSync(this.path);
+      if (file) {
+        this.products = await this.readJson();
+
+        const lastProduct = this.products[this.products.length - 1];
+        ProductManager.id = lastProduct ? lastProduct.id : 0;
+      } else {
+        await fs.promises.writeFile(this.path, "[]");
+        this.products = [];
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   //Creo método para ingresar productos al array vacío
   async addProduct(product) {
     const { title, description, price, thumbnail, code, stock } = product;
-    
+
     //Validación para buscar código de producto
-    if (this.products.some((el) => el.code === code)) {
+    if (this.products.some((el) => el.code == code)) {
       console.log(
         `El código ${code} del producto ${title} ya está ingresado. Intenta con otro código.`
       );
@@ -40,52 +58,53 @@ class ProductManager {
     }
 
     //Se agrega producto al array, con sus propiedades y id autoincrementable
-    else {
-      const productsNew = this.products.push({
-        ...product,
-        id: ++ProductManager.id,
-      });
-      console.log(productsNew);
+        
+      else {
+        const newProduct = this.products.push({
+          ...product,
+          id: ++ProductManager.id,
+        });
+        console.log(newProduct);
+      }
+      await this.createJson();
     }
-    await this.crearJson();
-  }
-
-  //Método para mostrar array vacío
-  async getProductsVacío() {
-    return this.products;
-  }
 
   //Creación/guardado del archivo con promesa
-  async crearJson() {
+  async createJson() {
     try {
       await fs.promises.writeFile(
         this.path,
         JSON.stringify(this.products, null, 2)
       );
     } catch (error) {
-      console.log(mensaje.error);
-      throw error;
-    }
-  }
-
-  //Lectura del archivo con promesa
-  async leerJson() {
-    try {
-      const respuesta1 = await fs.promises.readFile(this.path, "utf-8");
-      const respuesta2 = JSON.parse(respuesta1);
-      return respuesta2;
-    } catch (error) {
       console.log(error);
       throw error;
     }
   }
 
+  //Lectura del archivo con promesa
+  async readJson() {
+    try {
+      const file = fs.existsSync(this.path);
+      if (!file) {
+        return [];
+      }
+      const fileContent = await fs.promises.readFile(this.path, "utf-8");
+      if (!fileContent) {
+        return [];
+      }
+      return JSON.parse(fileContent);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
   //Método para mostrar el array de productos
   async getProducts() {
     try {
-      const resultado = await this.leerJson();
       return (
-        "Los productos ingresados son: " + JSON.stringify(resultado, null, 2)
+        "Los productos ingresados son: " +
+        JSON.stringify(this.products, null, 2)
       );
     } catch (error) {
       console.log(error);
@@ -93,20 +112,17 @@ class ProductManager {
     }
   }
 
-  //Método para buscar id de producto
+  //Método para buscar producto por id
   async getProductById(id) {
     try {
-      const resultado = await this.leerJson();
-      const buscarId = resultado.find((el) => el.id === id);
+      const buscarId = await this.products.find((el) => el.id == id);
 
       if (buscarId) {
-        console.log(
-          `Búsqueda por id\nEl id: ${id} pertenece al producto: `,
-          buscarId
-        );
+        console.log(`El producto encontrado es : `, buscarId);
+        return;
       } else {
         console.log(
-          `Búsqueda por id\nEl id: ${id} no fue encontrado. Puede seguir buscando.`
+          `El id ingresado no se corresponde con ningún producto. Podés seguir buscando.`
         );
       }
     } catch (error) {
@@ -118,33 +134,28 @@ class ProductManager {
   //Método para reemplazar al producto que coincida con el id ingresado
   async updateProduct(id, updateProduct) {
     try {
-      const resultado = await this.leerJson();
+      const index = this.products.findIndex((product) => product.id === id);
 
-      const actualizarProd = resultado.map((product) => {
-        if (product.id === id) {
-          return { ...updateProduct, id: id };
-        }
-        return product;
-      });
-      await fs.promises.writeFile(
-        this.path,
-        JSON.stringify(actualizarProd, null, 2)
-      );
-      console.log("El producto con el id: " + id + " fue actualizado.");
+      if (index !== -1) {
+        this.products[index] = { ...updateProduct, id: id };
+        await this.createJson();
+        console.log("El producto con el id: " + id + " fue actualizado");
+      } else {
+        console.log("El producto con el id: " + id + " no fue encontrado");
+      }
     } catch (error) {
       console.log(error);
       throw error;
     }
   }
+
   //Método para eliminar al producto que coincida con el id ingresado
-  async deleteProduct  (id) {
+  async deleteProduct(id) {
     try {
-      const resultado = await this.leerJson();
-      const resultadoNuevo = resultado.filter(product => product.id !== id);
-  
-      await fs.promises.writeFile(this.path, JSON.stringify(resultadoNuevo, null, 2));
+      const result = this.products.filter((product) => product.id !== id);
+
+      await fs.promises.writeFile(this.path, JSON.stringify(result, null, 2));
       console.log("El producto con el id: " + id + " fue eliminado");
-  
     } catch (error) {
       console.log(error);
       throw error;
@@ -154,12 +165,11 @@ class ProductManager {
 
 async function array() {
   //Instancia para mostrar array vacío
-  const test = new ProductManager();
-  const arrayVacio = await test.getProductsVacío();
-  console.log(arrayVacio);
+  const test = new ProductManager("./array-product.json");
+  await test.init();
 
   //Instancias para agregar productos
-  const productTest = new ProductManager();
+  const productTest = new ProductManager("./array-product.json");
 
   await productTest.addProduct({
     title: "Producto Prueba",
@@ -207,7 +217,6 @@ async function array() {
     code: "abc1236",
     stock: 25,
   });
-  await productTest.leerJson();
 
   //Invoco instancia para mostrar productos agregados
   const arrayProducts = await productTest.getProducts();
@@ -228,6 +237,6 @@ async function array() {
   });
 
   //Invoco instancia para eliminar producto
-   productTest.deleteProduct(1);
+  productTest.deleteProduct(1);
 }
 array();
