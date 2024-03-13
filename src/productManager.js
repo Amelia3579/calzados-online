@@ -58,16 +58,15 @@ class ProductManager {
     }
 
     //Se agrega producto al array, con sus propiedades y id autoincrementable
-        
-      else {
-        const newProduct = this.products.push({
-          ...product,
-          id: ++ProductManager.id,
-        });
-        console.log(newProduct);
-      }
-      await this.createJson();
+    else {
+      const newProduct = this.products.push({
+        ...product,
+        id: ++ProductManager.id,
+      });
+      console.log(newProduct);
     }
+    await this.createJson();
+  }
 
   //Creación/guardado del archivo con promesa
   async createJson() {
@@ -115,18 +114,15 @@ class ProductManager {
   //Método para buscar producto por id
   async getProductById(id) {
     try {
-      const buscarId = await this.products.find((el) => el.id == id);
+      const searchId = await this.products.find((el) => el.id == id);
 
-      if (buscarId) {
-        console.log(`El producto encontrado es : `, buscarId);
-        return;
+      if (searchId) {
+        return searchId;
+
       } else {
-        console.log(
-          `El id ingresado no se corresponde con ningún producto. Podés seguir buscando.`
-        );
+        throw new Error("Producto no encontrado");
       }
     } catch (error) {
-      console.log(error);
       throw error;
     }
   }
@@ -163,80 +159,128 @@ class ProductManager {
   }
 }
 
-async function array() {
-  //Instancia para mostrar array vacío
-  const test = new ProductManager("./array-product.json");
-  await test.init();
+// async function array() {
+//   //Instancia para mostrar array vacío
+//   const test = new ProductManager("./array-product.json");
+//   await test.init();
 
-  //Instancias para agregar productos
-  const productTest = new ProductManager("./array-product.json");
+//   //Instancias para agregar productos
+//   const productTest = new ProductManager("./array-product.json");
 
-  await productTest.addProduct({
-    title: "Producto Prueba",
-    description: "Este es un producto prueba",
-    price: 200,
-    thumbnail: "Sin Imagen",
-    code: "abc123",
-    stock: 25,
-  });
+//   await productTest.addProduct({
+//     title: "Producto Prueba",
+//     description: "Este es un producto prueba",
+//     price: 200,
+//     thumbnail: "Sin Imagen",
+//     code: "abc123",
+//     stock: 25,
+//   });
 
-  await productTest.addProduct({
-    title: "Oreja de Srhek",
-    description: "Suculenta",
-    price: 2500,
-    thumbnail: "Sin Imagen",
-    code: "abc1234",
-    stock: 25,
-  });
+//   await productTest.addProduct({
+//     title: "Oreja de Srhek",
+//     description: "Suculenta",
+//     price: 2500,
+//     thumbnail: "Sin Imagen",
+//     code: "abc1234",
+//     stock: 25,
+//   });
 
-  await productTest.addProduct({
-    title: "Cola de Burro",
-    description: "Suculenta Colgante",
-    price: 3000,
-    thumbnail: "Sin Imagen",
-    code: "abc1235",
-    stock: 25,
-  });
+//   await productTest.addProduct({
+//     title: "Cola de Burro",
+//     description: "Suculenta Colgante",
+//     price: 3000,
+//     thumbnail: "Sin Imagen",
+//     code: "abc1235",
+//     stock: 25,
+//   });
 
-  //Producto para validar code repetido
-  await productTest.addProduct({
-    title: "Arbol de Jade",
-    description: "Suculenta",
-    price: 2000,
-    thumbnail: "Sin Imagen",
-    code: "abc123",
-    stock: 25,
-  });
+//   await productTest.addProduct({
+//     title: "Suculenta Rosario",
+//     description: "Suculenta Colgante",
+//     price: 3500,
+//     thumbnail: "Sin Imagen",
+//     code: "abc1237",
+//     stock: 25,
+//   });
 
-  //Producto para validar campo incompleto
-  await productTest.addProduct({
-    title: "",
-    description: "Suculenta Colgante",
-    price: 3000,
-    thumbnail: "Sin Imagen",
-    code: "abc1236",
-    stock: 25,
-  });
+//   await productTest.addProduct({
+//     title: "Echeveria Elegans",
+//     description: "Suculenta",
+//     price: 4000,
+//     thumbnail: "Sin Imagen",
+//     code: "abc1238",
+//     stock: 25,
+//   });
 
-  //Invoco instancia para mostrar productos agregados
-  const arrayProducts = await productTest.getProducts();
-  console.log(arrayProducts);
+//   await productTest.addProduct({
+//     title: "Cerebrito",
+//     description: "Cactus",
+//     price: 2500,
+//     thumbnail: "Sin Imagen",
+//     code: "abc1239",
+//     stock: 25,
+//   });
 
-  //Invoco instancias para hacer búsqueda de producto por id
-  productTest.getProductById(8);
-  productTest.getProductById(2);
+//   await productTest.addProduct({
+//     title: "Cactus Estrella",
+//     description: "Cactus",
+//     price: 2000,
+//     thumbnail: "Sin Imagen",
+//     code: "abc123510",
+//     stock: 25,
+//   });
 
-  //Invoco instancia para reemplazar producto
-  await productTest.updateProduct(3, {
-    title: "Aloe Vera",
-    description: "Suculenta",
-    price: 2500,
-    thumbnail: "Sin Imagen",
-    code: "abc1237",
-    stock: 25,
-  });
+//   await productTest.addProduct({
+//     title: "Sedum Allantoides",
+//     description: "Suculenta",
+//     price: 3000,
+//     thumbnail: "Sin Imagen",
+//     code: "abc12311",
+//     stock: 25,
+//   });
 
-  //Invoco instancia para eliminar producto
-  productTest.deleteProduct(1);
-}
-array();
+//   //Producto para validar code repetido
+//   await productTest.addProduct({
+//     title: "Arbol de Jade",
+//     description: "Suculenta",
+//     price: 2000,
+//     thumbnail: "Sin Imagen",
+//     code: "abc123",
+//     stock: 25,
+//   });
+
+//   //Producto para validar campo incompleto
+//   await productTest.addProduct({
+//     title: "",
+//     description: "Suculenta Colgante",
+//     price: 3000,
+//     thumbnail: "Sin Imagen",
+//     code: "abc1236",
+//     stock: 25,
+//   });
+
+//   //Invoco instancia para mostrar productos agregados
+//   const arrayProducts = await productTest.getProducts();
+//   console.log(arrayProducts);
+
+//   //Invoco instancias para hacer búsqueda de producto por id
+//   productTest.getProductById(8);
+//   productTest.getProductById(2);
+
+//   //Invoco instancia para reemplazar producto
+//   await productTest.updateProduct(3, {
+//     title: "Aloe Vera",
+//     description: "Suculenta",
+//     price: 2500,
+//     thumbnail: "Sin Imagen",
+//     code: "abc1237",
+//     stock: 25,
+//   });
+
+//   //Invoco instancia para eliminar producto
+//   productTest.deleteProduct(1);
+// }
+// array();
+
+//Exporto la clase para que sea utilizada por app.js
+module.exports = ProductManager;
