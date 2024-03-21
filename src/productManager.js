@@ -18,13 +18,13 @@ class ProductManager {
       const file = fs.existsSync(this.path);
       if (file) {
         this.products = await this.readJson();
-
-        const lastProduct = this.products[this.products.length - 1];
-        ProductManager.id = lastProduct ? lastProduct.id : 0;
       } else {
-        await fs.promises.writeFile(this.path, "[]");
-        this.products = [];
+        console.log(`El archivo ${this.path} no existe.`);
       }
+
+      const lastProduct = this.products[this.products.length - 1];
+      ProductManager.id = lastProduct ? lastProduct.id : 0;
+
     } catch (error) {
       console.log(error);
     }
@@ -32,40 +32,39 @@ class ProductManager {
 
   //Creo método para ingresar productos al array vacío
   async addProduct(product) {
-    const { title, description, price, thumbnail, code, stock } = product;
+    try {
+      const { title, description, price, thumbnail, code, stock } = product;
 
-    //Validación para buscar código de producto
-    if (this.products.some((el) => el.code == code)) {
-      console.log(
-        `El código ${code} del producto ${title} ya está ingresado. Intenta con otro código.`
-      );
-      return;
-    }
+      //Validación para buscar código de producto
+      if (this.products.some((el) => el.code === code)) {
+        console.log(
+          `El código ${code} del producto ${title} ya está ingresado. Intenta con otro código.`
+        );
+        return;
+      }
 
-    //Validación para que el producto quede ingresado una vez completos todos los campos
-    if (
-      title === "" ||
-      description === "" ||
-      price === 0 ||
-      thumbnail === "" ||
-      code === 0 ||
-      stock === 0
-    ) {
-      console.log(
-        "Para que el producto quede agregado, todos los campos tienen que estar completos"
-      );
-      return;
-    }
-
-    //Se agrega producto al array, con sus propiedades y id autoincrementable
-    else {
-      const newProduct = this.products.push({
+      //Validación para que el producto quede ingresado una vez completos todos los campos
+      if (
+        title === "" ||
+        description === "" ||
+        price === 0 ||
+        thumbnail === "" ||
+        code === 0 ||
+        stock === 0 
+       ) {
+        console.log(
+          "Para que el producto quede agregado, todos los campos tienen que estar completos"
+        );
+        return;
+      }
+      this.products.push({
         ...product,
-        id: ++ProductManager.id,
+        id: ++this.constructor.id,
       });
-      console.log(newProduct);
+      await this.createJson();
+    } catch (error) {
+      throw new Error("Error al agregar el producto:", error);
     }
-    await this.createJson();
   }
 
   //Creación/guardado del archivo con promesa
@@ -114,13 +113,12 @@ class ProductManager {
   //Método para buscar producto por id
   async getProductById(id) {
     try {
-      const searchId = await this.products.find((el) => el.id == id);
+      const searchId = await this.products.find((el) => el.id === id);
 
       if (searchId) {
         return searchId;
-
       } else {
-        throw new Error("Producto no encontrado");
+        return null;
       }
     } catch (error) {
       throw error;
@@ -133,7 +131,10 @@ class ProductManager {
       const index = this.products.findIndex((product) => product.id === id);
 
       if (index !== -1) {
-        this.products[index] = { ...updateProduct, id: id };
+        this.products[index] = {
+          ...updateProduct,
+          id: id,
+        };
         await this.createJson();
         console.log("El producto con el id: " + id + " fue actualizado");
       } else {

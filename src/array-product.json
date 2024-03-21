@@ -38,7 +38,7 @@
   {
     "title": "Cactus Estrella",
     "description": "Cactus",
-    "price": 2000,
+    "price": 4500,
     "thumbnail": "Sin Imagen",
     "code": "abc123510",
     "stock": 25,
@@ -54,12 +54,14 @@
     "id": 7
   },
   {
-    "title": "Arbol de Jade",
-    "description": "Suculenta",
+    "title": "Garrita de Oso",
+    "description": "Suculenta Colgante",
     "price": 2000,
-    "thumbnail": "Sin Imagen",
-    "code": "abc123",
+    "thumbnail": [],
+    "code": "abc5493",
     "stock": 25,
-    "id": 8
+    "sttus": true,
+    "category": "Suculenta",
+    "id": 9
   }
 ]
