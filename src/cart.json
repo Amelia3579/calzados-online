@@ -1,15 +1,1 @@
-[
-  {
-    "id": 1,
-    "products": [
-      {
-        "product": 1,
-        "quantity": 5
-      },
-      {
-        "product": 2,
-        "quantity": 15
-      }
-    ]
-  }
-]
+[{"id":1,"products":[]}]

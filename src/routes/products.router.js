@@ -1,8 +1,8 @@
-const ProductManager = require("../productManager");
+const ProductManager = require("../controllers/productManager");
 const express = require("express");
 const router = express.Router();
 
-const productTest = new ProductManager("./src/array-product.json");
+const productTest = new ProductManager("./src/models/array-product.json");
 //Se establece la ruta products & limit
 router.get("/", async (req, res) => {
   try {

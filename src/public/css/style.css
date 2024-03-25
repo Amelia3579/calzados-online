@@ -1,0 +1,18 @@
+.cardContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    text-align: center;    
+    min-width: 8rem;
+    border-radius: .8rem;  
+    margin: 2rem;
+    padding: 1rem;
+    background-color: rgb(101, 183, 101);
+    width: 15vw;
+    box-shadow: 0px 1px 10px #2b413a;
+}
