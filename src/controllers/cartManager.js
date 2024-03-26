@@ -22,12 +22,14 @@ class CartManager {
           this.path,
           JSON.stringify([{ id: ++CartManager.id, products: [] }])
         );
-        return (this.carts = []);
+        this.carts = [];
+        return { status: true, msg: "Carrito inicializado correctamente" };
       } else {
         this.carts = await this.readJson();
         const lastProduct = this.carts[this.carts.length - 1];
         CartManager.id = lastProduct ? lastProduct.id : 0;
       }
+      return { status: true, msg: "Carrito inicializado correctamente" };
     } catch (error) {
       console.log(error);
     }
@@ -56,10 +58,13 @@ class CartManager {
       if (!fileContent) {
         return [];
       }
-      return JSON.parse(fileContent);
+      JSON.parse(fileContent);
+      return { status: true, message: "Se agregó el carrito correctamente" };
     } catch (error) {
-      console.log(error);
-      throw error;
+      return {
+        status: false,
+        message: `Error al agregar el carrito: ${error.messaje}`,
+      };
     }
   }
 
@@ -91,13 +96,19 @@ class CartManager {
         cart.products.push({ product: productId, quantity });
       }
       await this.createJson();
-      return cart;
+      return {
+        status: true,
+        message: `El producto ${productId.title} fue agregado al carrito ${cartId}.`,
+      };
     } catch (error) {
-      throw new Error(`Error al agregar el carrito: ${error.messaje}`);
+      return {
+        status: false,
+        message: `Error al agregar el producto: ${error.messaje}`,
+      };
     }
   }
 
-  //Método para buscar carrito por id
+  //Método para mostrar carrito por id
   async getCartById(cartId) {
     try {
       const cart2 = await this.carts.find((el) => el.id === cartId);
@@ -105,7 +116,10 @@ class CartManager {
       if (cart2) {
         return cart2;
       } else {
-        return null;
+        return {
+          status: false,
+          message: `Error al buscar el carrito: ${error.messaje}`,
+        };
       }
     } catch (error) {
       throw error;

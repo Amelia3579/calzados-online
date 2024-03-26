@@ -8,8 +8,8 @@ router.post("/", async (req, res) => {
   try {
     const newCart = await cartTest.createCart();
 
-    if (newCart) {
-      res.status(200).send(newCart);
+    if (newCart.status) {
+      return res.status(200).send(newCart);
     } else {
       res.status(400).send({
         message:
@@ -27,8 +27,8 @@ router.get("/:cid", async (req, res) => {
     const cartId = parseInt(req.params.cid);
     const cart = await cartTest.getCartById(cartId);
 
-    if (cart) {
-      res.status(200).json(cart.products);
+    if (cart.status) {
+      return res.status(200).json(cart.products);
     } else {
       res
         .status(400)
@@ -51,8 +51,8 @@ router.post("/:cid/product/:pid", async (req, res) => {
 
     const updateCart = await cartTest.addProdCart(cartId, prodId, quantity);
 
-    if (updateCart) {
-      res.status(200).json(updateCart.products);
+    if (updateCart.status) {
+      return res.status(200).json(updateCart.products);
     } else {
       res
         .status(404)
