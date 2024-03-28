@@ -16,25 +16,38 @@ class CartManager {
   async initCarts() {
     try {
       const file = fs.existsSync(this.path);
-
       if (!file) {
         await fs.promises.writeFile(
           this.path,
           JSON.stringify([{ id: ++CartManager.id, products: [] }])
         );
         this.carts = [];
-        return { status: true, msg: "Carrito inicializado correctamente" };
       } else {
         this.carts = await this.readJson();
         const lastProduct = this.carts[this.carts.length - 1];
         CartManager.id = lastProduct ? lastProduct.id : 0;
       }
-      return { status: true, msg: "Carrito inicializado correctamente" };
     } catch (error) {
-      console.log(error);
+      console.log("Error al inicializar el carrito: " + error);
     }
   }
 
+  async initCarts() {
+    try {
+      const file = fs.existsSync(this.path);
+      if (file) {
+        this.carts = await this.readJson();
+        const lastProduct = this.carts[this.carts.length - 1];
+        CartManager.id = lastProduct ? lastProduct.id : 0;
+      } else {
+        await fs.promises.writeFile(
+          this.path,
+          JSON.stringify([{ id: ++CartManager.id, products: [] }])
+        );
+        this.carts = [];
+      }
+    } catch {}
+  }
   //Creación/guardado del archivo con promesa
   async createJson() {
     try {
@@ -58,11 +71,11 @@ class CartManager {
       if (!fileContent) {
         return [];
       }
-      JSON.parse(fileContent);
-      return { status: true, message: "Se agregó el carrito correctamente" };
+      return JSON.parse(fileContent);
+      // return { status: true, message: "Se agregó el carrito correctamente" };
     } catch (error) {
       return {
-        status: false,
+        // status: false,
         message: `Error al agregar el carrito: ${error.messaje}`,
       };
     }
@@ -80,27 +93,28 @@ class CartManager {
       await this.createJson();
       return newCart;
     } catch (error) {
-      throw new Error(`Error al agregar el carrito: ${error.messaje}`);
+      throw new Error(`Error al agregar el carrito: ${error.message}`);
     }
   }
 
   //Método para agregar producto
-  async addProdCart(cartId, productId, quantity = 1) {
+  async addProdCart(cartId, prodId, quantity = 1) {
     try {
       const cart = await this.getCartById(cartId);
-      const existProduct = cart.products.find((el) => el.product === productId);
+      const existProduct = cart.products.find((el) => el.product === prodId);
 
       if (existProduct) {
         existProduct.quantity += quantity;
       } else {
-        cart.products.push({ product: productId, quantity });
+        cart.products.push({ product: prodId, quantity });
       }
       await this.createJson();
       return {
         status: true,
-        message: `El producto ${productId.title} fue agregado al carrito ${cartId}.`,
+        message: "El producto fue agregado",
       };
     } catch (error) {
+   
       return {
         status: false,
         message: `Error al agregar el producto: ${error.messaje}`,
@@ -109,23 +123,23 @@ class CartManager {
   }
 
   //Método para mostrar carrito por id
-  async getCartById(cartId) {
-    try {
-      const cart2 = await this.carts.find((el) => el.id === cartId);
+    async getCartById(cartId) {
+      try {
+        const cart2 = await this.carts.find((el) => el.id === cartId);
 
-      if (cart2) {
-        return cart2;
-      } else {
-        return {
-          status: false,
-          message: `Error al buscar el carrito: ${error.messaje}`,
-        };
+        if (cart2) {
+          return cart2;
+        } else {
+          return {
+            status: false,
+            message: `Error al buscar el carrito: ${error.messaje}`,
+          };
+        }
+      } catch (error) {
+        throw error;
       }
-    } catch (error) {
-      throw error;
     }
   }
-}
 
 //Exporto la clase para que sea utilizada por app.js
 module.exports = CartManager;

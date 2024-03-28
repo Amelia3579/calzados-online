@@ -24,7 +24,6 @@ class ProductManager {
 
       const lastProduct = this.products[this.products.length - 1];
       ProductManager.id = lastProduct ? lastProduct.id : 0;
-
     } catch (error) {
       console.log(error);
     }
@@ -50,8 +49,8 @@ class ProductManager {
         price === 0 ||
         thumbnail === "" ||
         code === 0 ||
-        stock === 0 
-       ) {
+        stock === 0
+      ) {
         console.log(
           "Para que el producto quede agregado, todos los campos tienen que estar completos"
         );
@@ -85,15 +84,17 @@ class ProductManager {
     try {
       const file = fs.existsSync(this.path);
       if (!file) {
-        return [];
+        return { status: false, products: [] };
       }
       const fileContent = await fs.promises.readFile(this.path, "utf-8");
       if (!fileContent) {
-        return [];
+        return { status: false, products: [] };
       }
-      return JSON.parse(fileContent);
+      const products = JSON.parse(fileContent);
+      return { status: true, products };
+      
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
       throw error;
     }
   }
