@@ -4,7 +4,7 @@ const router = express.Router();
 const CartManager = require("../controllers/cartManager.js");
 const cartTest = new CartManager("./src/models/cart.json");
 
-//1)Generar carrito nuevo
+//1)Genero carrito nuevo
 router.post("/", async (req, res) => {
   try {
     const newCart = await cartTest.createCart();
@@ -22,7 +22,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-//2)Listar productos del carrito correspondiente al ID especificado
+//2)Listo productos del carrito correspondiente al ID especificado
 router.get("/:cid", async (req, res) => {
   try {
     const cartId = parseInt(req.params.cid);
@@ -41,7 +41,7 @@ router.get("/:cid", async (req, res) => {
   }
 });
 
-//3)Agregar productos al carrito del ID ingresado
+//3)Agrego productos al carrito del ID ingresado
 router.post("/:cid?/product/:pid?", async (req, res) => {
   try {
     const cartId = parseInt(req.params.cid);
@@ -56,7 +56,7 @@ router.post("/:cid?/product/:pid?", async (req, res) => {
       });
     }
 
-    // Agregar el producto al carrito especificado
+    // Agrego el producto al carrito especificado
     const updateCart = await cartTest.addProdCart(cartId, prodId, quantity);
 
     if (updateCart) {
@@ -78,5 +78,5 @@ router.post("/:cid?/product/:pid?", async (req, res) => {
   }
 });
 
-//Tenemos que exportarlo
+//Exportación
 module.exports = router;

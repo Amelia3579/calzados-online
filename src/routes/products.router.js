@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 
 const productTest = new ProductManager("./src/models/array-product.json");
-//Se establece la ruta products & limit
+//Establezco la ruta products & limit
 router.get("/", async (req, res) => {
   try {
     let availableProd = await productTest.readJson();
@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-//Se establece la ruta /:id
+//Establezco la ruta /:id
 router.get("/:id", async (req, res) => {
   try {
     let id = parseInt(req.params.id);
@@ -37,10 +37,10 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-//Agregar producto
+//Agrego producto
 router.post("/", async (req, res) => {
   try {
-    //Capturar datos que vienen del body
+    //Capturo datos que vienen del body
     const addProductBody = req.body;
 
     if (Object.keys(addProductBody).length === 0) {
@@ -56,7 +56,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-//Actualizar producto por ID
+//Actualizo producto por ID
 router.put("/:id", async (req, res) => {
   try {
     const productId = parseInt(req.params.id);
@@ -70,7 +70,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-//Eliminar producto por ID
+//Elimino producto por ID
 router.delete("/:id", async (req, res) => {
   try {
     const productId = parseInt(req.params.id);
@@ -83,5 +83,5 @@ router.delete("/:id", async (req, res) => {
     res.status(500).send({ message: "Error al eliminar el producto" });
   }
 });
-//Tenemos que exportarlo
+//Exportación
 module.exports = router;
