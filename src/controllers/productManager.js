@@ -91,7 +91,7 @@ class ProductManager {
         return { status: false, products: [] };
       }
       const products = JSON.parse(fileContent);
-      return { status: true, products };
+      return products ;
       
     } catch (error) {
       console.log(error.message);
@@ -101,10 +101,7 @@ class ProductManager {
   //Método para mostrar el array de productos
   async getProducts() {
     try {
-      return (
-        "Los productos ingresados son: " +
-        JSON.stringify(this.products, null, 2)
-      );
+      return JSON.stringify(this.products, null, 2);
     } catch (error) {
       console.log(error);
       throw error;

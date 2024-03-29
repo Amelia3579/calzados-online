@@ -18,15 +18,6 @@
     "id": 3
   },
   {
-    "title": "Echeveria Elegans",
-    "description": "Suculenta",
-    "price": 4000,
-    "thumbnail": "Sin Imagen",
-    "code": "abc1238",
-    "stock": 25,
-    "id": 4
-  },
-  {
     "title": "Cerebrito",
     "description": "Cactus",
     "price": 2500,

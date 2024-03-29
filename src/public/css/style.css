@@ -1,18 +1,39 @@
-.cardContainer {
+.tituloPrinc {
     display: flex;
-    flex-wrap: wrap;
     justify-content: center;
 }
 
-.card {
+.tituloSec {
     display: flex;
-    flex-direction: column;
-    text-align: center;    
-    min-width: 8rem;
-    border-radius: .8rem;  
-    margin: 2rem;
-    padding: 1rem;
-    background-color: rgb(101, 183, 101);
-    width: 15vw;
-    box-shadow: 0px 1px 10px #2b413a;
+    justify-content: center;
+}
+
+.cardContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  min-width: 8rem;
+  border-radius: 0.8rem;
+  margin: 2rem;
+  padding: 1rem;
+  background-color: rgb(101, 183, 101);
+  width: 15vw;
+  box-shadow: 0px 1px 10px #2b413a;
+}
+
+.cardButton {
+  color: whitesmoke;
+  background-color: rgb(10, 106, 10);
+  padding: 0.8rem;
+  margin: 0.8rem;
+  font-size: small;
+  border: none;
+  border-radius: 10px;
+  text-decoration: none;
 }

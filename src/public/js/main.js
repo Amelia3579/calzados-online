@@ -4,7 +4,6 @@ const socket = io();
 
 //Uso la instancia creada para establecer la conexión
 socket.on("productos", (data) => {
-  //o array-product???
   renderProductos(data);
 });
 
@@ -13,13 +12,21 @@ const renderProductos = (productos) => {
   const containerProducts = document.getElementById("containerProducts");
   containerProducts.innerHTML = "";
 
+  const titulo = document.createElement("h1");
+  titulo.classList.add("tituloPrinc")
+  titulo.textContent = "Lista de Productos";
+  containerProducts.appendChild(titulo);
+
   productos.forEach((element) => {
     const card = document.createElement("div");
-    card.innerHTML = `
+    card.classList.add("cardContainer");
+    card.innerHTML = `    
+                          <div class = "card">
                           <p> ID: ${element.id}</p>
-                          <p> Título: ${element.titulo} </p>     
-                          <p> Precio: ${element.precio} </p>     
-                          <button> Eliminar producto </button>
+                          <p> Título: ${element.title} </p>     
+                          <p> Precio: ${element.price} </p>     
+                          <button class = "cardButton"> Eliminar producto </button>
+                          </div>
         `;
     containerProducts.appendChild(card);
 
@@ -52,6 +59,7 @@ const agregarProducto = () => {
     status: document.getElementById("status").value === "true",
   };
   socket.emit("agregarProducto", producto);
+
+  const form = document.querySelector("form");
+  form.reset();
 };
-/*TITLE??*/
-/*PRICE??*/
