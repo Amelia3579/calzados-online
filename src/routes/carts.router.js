@@ -4,7 +4,7 @@ const router = express.Router();
 const CartManager = require("../controllers/cartManager.js");
 const cartTest = new CartManager("./src/models/cart.json");
 
-//1)Genero carrito nuevo
+//1)Ruta para generar carrito nuevo
 router.post("/", async (req, res) => {
   try {
     const newCart = await cartTest.createCart();
@@ -22,7 +22,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-//2)Listo productos del carrito correspondiente al ID especificado
+//2)Ruta para listar productos del carrito según el ID especificado
 router.get("/:cid", async (req, res) => {
   try {
     const cartId = parseInt(req.params.cid);
@@ -41,7 +41,7 @@ router.get("/:cid", async (req, res) => {
   }
 });
 
-//3)Agrego productos al carrito del ID ingresado
+//3)Ruta para agregar productos al carrito, según el ID especificado de ambos items
 router.post("/:cid?/product/:pid?", async (req, res) => {
   try {
     const cartId = parseInt(req.params.cid);
@@ -56,10 +56,10 @@ router.post("/:cid?/product/:pid?", async (req, res) => {
       });
     }
 
-    // Agrego el producto al carrito especificado
-    const updateCart = await cartTest.addProdCart(cartId, prodId, quantity);
+    //Agrego productos al carrito, según el ID especificado de ambos items
+    const addProd = await cartTest.addProdCart(cartId, prodId, quantity);
 
-    if (updateCart) {
+    if (addProd) {
       return res.status(200).json({
         message: "Producto agregado al carrito exitosamente",
         products: updateCart.products,

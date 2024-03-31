@@ -56,16 +56,14 @@ class CartManager {
         return [];
       }
       return JSON.parse(fileContent);
-      // return { status: true, message: "Se agregó el carrito correctamente" };
     } catch (error) {
       return {
-        // status: false,
         message: `Error al agregar el carrito: ${error.messaje}`,
       };
     }
   }
 
-  //Creo carrito
+  //Método para generar carrito nuevo
   async createCart() {
     try {
       const newCart = {
@@ -81,7 +79,25 @@ class CartManager {
     }
   }
 
-  //Método para agregar producto
+  //Método para listar productos del carrito según el ID especificado
+  async getCartById(cartId) {
+    try {
+      const cart2 = await this.carts.find((el) => el.id === cartId);
+
+      if (cart2) {
+        return cart2;
+      } else {
+        return {
+          status: false,
+          message: `Error al buscar el carrito: ${error.messaje}`,
+        };
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  //Método para agregar productos al carrito, según el ID especificado de ambos items
   async addProdCart(cartId, prodId, quantity = 1) {
     try {
       const cart = await this.getCartById(cartId);
@@ -102,24 +118,6 @@ class CartManager {
         status: false,
         message: `Error al agregar el producto: ${error.messaje}`,
       };
-    }
-  }
-
-  //Método para mostrar carrito por id
-  async getCartById(cartId) {
-    try {
-      const cart2 = await this.carts.find((el) => el.id === cartId);
-
-      if (cart2) {
-        return cart2;
-      } else {
-        return {
-          status: false,
-          message: `Error al buscar el carrito: ${error.messaje}`,
-        };
-      }
-    } catch (error) {
-      throw error;
     }
   }
 }

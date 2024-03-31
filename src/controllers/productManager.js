@@ -29,7 +29,7 @@ class ProductManager {
     }
   }
 
-  //Creo método para ingresar productos al array vacío
+  //Método para agregar productos
   async addProduct(product) {
     try {
       const { title, description, price, thumbnail, code, stock } = product;
@@ -91,8 +91,7 @@ class ProductManager {
         return { status: false, products: [] };
       }
       const products = JSON.parse(fileContent);
-      return products ;
-      
+      return products;
     } catch (error) {
       console.log(error.message);
       throw error;
@@ -123,7 +122,7 @@ class ProductManager {
     }
   }
 
-  //Método para reemplazar al producto que coincida con el id ingresado
+  //Método para actualizar el producto según el ID especificado
   async updateProduct(id, updateProduct) {
     try {
       const index = this.products.findIndex((product) => product.id === id);
@@ -144,7 +143,18 @@ class ProductManager {
     }
   }
 
-  //Método para eliminar al producto que coincida con el id ingresado
+  //Método para verificar si existe el producto con el ID especificado
+  async productExists(id) {
+    try {
+      const index = this.products.findIndex((product) => product.id === id);
+      return index !== -1;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+
+  //Método para eliminar al producto según el ID especificado
   async deleteProduct(id) {
     try {
       const result = this.products.filter((product) => product.id !== id);
