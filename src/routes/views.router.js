@@ -2,8 +2,12 @@
 const express = require("express");
 const router = express.Router();
 const ProductManager = require("../controllers/productManager.js");
+const CartManager = require("../controllers/cartManagerDb.js");
+const ProductModel = require("../models/product.model.js");
+const CartModel = require("../models/cart.model.js");
 
 const productTest = new ProductManager("./src/models/array-product.json");
+const cartTest = new CartManager();
 
 //Ruta para Vista de home.handlebars
 // router.get("/", async (req, res) => {
@@ -29,6 +33,92 @@ router.get("/realtimeproducts", (req, res) => {
 //Ruta para la Vista de chat.handlebars
 router.get("/", (req, res) => {
   res.render("chat");
+});
+
+//Actividades 2° pre-entrega
+//Ruta para mostrar productos y paginación
+router.get("/products", async (req, res) => {
+  try {
+    const limit = req.query.limit || 1;
+    const page = req.query.page || 5;
+
+    const availableProd = await ProductModel.paginate({}, { limit, page });
+
+    if (!availableProd) {
+      return res.json({
+        error:
+          "La paginación no se pudo efectuar. Verifique los datos ingresados",
+        error,
+      });
+    } else {
+      //Recibo los docs y los mapeo para que me brinde la información (en reemplazo del método .lean())
+      availableProd.docs = availableProd.docs.map((doc) =>
+        doc.toObject({ getters: false })
+      );
+    }
+
+    res.render("home", {
+      products: availableProd.docs,
+      totalDocs: availableProd.totalDocs,
+      limit: availableProd.limit,
+      totalPages: availableProd.totalPages,
+      page: availableProd.page,
+      pagingCounter: availableProd.pagingCounter,
+      currentPage: availableProd.page,
+      hasPrevPage: availableProd.hasPrevPage,
+      hasNextPage: availableProd.hasNextPage,
+      prevPage: availableProd.prevPage,
+      nextPage: availableProd.nextPagePage,
+    });
+  } catch (error) {
+    return res.status(500).send({ message: error.message });
+  }
+});
+
+//Ruta para enviar productos agregados al carrito, según ID especificado
+router.post("/carts/:cid", async (req, res) => {
+  try {
+    
+    const cartId = req.params.cid || "662dd3c2226af293380b5f68";
+    const prodId = req.body.productId;
+    const quantity = req.body.quantity;
+  
+const cart= await CartModel.findById(cartId,prodId, quantity)
+
+    if (!cart) {
+      return res.json({
+        error: `Error al agregar los productos al carrito con el ID: ${cartId}`,
+        error,
+      });
+    } else {
+      res.json(cart)
+    }
+  } catch (error) {
+    return res.status(500).send({ message: error.message });
+  }
+});
+
+//Ruta para mostrar productos agregados al carrito, según ID especificado
+router.get("/carts/:cid", async (req, res) => {
+  try {
+    const cartId = req.params.cid || "662dd3c2226af293380b5f68";
+
+     const cart= await CartModel.findById(cartId)
+   
+    if (!cart) {
+      return res.json({
+        error: `Error al mostrar el carrito con el ID: ${cartId}`,
+        error,
+      });
+    } else {
+      const products = cart.docs ? cart.docs.map(doc => doc.toObject({ getters: false })) : [];
+  
+      res.render("cart", { products });
+    }
+   
+  } catch (error) {
+    return res.status(500).send({ message: error.message });
+  }
 });
 
 module.exports = router;

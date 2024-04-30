@@ -1,0 +1,20 @@
+{{!-- Actividad 2° pre-entrega --}}
+<h1>Carrito de Compras</h1>
+
+<div class="cardContainer">
+  {{#each products}}
+    <div class="card">
+      {{!-- <p> Producto: {{this.title}}</p> --}}
+      <p> Cantidad {{quantity}}</p>
+      {{!-- <p> Precio: {{this.price}}</p> --}}
+
+      <button> Eliminar </button>
+    </div>
+
+    <div>
+      <button> Vaciar Carrito</button>
+      <p> Total de la compra: </p>
+    </div>
+  {{/each}}
+</div>
+

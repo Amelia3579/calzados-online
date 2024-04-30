@@ -62,8 +62,9 @@ class ProductManager {
   //Método para mostrar los productos
   async getProducts() {
     try {
-      const products = await ProductModel.find();
-      return products;
+      const products = await ProductModel.find().lean();
+    console.log(products)
+      // return products;
     } catch (error) {
       throw new Error(`Error al mostrar los productos: ${error.message}`);
     }
@@ -121,7 +122,7 @@ class ProductManager {
     }
   }
 
-  //Método para eliminar al producto según el ID especificado
+  //Método para eliminar el producto según el ID especificado
   async deleteProduct(id) {
     try {
       const deleteProd = await ProductModel.findByIdAndDelete(id);

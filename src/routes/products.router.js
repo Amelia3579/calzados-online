@@ -2,19 +2,55 @@ const express = require("express");
 const router = express.Router();
 
 const ProductManager = require("../controllers/productManagerDb.js");
+const ProductModel = require("../models/product.model.js");
 const productTest = new ProductManager();
-//Actividades desafío3 y complementario
-//Establezco la ruta products & limit
+
+//Actividades desafío3, desafío complementario y 2° pre-entrega
 router.get("/", async (req, res) => {
   try {
-    const limit = req.query.limit;
-    const availableProd = await productTest.getProducts();
+    const limit = req.query.limit || 10;
+    const page = req.query.page || 1;
+    const query = req.query.category;
+    const sort = req.query.sort === "1" ? 1 : req.query.sort === "-1" ? -1 : 0;
 
-    if (!isNaN(limit) && limit > 0) {
-      res.json(availableProd.slice(0, limit));
-    } else {
-      res.json(availableProd);
+    //Defino opciones para sort
+    const sortOption = {};
+    if (sort !== 0) {
+      sortOption.price = sort;
     }
+
+    let availableProd;
+    //Validación para recibir query
+    if (query) {
+      availableProd = await ProductModel.paginate(
+        { category: query },
+        { limit, page, sort: sortOption }
+      );
+      //Si no recibo query, brindo la paginación teniendo en cuenta todas las categorías
+    } else {
+      availableProd = await ProductModel.paginate(
+        {},
+        { limit, page, sort: sortOption }
+      );
+    }
+   
+    //Recibo los docs y los mapeo para que me brinde la información (en reemplazo del método .lean())
+    availableProd.docs = availableProd.docs.map(doc => doc.toObject({ getters: false }));
+
+    res.render("home", {
+      products: availableProd.docs,
+      totalDocs: availableProd.totalDocs,
+      limit: availableProd.limit,
+      totalPages: availableProd.totalPages,
+      page: availableProd.page,
+      pagingCounter: availableProd.pagingCounter,
+      currentPage: availableProd.page,
+      hasPrevPage: availableProd.hasPrevPage,
+      hasNextPage: availableProd.hasNextPage,
+      prevPage: availableProd.prevPage,
+      nextPage: availableProd.nextPagePage,
+    })
+
   } catch (error) {
     return res.status(500).send({ message: error.message });
   }
