@@ -78,12 +78,11 @@ router.get("/products", async (req, res) => {
 //Ruta para enviar productos agregados al carrito, según ID especificado
 router.post("/carts/:cid", async (req, res) => {
   try {
-    
-    const cartId = req.params.cid || "662dd3c2226af293380b5f68";
+    const cartId = req.params.cid;
     const prodId = req.body.productId;
     const quantity = req.body.quantity;
-  
-const cart= await CartModel.findById(cartId,prodId, quantity)
+
+    const cart = await CartModel.findById(cartId, prodId, quantity);
 
     if (!cart) {
       return res.json({
@@ -91,7 +90,7 @@ const cart= await CartModel.findById(cartId,prodId, quantity)
         error,
       });
     } else {
-      res.json(cart)
+      res.json(cart);
     }
   } catch (error) {
     return res.status(500).send({ message: error.message });
@@ -101,21 +100,24 @@ const cart= await CartModel.findById(cartId,prodId, quantity)
 //Ruta para mostrar productos agregados al carrito, según ID especificado
 router.get("/carts/:cid", async (req, res) => {
   try {
-    const cartId = req.params.cid || "662dd3c2226af293380b5f68";
+    const cartId = req.params.cid;
 
-     const cart= await CartModel.findById(cartId)
-   
+    const cart = await CartModel.findById(cartId).lean();
+
     if (!cart) {
       return res.json({
         error: `Error al mostrar el carrito con el ID: ${cartId}`,
         error,
       });
     } else {
-      const products = cart.docs ? cart.docs.map(doc => doc.toObject({ getters: false })) : [];
-  
+      const products = await Promise.all(
+        cart.products.map(async (elem) => {
+          const product = await ProductModel.findById(elem.product).lean();
+          return { ...elem, product };
+        })
+      );
       res.render("cart", { products });
     }
-   
   } catch (error) {
     return res.status(500).send({ message: error.message });
   }
