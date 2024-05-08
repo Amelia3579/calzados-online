@@ -2,8 +2,8 @@ const express = require("express");
 const router = express.Router();
 
 const ProductManager = require("../controllers/productManagerDb.js");
-const ProductModel = require("../models/product.model.js");
 const productTest = new ProductManager();
+const ProductModel = require("../models/product.model.js");
 
 //Actividades desafío3, desafío complementario y 2° pre-entrega
 router.get("/", async (req, res) => {

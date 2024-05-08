@@ -1,3 +1,15 @@
+{{#if user}}
+  <header>
+    <p> Bienvenido {{ user.first_name }} {{user.last_name}}</p>
+    <p> Role: {{user.role}} </p>
+    <a href="/api/sessions/logout"> Close Session </a>
+  </header>
+
+{{/if}}
+
+
+<hr />
+
 {{! Actividad desafío4 (Websockets) }}
 <h1>Productos disponibles para la venta</h1>
 
@@ -6,9 +18,11 @@
     <div class="card">
       <p>{{this.title}}</p>
       <p>{{this.description}}</p>
-      <p>{{this.price}}</p>
+      <p>${{this.price}}</p>
 
-      <button class="btnAgregar" data-product-id="{{this._id}}"> Agregar al Carrito </button>
+      <button class="btnAgregar" data-product-id="{{this._id}}">
+        Agregar al Carrito
+      </button>
     </div>
   {{/each}}
 </div>

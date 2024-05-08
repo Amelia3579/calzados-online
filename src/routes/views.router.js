@@ -31,9 +31,9 @@ router.get("/realtimeproducts", (req, res) => {
 
 //Actividad desafío complementario (MongoDB)
 //Ruta para la Vista de chat.handlebars
-router.get("/", (req, res) => {
-  res.render("chat");
-});
+// router.get("/", (req, res) => {
+//   res.render("chat");
+// });
 
 //Actividades 2° pre-entrega
 //Ruta para mostrar productos y paginación
@@ -69,6 +69,7 @@ router.get("/products", async (req, res) => {
       hasNextPage: availableProd.hasNextPage,
       prevPage: availableProd.prevPage,
       nextPage: availableProd.nextPagePage,
+      user: req.session.user 
     });
   } catch (error) {
     return res.status(500).send({ message: error.message });
@@ -76,26 +77,26 @@ router.get("/products", async (req, res) => {
 });
 
 //Ruta para enviar productos agregados al carrito, según ID especificado
-router.post("/carts/:cid", async (req, res) => {
-  try {
-    const cartId = req.params.cid;
-    const prodId = req.body.productId;
-    const quantity = req.body.quantity;
+// router.post("/carts/:cid", async (req, res) => {
+//   try {
+//     const cartId = req.params.cid;
+//     const prodId = req.body.productId;
+//     const quantity = req.body.quantity;
 
-    const cart = await CartModel.findById(cartId, prodId, quantity);
+//     const cart = await CartModel.findById(cartId, prodId, quantity);
 
-    if (!cart) {
-      return res.json({
-        error: `Error al agregar los productos al carrito con el ID: ${cartId}`,
-        error,
-      });
-    } else {
-      res.json(cart);
-    }
-  } catch (error) {
-    return res.status(500).send({ message: error.message });
-  }
-});
+//     if (!cart) {
+//       return res.json({
+//         error: `Error al agregar los productos al carrito con el ID: ${cartId}`,
+//         error,
+//       });
+//     } else {
+//       res.json(cart);
+//     }
+//   } catch (error) {
+//     return res.status(500).send({ message: error.message });
+//   }
+// });
 
 //Ruta para mostrar productos agregados al carrito, según ID especificado
 router.get("/carts/:cid", async (req, res) => {
@@ -120,6 +121,41 @@ router.get("/carts/:cid", async (req, res) => {
     }
   } catch (error) {
     return res.status(500).send({ message: error.message });
+  }
+});
+
+//Ruta para que cuando cargue la app, login sea lo 1° que aparezca
+router.get("/", (req, res) => {
+  return res.redirect("/login");
+})
+
+
+//Ruta para Login
+router.get("/login", (req, res) => {
+  //Validación para chequear si el usuario está logueado, si es así, redirije a la vista de products
+  if (req.session.login) {
+    return res.redirect("/products");
+  }
+  res.render("login");
+});
+
+//Ruta para Form de Register
+router.get("/register", (req, res) => {
+  //Validación para chequear si el usuario está logueado, si es asi, redirijo al perfil
+  if (req.session.login) {
+    return res.redirect("/profile");
+  }
+  res.render("register");
+});
+
+//Ruta para Profile
+router.get("/profile", (req, res) => {
+  //Validación para restringir el acceso a mi perfil
+  if (!req.session.login) {
+    //Redirijo al form de login, si no está logueado
+    return res.redirect("/login");
+  } else {
+    res.render("profile");
   }
 });
 
