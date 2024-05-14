@@ -4,6 +4,8 @@ const socket = require("socket.io");
 const app = express();
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
+const passport = require("passport");
+const initializePassport = require("./config/passport.config.js");
 const PUERTO = 8080;
 const database = require("./database.js");
 
@@ -31,6 +33,10 @@ app.use(
     }),
   })
 );
+//Middleware Passport
+app.use(passport.initialize());
+app.use(passport.session());
+initializePassport();
 
 //Configuro Handlebars
 app.engine("handlebars", exphbs.engine());

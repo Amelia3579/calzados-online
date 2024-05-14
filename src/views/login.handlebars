@@ -1,14 +1,36 @@
-<h1> Login </h1>
+<div class="btnContainer" > 
+<button id="btnGitHub"> Ingresar con GitHub </button>
+<script>
+  const buttonGitHub = document.getElementById("btnGitHub");
+  buttonGitHub.addEventListener("click", redirectGitHub); 
+  function redirectGitHub(){ window.location.href = "/api/sessions/github" }
+</script>
+</div>
 
-<form action="/api/sessions/login" method="POST">
+<div class="separator">
+  <span class="line"></span>
+  <span class="letter">O Your </span>
+  <span class="line"></span>
+</div>
 
-  <label for="email"> Email: </label>
+<form class="form" action="/api/sessions/login" method="POST">
+
+  <label for="email"> Email </label>
   <input type="email" name="email" required />
 
-  <label for="password"> Password: </label>
+  <label for="password"> Password </label>
   <input type="text" name="password" required />
 
-  <button type="submit"> Login </button>
-  <a href="/register"> Register </a>
+  <button class="btnLogin" type="submit"> Login </button>
+  <button id="btnRegister"> Register </button>
+
+  <script>
+    const buttonRegister = document.getElementById("btnRegister");
+    buttonRegister.addEventListener("click", redirectRegister); 
+    function redirectRegister(){ window.location.href = "/register" }
+  </script>
 
 </form>
+
+
+

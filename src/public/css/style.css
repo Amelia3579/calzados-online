@@ -1,11 +1,11 @@
 .tituloPrinc {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 
 .tituloSec {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 
 .cardContainer {
@@ -38,3 +38,57 @@
   text-decoration: none;
 }
 
+/* login.handlebars */
+.btnContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4rem 0 2.5rem 0;
+}
+
+#btnGitHub {
+  color: whitesmoke;
+  background-color: rgb(10, 106, 10);
+  padding: 0.7rem;
+  margin: 0.8rem;
+  width: 15rem;
+  font-size: small;
+  border: none;
+  border-radius: 10px;
+  text-decoration: none;
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+}
+.line {
+  flex: 1;
+  height: 0.1rem;
+  margin: 0 1.5rem;
+  background-color: black;
+}
+
+.form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  margin: 2rem 0;
+
+  label {
+    margin: 0.5rem 7rem 0.5rem 0;
+  }
+}
+
+.btnLogin, #btnRegister {
+  color: whitesmoke;
+  background-color: rgb(10, 106, 10);
+  padding: 0.5rem;
+  margin: 0.8rem;
+  width: 6rem;
+  font-size: small;
+  border: none;
+  border-radius: 10px;
+  text-decoration: none;
+}
