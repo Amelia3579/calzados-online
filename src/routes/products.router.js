@@ -4,6 +4,7 @@ const router = express.Router();
 const ProductManager = require("../controllers/productManagerDb.js");
 const productTest = new ProductManager();
 const ProductModel = require("../models/product.model.js");
+const passport = require("passport");
 
 //Actividades desafío3, desafío complementario y 2° pre-entrega
 router.get("/", async (req, res) => {
@@ -33,9 +34,11 @@ router.get("/", async (req, res) => {
         { limit, page, sort: sortOption }
       );
     }
-   
+
     //Recibo los docs y los mapeo para que me brinde la información (en reemplazo del método .lean())
-    availableProd.docs = availableProd.docs.map(doc => doc.toObject({ getters: false }));
+    availableProd.docs = availableProd.docs.map((doc) =>
+      doc.toObject({ getters: false })
+    );
 
     res.render("home", {
       products: availableProd.docs,
@@ -49,8 +52,7 @@ router.get("/", async (req, res) => {
       hasNextPage: availableProd.hasNextPage,
       prevPage: availableProd.prevPage,
       nextPage: availableProd.nextPagePage,
-    })
-
+    });
   } catch (error) {
     return res.status(500).send({ message: error.message });
   }

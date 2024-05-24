@@ -5,9 +5,16 @@ const ProductManager = require("../controllers/productManager.js");
 const CartManager = require("../controllers/cartManagerDb.js");
 const ProductModel = require("../models/product.model.js");
 const CartModel = require("../models/cart.model.js");
+const UserModel = require("../models/user.model.js");
+const { isValidPassword } = require("../utils/hashbcrypt.js");
+const passport = require("passport");
+const jwt = require("jsonwebtoken");
 
 const productTest = new ProductManager("./src/models/array-product.json");
 const cartTest = new CartManager();
+
+//Middleware de autenticación con JWT
+const authenticateJWT = passport.authenticate("jwt", { session: false });
 
 //Ruta para Vista de home.handlebars
 // router.get("/", async (req, res) => {
@@ -37,7 +44,7 @@ router.get("/realtimeproducts", (req, res) => {
 
 //Actividades 2° pre-entrega
 //Ruta para mostrar productos y paginación
-router.get("/products", async (req, res) => {
+router.get("/products", authenticateJWT, async (req, res) => {
   try {
     const limit = req.query.limit || 1;
     const page = req.query.page || 5;
@@ -56,6 +63,8 @@ router.get("/products", async (req, res) => {
         doc.toObject({ getters: false })
       );
     }
+    //Guardo la información del usuario
+    const user = req.user;
 
     res.render("home", {
       products: availableProd.docs,
@@ -69,7 +78,7 @@ router.get("/products", async (req, res) => {
       hasNextPage: availableProd.hasNextPage,
       prevPage: availableProd.prevPage,
       nextPage: availableProd.nextPagePage,
-      user: req.session.user 
+      user: user,
     });
   } catch (error) {
     return res.status(500).send({ message: error.message });
@@ -127,13 +136,12 @@ router.get("/carts/:cid", async (req, res) => {
 //Ruta para que cuando cargue la app, login sea lo 1° que aparezca
 router.get("/", (req, res) => {
   return res.redirect("/login");
-})
-
+});
 
 //Ruta para Login
 router.get("/login", (req, res) => {
   //Validación para chequear si el usuario está logueado, si es así, redirije a la vista de products
-  if (req.session.login) {
+  if (req.user) {
     return res.redirect("/products");
   }
   res.render("login");
@@ -142,21 +150,31 @@ router.get("/login", (req, res) => {
 //Ruta para Form de Register
 router.get("/register", (req, res) => {
   //Validación para chequear si el usuario está logueado, si es asi, redirijo al perfil
-  if (req.session.login) {
+  if (req.user) {
     return res.redirect("/profile");
   }
   res.render("register");
 });
 
-//Ruta para Profile
-router.get("/profile", (req, res) => {
-  //Validación para restringir el acceso a mi perfil
-  if (!req.session.login) {
-    //Redirijo al form de login, si no está logueado
-    return res.redirect("/login");
-  } else {
-    res.render("profile");
+//Ruta protegida por JWT para Profile
+router.get(
+  "/profile",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      // Verifico si el usuario está autenticado
+      if (!req.user) {
+        // Si no está autenticado, redirijo a Login
+        return res.redirect("/login");
+      }
+      //Guardo la información del usuario
+      const user = await UserModel.findById(req.user._id).lean();
+
+      res.render("profile", { user });
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
+    }
   }
-});
+);
 
 module.exports = router;

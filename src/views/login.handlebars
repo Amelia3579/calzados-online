@@ -9,17 +9,17 @@
 
 <div class="separator">
   <span class="line"></span>
-  <span class="letter">O Your </span>
+  <span class="letter"> O </span>
   <span class="line"></span>
 </div>
 
 <form class="form" action="/api/sessions/login" method="POST">
 
   <label for="email"> Email </label>
-  <input type="email" name="email" required />
+  <input type="email" id="email" name="email" required autocomplete="off" />
 
   <label for="password"> Password </label>
-  <input type="text" name="password" required />
+  <input type="text" id="password" name="password" required autocomplete="off"/>
 
   <button class="btnLogin" type="submit"> Login </button>
   <button id="btnRegister"> Register </button>

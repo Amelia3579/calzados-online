@@ -16,7 +16,6 @@ const userSchema = new mongoose.Schema({
     index: true, //es index porque tengo que consultar el usuario por el email y así encontrar más rápido los datos
     unique: true,
   },
-
   password: {
     type: String,
     // required: true,
@@ -25,6 +24,10 @@ const userSchema = new mongoose.Schema({
     type: Number,
     // required: true,
   },
+  // cart: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "carts",
+  // },
   role: {
     type: String,
     enum: ["admin", "usuario"],

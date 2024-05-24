@@ -1,12 +1,11 @@
 {{#if user}}
   <header>
-    <p> Bienvenido {{ user.first_name }} {{user.last_name}}</p>
+    <p> Bienvenido {{user.first_name}} {{user.last_name}}</p>
     <p> Role: {{user.role}} </p>
-    <a href="/api/sessions/logout"> Close Session </a>
+    <a href="/api/products/logout"> Logout </a>
   </header>
 
 {{/if}}
-
 
 <hr />
 

@@ -3,9 +3,11 @@ const exphbs = require("express-handlebars");
 const socket = require("socket.io");
 const app = express();
 const session = require("express-session");
+const cookieParser = require("cookie-parser");
 const MongoStore = require("connect-mongo");
 const passport = require("passport");
-const initializePassport = require("./config/passport.config.js");
+const jwt = require("passport-jwt");
+const {initializePassport} = require("./config/passport.config.js");
 const PUERTO = 8080;
 const database = require("./database.js");
 
@@ -21,6 +23,7 @@ const sessionsRouter = require("./routes/sessions.router.js");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("./src/public"));
+app.use(cookieParser());
 app.use(
   session({
     secret: "secretPass",
@@ -33,6 +36,7 @@ app.use(
     }),
   })
 );
+
 //Middleware Passport
 app.use(passport.initialize());
 app.use(passport.session());
@@ -49,6 +53,7 @@ app.use("/api/carts", cartsRouter);
 app.use("/", viewsRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/sessions", sessionsRouter);
+
 
 const httpServer = app.listen(PUERTO, () => {
   console.log(`Servidor express en el puerto http://localhost:${PUERTO}`);

@@ -1,3 +1,4 @@
-<h1> Ingresaste </h1>
-
-<a href="/api/sessions/logout"> Close Session </a>
+<h1> Bienvenid@ {{user.first_name}} </h1>
+<form action="/api/sessions/logout" method="POST">
+  <button type="submit"> Logout </button>
+</form>

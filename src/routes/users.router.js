@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
-// const UserModel = require("../models/user.model.js");
-// const { createHash } = require("../utils/hashbcrypt.js");
+const UserModel = require("../models/user.model.js");
+const { createHash } = require("../utils/hashbcrypt.js");
 const passport = require("passport");
+const jwt = require("jsonwebtoken");
 
 //Ruta para generar un usuario y almacenarlo en MongoDB
 // router.post("/", async (req, res) => {
@@ -42,28 +43,84 @@ const passport = require("passport");
 
 //Ruta versión para Passport
 //(Estrategia Local)
-router.post(
-  "/",
-  passport.authenticate("register", {
-    failureRedirect: "/failedregister",
-  }),
-  async (req, res) => {
-    if (!req.user) {
-      return res.status(400).send("Las credenciales son inválidas");
-    }
-    req.session.user = {
-      first_name: req.user.first_name,
-      last_name: req.user.last_name,
-      age: req.user.age,
-      email: req.user.email,
-    };
-    req.session.login = true;
-    res.redirect("/profile");
-  }
-);
+// router.post(
+//   "/",
+//   passport.authenticate("register", {
+//     failureRedirect: "/failedregister",
+//   }),
+//   async (req, res) => {
+//     if (!req.user) {
+//       return res.status(400).send("Las credenciales son inválidas");
+//     }
+//     req.session.user = {
+//       first_name: req.user.first_name,
+//       last_name: req.user.last_name,
+//       age: req.user.age,
+//       email: req.user.email,
+//       id: req.user._id,
+//       cart: req.user.cart,
+//     };
+//     req.session.login = true;
+//     res.redirect("/profile");
+//   }
+// );
 
-router.get("/failedregister", (req, res) => {
-  res.send("Registro fallido");
+// router.get("/failedregister", (req, res) => {
+//   res.send("Registro fallido");
+// });
+
+//Ruta para JWT
+router.post("/", async (req, res) => {
+  const { first_name, last_name, email, password, age } = req.body;
+
+  try {
+    //Verifico si el user ya existe
+    const existUser = await UserModel.findOne({ email: email });
+
+    if (existUser) {
+      return res.status(400).send("El usuario ingresado ya existe");
+    }
+
+    //Defino el rol de usuario y admin
+    const role = email === "adminapp@gmail.com" ? "admin" : "usuario";
+
+    //Si el usuario no existe, lo creo
+    const newUser = new UserModel({
+      first_name,
+      last_name,
+      email,
+      password: createHash(password),
+      age,
+      role,
+    });
+
+    //Lo guardo en la base de datos
+    await newUser.save();
+
+    //Genero el token
+    const token = jwt.sign(
+      {
+        id: newUser._id,
+        email: newUser.email,
+        role: newUser.role,
+      },
+      "secretWord",
+      { expiresIn: "1h" }
+    );
+
+    //Establezco el token como cookie en el servidor
+    res.cookie("cookieToken", token, {
+      //Configuro 1 hora de vida para el token
+      maxAge: 3600000,
+      //Restrinjo el acceso a una petición http
+      httpOnly: true,
+    });
+
+    //Cuando termine la operación de registro, se redirige a profile
+    res.redirect("/profile");
+  } catch (error) {
+    return res.status(500).send({ message: error.message });
+  }
 });
 
 module.exports = router;
