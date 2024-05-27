@@ -1,8 +1,10 @@
 {{#if user}}
   <header>
-    <p> Bienvenido {{user.first_name}} {{user.last_name}}</p>
+    <p> Bienvenid@ {{user.first_name}} {{user.last_name}}</p>
     <p> Role: {{user.role}} </p>
-    <a href="/api/products/logout"> Logout </a>
+    <form action="/api/sessions/logout" method="POST">
+      <button type="submit">Log Out</button>
+    </form>
   </header>
 
 {{/if}}

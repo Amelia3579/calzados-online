@@ -6,6 +6,7 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const MongoStore = require("connect-mongo");
 const passport = require("passport");
+
 const jwt = require("passport-jwt");
 const {initializePassport} = require("./config/passport.config.js");
 const PUERTO = 8080;

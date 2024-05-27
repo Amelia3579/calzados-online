@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const UserModel = require("../models/user.model.js");
+const CartModel = require("../models/cart.model.js");
 const { createHash } = require("../utils/hashbcrypt.js");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
@@ -70,6 +71,7 @@ const jwt = require("jsonwebtoken");
 // });
 
 //Ruta para JWT
+
 router.post("/", async (req, res) => {
   const { first_name, last_name, email, password, age } = req.body;
 
@@ -81,10 +83,12 @@ router.post("/", async (req, res) => {
       return res.status(400).send("El usuario ingresado ya existe");
     }
 
+    //Si no existe, creo un usuario nuevo, al cual se asociará un nuevo carrito
+    let newCart = await CartModel.create({ products: [] });
+
     //Defino el rol de usuario y admin
     const role = email === "adminapp@gmail.com" ? "admin" : "usuario";
 
-    //Si el usuario no existe, lo creo
     const newUser = new UserModel({
       first_name,
       last_name,
@@ -92,6 +96,8 @@ router.post("/", async (req, res) => {
       password: createHash(password),
       age,
       role,
+      //Al nuevo usuario, vinculo el id del carrito nuevo
+      cart: newCart._id,
     });
 
     //Lo guardo en la base de datos
@@ -117,7 +123,7 @@ router.post("/", async (req, res) => {
     });
 
     //Cuando termine la operación de registro, se redirige a profile
-    res.redirect("/profile");
+    res.redirect("/api/sessions/profile");
   } catch (error) {
     return res.status(500).send({ message: error.message });
   }

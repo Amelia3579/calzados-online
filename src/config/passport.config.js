@@ -23,19 +23,17 @@ const initializePassport = () => {
     new JWTStrategy(
       {
         //Paso objeto de configuración
+        //Extraigo el token de la solicitud para verificarlo, si es válido busco el usuario correspondiente
         jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
         secretOrKey: "secretWord",
-
-        //Función cb para recuperar la data del usuario (payload)
       },
+      //Función cb para recuperar la data del usuario (payload)
       async (jwt_payload, done) => {
-        ///////////////////////////////////
-        console.log("JWT payload:", jwt_payload);
         try {
           const user = await UserModel.findById(jwt_payload.id).lean();
 
           if (user) {
-            //Si tengo la data, la retorno
+            //Si el usuario es válido, retorno la data
             return done(null, user);
           } else {
             return done(null, false);
@@ -59,52 +57,65 @@ const cookieExtractor = (req) => {
   return token;
 };
 
-// //Estrategia para Github
-// passport.use(
-//   "github",
-//   new GitHubStrategy(
-//     {
-//       clientID: "Iv23licrAjJXehMHsWyb",
-//       clientSecret: "e2f9c742ad7fdf4bf5ccc11c192e8a8ed5312d17",
-//       callbackURL: "http://localhost:8080/api/sessions/githubcallback",
-//     },
-//     async (accessToken, refreshToken, profile, done) => {
-//       //Datos del perfil
-//       console.log("Profile:", profile);
+//Estrategia para Github
+passport.use(
+  "github",
+  new GitHubStrategy(
+    {
+      clientID: "Iv23licrAjJXehMHsWyb",
+      clientSecret: "e2f9c742ad7fdf4bf5ccc11c192e8a8ed5312d17",
+      callbackURL: "http://localhost:8080/api/sessions/githubcallback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      //Datos del perfil
+      console.log("Profile:", profile);
 
-//       try {
-//         let userGith = await UserModel.findOne({
-//           email: profile._json.email,
-//         });
+      try {
+        /////////////////////////
+        console.log("Access Token:", accessToken);
+        console.log("Profile:", profile);
 
-//         if (!userGith) {
-//           let newUser = {
-//             first_name: profile._json.name,
-//             last_name: "",
-//             age: 47,
-//             email: profile._json.email,
-//             password: "",
-//           };
+        let userGith = await UserModel.findOne({
+          email: profile._json.email,
+        });
 
-//           //Guardo en MongoDB
-//           let result = await UserModel.create(newUser);
-//           done(null, result);
-//         } else {
-//           //Envío el usuario
-//           done(null, userGith);
-//         }
-//       } catch (error) {
-//         return done(error);
-//       }
-//     }
-//   )
-// );
+        if (!userGith) {
+          let newUser = {
+            first_name: profile._json.name,
+            last_name: "",
+            age: 47,
+            email: profile._json.email,
+            password: "",
+          };
 
+          //Guardo en MongoDB
+          let result = await UserModel.create(newUser);
+          done(null, result);
+        } else {
+          //Envío el usuario
+          done(null, userGith);
+        }
+      } catch (error) {
+        console.error("Error during GitHub authentication:", error);
+        return done(error);
+      }
+    }
+  )
+);
 
+// Serialización y deserialización de usuario
+passport.serializeUser((user, done) => {
+  done(null, user._id);
+});
 
-
-
-
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await UserModel.findById(id).lean();
+    done(null, user);
+  } catch (error) {
+    done(error);
+  }
+});
 
 // //Estrategia para registro
 // passport.use(
@@ -188,7 +199,4 @@ const cookieExtractor = (req) => {
 //   done(null, userDes);
 // });
 
-
-
-module.exports = {initializePassport};
-
+module.exports = { initializePassport };

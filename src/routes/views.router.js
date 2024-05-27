@@ -63,6 +63,7 @@ router.get("/products", authenticateJWT, async (req, res) => {
         doc.toObject({ getters: false })
       );
     }
+
     //Guardo la información del usuario
     const user = req.user;
 
@@ -133,21 +134,21 @@ router.get("/carts/:cid", async (req, res) => {
   }
 });
 
-//Ruta para que cuando cargue la app, login sea lo 1° que aparezca
+//Ruta para que cuando cargue la app, Login sea lo 1° que aparezca
 router.get("/", (req, res) => {
   return res.redirect("/login");
 });
 
 //Ruta para Login
 router.get("/login", (req, res) => {
-  //Validación para chequear si el usuario está logueado, si es así, redirije a la vista de products
+  //Validación para chequear si el usuario está logueado, si es así, redirije a la ruta de products
   if (req.user) {
     return res.redirect("/products");
   }
   res.render("login");
 });
 
-//Ruta para Form de Register
+//Ruta para Register
 router.get("/register", (req, res) => {
   //Validación para chequear si el usuario está logueado, si es asi, redirijo al perfil
   if (req.user) {
@@ -156,25 +157,26 @@ router.get("/register", (req, res) => {
   res.render("register");
 });
 
-//Ruta protegida por JWT para Profile
-router.get(
-  "/profile",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    try {
-      // Verifico si el usuario está autenticado
-      if (!req.user) {
-        // Si no está autenticado, redirijo a Login
-        return res.redirect("/login");
-      }
-      //Guardo la información del usuario
-      const user = await UserModel.findById(req.user._id).lean();
+//Ruta para Profile(protegida por jwt)- Ruta Current
+// router.get(
+//   "/profile",
+//   passport.authenticate("jwt", { session: false }),
+//   async (req, res) => {
+//     console.log("Middleware de Passport JWT ejecutándose...");
+//     try {
+//       // Verifico si el usuario está autenticado
+//       if (!req.user) {
+//         // Si no está autenticado, redirijo a Login
+//         return res.redirect("/login");
+//       }
+//       //Guardo la información del usuario
+//       const user = await UserModel.findById(req.user._id).lean();
 
-      res.render("profile", { user });
-    } catch (error) {
-      return res.status(500).send({ message: error.message });
-    }
-  }
-);
+//       res.render("profile", { user });
+//     } catch (error) {
+//       return res.status(500).send({ message: error.message });
+//     }
+//   }
+// );
 
 module.exports = router;

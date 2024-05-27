@@ -4,6 +4,7 @@ const UserModel = require("../models/user.model.js");
 const { isValidPassword } = require("../utils/hashbcrypt.js");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
+
 //Ruta para Login
 // router.post("/login", async (req, res) => {
 //   const { email, password } = req.body;
@@ -66,20 +67,17 @@ const jwt = require("jsonwebtoken");
 // });
 
 //Ruta versión para Github
+
 router.get(
   "/github",
-  passport.authenticate("github", { scope: ["user:email"] }),
-  async (req, res) => {}
+  passport.authenticate("github", { scope: ["user:email"] })
 );
 
 router.get(
   "/githubcallback",
-  passport.authenticate("github", { failureRedirec: "/login" }),
+  passport.authenticate("github", { failureRedirect: "./login" }),
   async (req, res) => {
-    //Esta estrategia nos retornará el usuario, entonces los agrego a mi objeto de session
-    req.session.user = req.user;
-    req.session.login = true;
-    res.redirect("/profile");
+    res.redirect("./profile");
   }
 );
 
@@ -90,7 +88,6 @@ router.post("/login", async (req, res) => {
   try {
     //Verifico si el user ya existe en la base de datos
     const userFound = await UserModel.findOne({ email }).lean();
-
     if (!userFound) {
       return res.status(401).send("El usuario no fue encontrado");
     }
@@ -102,7 +99,7 @@ router.post("/login", async (req, res) => {
 
     //Si la contraseña es correcta, genero el token
     const token = jwt.sign(
-      { id: userFound._id, email: userFound.email },
+      { id: userFound._id, email: userFound.email, role: userFound.role },
       "secretWord",
       {
         expiresIn: "1h",
@@ -116,13 +113,62 @@ router.post("/login", async (req, res) => {
       //Restrinjo el acceso a una petición http
       httpOnly: true,
     });
-    //Cuando termine la operación de registro, se redirige a profile
-    res.redirect("/products");
+
+    //Cuando termine la operación de registro, se verifica el role
+    if (userFound.role !== "admin") {
+      return res.redirect("/products");
+    }
+
+    return res.redirect("./admin");
   } catch (error) {
     return res.status(500).send({ message: error.message });
   }
 });
 
+//Ruta para Profile(protegida por jwt)- Ruta Current
+router.get(
+  "/profile",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    
+    try {
+      // Verifico si el usuario está autenticado
+      if (!req.user) {
+        // Si no está autenticado, redirijo a Login
+        return res.redirect("/login");
+      }
+      //Si es un usuario registrado, guardo su información
+      const user = await UserModel.findById(req.user._id).lean();
+
+      res.render("profile", { user });
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
+    }
+  }
+);
+
+//Ruta para Admin
+router.get(
+  "/admin",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    const user = await UserModel.findById(req.user._id).lean();
+
+    try {
+      if (user.role === "admin") {
+        return res.render("admin", { user });
+      } else {
+        return res
+          .status(403)
+          .send(
+            "Uups, lo siento! Te faltan los permisos correspondientes para el acceso."
+          );
+      }
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
+    }
+  }
+);
 //Ruta para Logout
 router.post("/logout", (req, res) => {
   //Limpio la cookie del Token
