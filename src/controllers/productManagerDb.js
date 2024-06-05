@@ -1,9 +1,14 @@
+// const ProductModel = require("../models/product.model.js");
+const productRepository = require("../services/index.js");
 const mongoose = require("mongoose");
-const ProductModel = require("../models/product.model.js");
 
 class ProductManager {
-  async addProduct(product) {
+  //Método para agregar producto
+  async addProduct(req, res) {
     try {
+      //Capturo datos que vienen del body
+      const addProductBody = req.body;
+
       const {
         title,
         description,
@@ -14,33 +19,36 @@ class ProductManager {
         img,
         category,
         status,
-      } = product;
+      } = addProductBody;
 
       //Validación para que el producto quede ingresado una vez completos todos los campos
       if (
-        title === "" ||
-        description === "" ||
-        price === 0 ||
-        thumbnail === "" ||
-        code === 0 ||
-        stock === 0 ||
-        img === "" ||
-        category === "" ||
-        status === ""
+        !title ||
+        !description ||
+        !price ||
+        !thumbnail ||
+        !code ||
+        !stock ||
+        !img ||
+        !category ||
+        status === undefined
       ) {
-        throw new Error(
-          "Para que el producto quede agregado, todos los campos tienen que estar completos"
-        );
+        return res.send({
+          message:
+            "Para que el producto quede agregado, todos los campos tienen que estar completos",
+        });
       }
 
       //Validación para buscar código de producto
-      const existProduct = await ProductModel.findOne({ code: code });
+      const existProduct = await productRepository.findOne({ code: code });
 
       if (existProduct) {
-        throw new Error(`El código ${code} del producto ya está ingresado.`);
+        return res.send({
+          message: `El código ${code} del producto ya está ingresado.`,
+        });
       }
 
-      const newProduct = new ProductModel({
+      const newProduct = await productRepository.addProduct({
         title,
         description,
         price,
@@ -52,92 +60,186 @@ class ProductManager {
         status: true,
       });
 
-      await newProduct.save();
-      console.log("Producto agregado correctamente: ", newProduct);
+      return res.json({
+        message: `Producto agregado correctamente: ${newProduct}`,
+      });
     } catch (error) {
-      throw new Error(`Error al agregar el producto: ${error.message}`);
+      return res.status(500).send({ message: error.message });
     }
   }
 
-  //Método para mostrar los productos
-  async getProducts() {
+  //Método para mostrar producto según limit, page, query y sort especificados
+  async getProducts(req, res) {
     try {
-      const products = await ProductModel.find().lean();
-    console.log(products)
-      // return products;
+      const limit = req.query.limit || 10;
+      const page = req.query.page || 1;
+      const query = req.query.category;
+      const sort =
+        req.query.sort === "1" ? 1 : req.query.sort === "-1" ? -1 : 0;
+
+      //Defino opciones para sort
+      const sortOption = {};
+      if (sort !== 0) {
+        sortOption.price = sort;
+      }
+
+      const options = {
+        limit,
+        page,
+        sort: sortOption,
+      };
+
+      let availableProd;
+      //Validación para recibir query
+      if (query) {
+        availableProd = await productRepository.getPaginate(query, options);
+        //Si no recibo query, brindo la paginación teniendo en cuenta todas las categorías
+      } else {
+        availableProd = await productRepository.getPaginate({}, { options });
+      }
+
+      //Recibo los docs y los mapeo para que me brinde la información (en reemplazo del método .lean())
+      availableProd.docs = availableProd.docs.map((doc) =>
+        doc.toObject({ getters: false })
+      );
+
+      //Guardo la información del usuario
+      const user = req.user;
+
+      res.render("home", {
+        products: availableProd.docs,
+        totalDocs: availableProd.totalDocs,
+        limit: availableProd.limit,
+        totalPages: availableProd.totalPages,
+        page: availableProd.page,
+        pagingCounter: availableProd.pagingCounter,
+        currentPage: availableProd.page,
+        hasPrevPage: availableProd.hasPrevPage,
+        hasNextPage: availableProd.hasNextPage,
+        prevPage: availableProd.prevPage,
+        nextPage: availableProd.nextPagePage,
+        user: user,
+      });
     } catch (error) {
-      throw new Error(`Error al mostrar los productos: ${error.message}`);
+      return res.status(500).send({ message: error.message });
     }
   }
 
-  //Método para buscar producto por id
-  async getProductById(id) {
+  //Método para mostrar producto por id
+  async getProductById(req, res) {
     try {
-      const searchId = await ProductModel.findById(id);
+      const productId = req.params.id;
+      const searchId = await productRepository.findById(productId);
 
       if (!searchId) {
-        console.log(`El producto con el ID: ${id} no fue encontrado.`);
-        return null;
+        return res.send({
+          message: `Producto con el ${productId} no fue encontrado.`,
+        });
       } else {
-        console.log(`El producto con el ID: ${id} fue encontrado.`);
-        return searchId;
+        return res.json({
+          message: `El producto fue encontrado: ${searchId}`,
+        });
       }
     } catch (error) {
-      throw new Error(`Error al buscar el producto: ${error.message}`);
+      return res.status(500).send({ message: error.message });
     }
   }
 
   //Método para actualizar el producto según el ID especificado
-  async updateProduct(id, updatedProduct) {
+  async updateProduct(req, res) {
     try {
-      const updateProd = await ProductModel.findByIdAndUpdate(
-        id,
-        updatedProduct
+      const productId = req.params.id;
+      const putProductBody = req.body;
+
+      // Validación para verificar si existe  el producto con el ID especificado
+      const productExists = await productRepository.findByIdAndUpdate(
+        productId,
+        putProductBody
       );
 
-      if (!updateProd) {
-        console.log(`El producto con el ID: ${id} no fue encontrado.`);
-        return null;
+      if (!productExists) {
+        return res.send({
+          message: `El producto con el ID ${productId} no fue encontrado. Verificar el identificador ingresado.`,
+        });
       } else {
-        console.log(`El producto con el ID: ${id} fue actualizado.`);
-        return updateProd;
+        return res.json({
+          message: `El producto con el ID: ${productId} fue actualizado correctamente.`,
+        });
       }
     } catch (error) {
-      throw new Error(`Error al actualizar el producto: ${error.message}`);
+      return res.status(500).send({ message: error.message });
     }
   }
 
-  //Método para verificar si existe el producto con el ID especificado
-  async productExists(id) {
+  //Método para eliminar producto según ID especificado
+  async deleteProduct(req, res) {
     try {
-      const searchId = await ProductModel.findById(id);
+      const productId = req.params.id;
+      const putProductBody = req.body;
 
-      if (searchId) {
-        return true;
+      // Validación para verificar si existe  el producto con el ID especificado
+      const productExists = await productRepository.findByIdAndDelete(
+        productId,
+        putProductBody
+      );
+
+      if (!productExists) {
+        return res.send({
+          message: `El producto con el ID: ${productId} no fue encontrado. Verificar el identificador ingresado.`,
+        });
       } else {
-        return false;
+        return res.json({
+          message: `El producto con el ID: ${productId} fue eliminado.`,
+        });
       }
     } catch (error) {
-      throw new Error(`Error al buscar el producto: ${error.message}`);
+      return res.status(500).send({ message: error.message });
     }
   }
 
-  //Método para eliminar el producto según el ID especificado
-  async deleteProduct(id) {
+  //Lógica para realtimeproduct.handlebars y Websocket
+  
+  //Función para realtimeproduct.handlebars
+  getRealTimeProducts(req, res) {
     try {
-      const deleteProd = await ProductModel.findByIdAndDelete(id);
-
-      if (!deleteProd) {
-        console.log(`El producto con el ID: ${id} no fue encontrado.`);
-        return null;
-      } else {
-        console.log(`El producto con el ID: ${id} fue eliminado`);
-        return deleteProd;
-      }
+      return res.render("realtimeproducts");
     } catch (error) {
-      throw new Error(`Error al buscar el producto: ${error.message}`);
+      return console.log(
+        "Error al mostrar el formulario para agregar productos"
+      );
+    }
+  }
+
+  //Método para mostrar productos usando Socket
+  async getAllProducts() {
+    try {
+      const products = await ProductModel.find().lean();
+      return products;
+    } catch (error) {
+      console.log("Error al obtener productos", error);
+      return [];
+    }
+  }
+
+  //Método para agregar productos usando Socket
+  async addP(product) {
+    try {
+      await ProductModel.create(product);
+    } catch (error) {
+      console.log("Error al agregar producto", error);
+    }
+  }
+
+  //Método para eliminar productos usando Socket
+  async deleteP(id) {
+    try {
+      await ProductModel.findByIdAndDelete(id);
+    } catch (error) {
+      console.log("Error al eliminar producto", error);
     }
   }
 }
+
+/////////////////////////////////////////////
 
 module.exports = ProductManager;

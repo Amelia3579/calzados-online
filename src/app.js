@@ -5,10 +5,14 @@ const app = express();
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const MongoStore = require("connect-mongo");
+const mongoose = require("mongoose");
 const passport = require("passport");
+const configObject = require("./config/config.js");
+
+const { mongo_url, puerto } = configObject;
 
 const jwt = require("passport-jwt");
-const {initializePassport} = require("./config/passport.config.js");
+const { initializePassport } = require("./config/passport.config.js");
 const PUERTO = 8080;
 const database = require("./database.js");
 
@@ -18,6 +22,8 @@ const cartsRouter = require("./routes/carts.router.js");
 const viewsRouter = require("./routes/views.router.js");
 const usersRouter = require("./routes/users.router.js");
 const sessionsRouter = require("./routes/sessions.router.js");
+
+
 
 //Middleware
 //Indico al servidor que voy a trabajar con JSON y datos complejos
@@ -33,7 +39,7 @@ app.use(
     store: MongoStore.create({
       mongoUrl:
         "mongodb+srv://meligallegos:Paranaer1979@cluster0.kvvktyg.mongodb.net/Ecommerce?retryWrites=true&w=majority&appName=Cluster0",
-      ttl: 100,
+        ttl: 100,
     }),
   })
 );
@@ -55,40 +61,48 @@ app.use("/", viewsRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/sessions", sessionsRouter);
 
-
-const httpServer = app.listen(PUERTO, () => {
-  console.log(`Servidor express en el puerto http://localhost:${PUERTO}`);
+const httpServer = app.listen(puerto, () => {
+  console.log(`Servidor express en el puerto http://localhost:${puerto}`);
 });
+
+//Me conecto MongoDB usando .env
+mongoose
+  .connect(mongo_url)
+  .then(() => console.log("Conección a MongoDB"))
+  .catch((error) => console.log("Error de conección", error));
+
+
 
 //Configuro instancia de Socket.io del lado del servidor (desafío 4)
 const io = socket(httpServer);
 
-// const ProductManager = require("./controllers/productManager.js");
-// const prodTest = new ProductManager("./src/models/array-product.json");
+const ProductManager = require("./controllers/productManagerDb.js");
+const productTest = new ProductManager();
+const ProductModel = require("./models/product.model.js");
 
-// //Configuro para la vista de realtimeproducts.handlebars
-// io.on("connection", async (socket) => {
+//Configuración para realtimeproducts.handlebars
+io.on("connection", async (socket) => {
 
-//   //Envio el array de productos al cliente
-//   socket.emit("productos", await prodTest.readJson());
+  //Envio el array de productos al cliente
+  socket.emit("productos", await productTest.getAllProducts());
 
-//   //Recibo el evento "eliminarProducto" desde el cliente
-//   socket.on("eliminarProducto", async (id) => {
-//     await prodTest.deleteProduct(id);
+  //Recibo el evento "eliminarProducto" desde el cliente
+  socket.on("eliminarProducto", async (id) => {
+    await productTest.deleteP(id);
 
-//     //Envío el array actualizado
-//     socket.emit("productos", await prodTest.getProducts());
-//   });
+    //Envío el array actualizado
+    socket.emit("productos", await productTest.getAllProducts());
+  });
 
-//   //Recibo el evento "agregarProducto" desde el cliente
-//   socket.on("agregarProducto", async (producto) => {
-//     await prodTest.addProduct(producto);
-//     socket.emit("productos", await prodTest.getProducts());
-//   });
-// });
+  //Recibo el evento "agregarProducto" desde el cliente
+  socket.on("agregarProducto", async (producto) => {
+    await productTest.addP(producto);
+    socket.emit("productos", await productTest.getAllProducts());
+  });
+});
 
 //Actividad desafío complementario
-//Configuro para la vista de chat.handlebars
+//Configuración para chat.handlebars
 const MessageModel = require("./models/message.model.js");
 
 io.on("connection", (socket) => {

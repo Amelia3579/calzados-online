@@ -1,57 +1,82 @@
-//Actividades del desafío complementario
 const CartModel = require("../models/cart.model.js");
-const { id } = require("./cartManager.js");
+const ProductModel = require("../models/product.model.js");
+const mongoose = require("mongoose");
 
 class CartManager {
   //Método para crear carrito
-  async createCart() {
+  async createCart(req, res) {
     try {
       const newCart = new CartModel({ products: [] });
 
-      await newCart.save();
-      return newCart;
+      if (newCart) {
+        await newCart.save();
+        return res.json({
+          message: `El carrito ${newCart} fue generado.`,
+        });
+      } else {
+        res.send({
+          message:
+            "Error al generarse el carrito nuevo. Verificar la operación realizada para su generación.",
+        });
+      }
     } catch (error) {
-      throw new Error(`Error al crear un nuevo carrito: ${error.message}`);
+      return res.status(500).send({ message: error.message });
     }
   }
 
   //Método para listar carritos creados
-  async getCart() {
+  async getCart(req, res) {
     const cart = await CartModel.find();
 
     try {
       if (!cart) {
-        console.log("Los carritos no pueden ser mostrados.");
+        res.send({
+          message:
+            "No se puede mostrar los carritos. Verificar la operación realizada.",
+        });
+
         return null;
       } else {
-        console.log("Los carritos fueron listados exitosamente");
-        return cart;
+        return res.send(JSON.stringify(cart, null, 2));
       }
     } catch (error) {
-      throw new Error(`Error al crear un nuevo carrito: ${error.message}`);
+      return res.status(500).send({ message: error.message });
     }
   }
 
-  //Método para listar productos del carrito según el ID especificado
-  async getCartById(cartId) {
+  //Método para listar productos del carrito según el ID especificado, con renderizado de cart.handlebars
+  async getCartById(req, res) {
     try {
-      const cart2 = await CartModel.findById(cartId);
+      const cartId = req.params.cid;
+      const cart = await CartModel.findById(cartId).populate(
+        "products.product"
+      );
 
-      if (!cart2) {
-        console.log(`El carrito con el ID: ${id} no fue encontrado.`);
-        return null;
+      if (!cart) {
+        return res.send({
+          message: `Error al mostrar el carrito con el ID: ${cartId}.`,
+        });
       } else {
-        console.log(`El carrito con el ID: ${id} fue encontrado.`);
-        return cart2;
+        const products = await Promise.all(
+          cart.products.map(async (elem) => {
+            const product = await ProductModel.findById(elem.product).lean();
+            return { ...elem, product };
+          })
+        );
+        res.render("cart", { products });
       }
     } catch (error) {
-      throw new Error(`Error al crear un nuevo carrito: ${error.message}`);
+      return res.status(500).send({ message: error.message });
     }
   }
 
   //Método para agregar productos al carrito, según el ID especificado de ambos items
-  async addProdCart(cartId, prodId, quantity = 1) {
+  async addProductToCart(req, res) {
     try {
+      const cartId = req.params.cid;
+      const prodId = req.params.pid;
+      const quantity = req.body.quantity || 1;
+
       const cart = await CartModel.findById(cartId);
       const existProduct = cart.products.find(
         (elem) => elem.product.toString() === prodId
@@ -67,22 +92,23 @@ class CartManager {
       cart.markModified("products");
 
       await cart.save();
-      return cart;
+      return res.send(JSON.stringify(cart, null, 2));
     } catch (error) {
-      throw new Error(
-        `Error al agregar el producto con el ID: ${prodId} al carrito ID:  ${cartId}: ${error.message}`
-      );
+      return res.status(500).send({ message: error.message });
     }
   }
 
-  //Método para eliminar al producto según el ID especificado
-  async deleteProduct(cartId, prodId) {
+  //Método para eliminar productos del carrito, según el ID especificado de ambos items
+  async deleteProduct(req, res) {
     try {
+      const cartId = req.params.cid;
+      const prodId = req.params.pid;
+
       const cart = await CartModel.findById(cartId);
 
       // Validación para verificar si existe el carrito con el ID especificado
       if (!cart) {
-        console.log("El carrito no fue encontrado.");
+        res.send(`El carrito con el ID: ${cartId} no fue encontrado`);
         return null;
       }
 
@@ -92,101 +118,133 @@ class CartManager {
       );
 
       if (existProduct === -1) {
-        console.log("El producto ingresado no se encontró en el carrito.");
+        res.send(`El producto con el ID: ${prodId} no fue encontrado`);
         return null;
       }
 
-      // Elimino el producto del array de productos del carrito
-      cart.products.splice(existProduct, 1);
+      // Si la cantidad es mayor a 1, descuento en 1 el producto
+      if (cart.products[existProduct].quantity > 1) {
+        cart.products[existProduct].quantity -= 1;
+      } else {
+        // Si la cantidad es 1, elimino el producto del array
+        cart.products.splice(existProduct, 1);
+      }
 
       // Guardo los cambios en MongoDB
       await cart.save();
-
-      console.log(
-        `El producto con el ID: ${prodId} fue eliminado del carrito.`
-      );
-      return cart;
+      return res.json({
+        message: `El producto con el ID: ${prodId} fue eliminado exitosamente del carrito ${cartId}`,
+        cart,
+      });
     } catch (error) {
-      throw new Error(`Error al eliminar el producto: ${error.message}`);
+      return res.status(500).send({ message: error.message });
     }
   }
 
   //Método para actualizar carrito, según el ID especificado
-  async updateProd(cartId, updatedProduct) {
+  async updateProduct(req, res) {
     try {
-      // const cart = await CartModel.findById(cartId);
-      const updateProd = await CartModel.findByIdAndUpdate(
-        cartId,
-        { $push: { products: updatedProduct } },
-        { new: true }
+      const cartId = req.params.cid;
+      const updatedProducts = req.body;
+
+      const cart = await CartModel.findById(cartId);
+
+      // Validación para verificar si existe el carrito con el ID especificado
+      if (!cart) {
+        res.send(`El carrito con el ID: ${cartId} no fue encontrado.`);
+        return null;
+      }
+
+      // Validación para verificar si existe el producto en el carrito, según el ID especificado
+      const existProduct = cart.products.findIndex(
+        (item) => item.product.toString() === updatedProducts.product
       );
 
-      if (!updateProd) {
-        console.log(`El carrito con el ID: ${cartId} no fue encontrado.`);
-        return null;
+      if (existProduct !== -1) {
+        // Si el producto existe, actualizo su cantidad
+        cart.products[existProduct].quantity = updatedProducts.quantity;
       } else {
-        console.log("El carrito fue actualizado correctamente.");
-        return updateProd;
+        // Si el producto no existe, lo agrego al carrito
+        cart.products.push({ product, quantity });
       }
+
+      // Guardo los cambios en MongoDB
+      await cart.save();
+
+      return res.json({
+        message: `El carrito ${cartId} fue actualizado exitosamente`,
+        products: cart.products,
+      });
     } catch (error) {
-      throw new Error(`Error al actualizar el carrito: ${error.message}`);
+      return res.status(500).send({ message: error.message });
     }
   }
 
-  //Método para la cantidad de productos de un carrito, según el ID especificado
-  async updateProd(cartId, prodId, quantity) {
+  //Método para actualizar la cantidad de productos de un carrito, según el ID especificado
+  async updateProductDos(req, res) {
     try {
+      const cartId = req.params.cid;
+      const prodId = req.params.pid;
+      const quantity = req.body.quantity;
+
+      // Validación para verificar si existe el carrito con el ID especificado
       const cart = await CartModel.findById(cartId);
 
       if (!cart) {
         console.log(`El carrito con el ID: ${cartId} no fue encontrado.`);
         return null;
       }
-      
-      const existProduct = cart.products.find(
-        (elem) => elem.product.toString() === prodId
+
+      // Validación para verificar si existe el producto con el ID especificado
+      const existProduct = cart.products.findIndex(
+        (item) => item.product.toString() === prodId
       );
 
-      if (!existProduct) {
-        console.log(`El producto con el ID: ${prodId} no fue encontrado.`);
+      if (existProduct !== -1) {
+        // Si el producto existe, actualizo su cantidad
+        cart.products[existProduct].quantity = quantity;
       } else {
-        existProduct.quantity = quantity;
+        // Si el producto no existe, lo agrego al carrito
+        cart.products.push({ prodId, quantity });
       }
 
       cart.markModified("products");
       await cart.save();
 
-      return cart;
+      return res.json({
+        message: `El carrito ${cartId} fue actualizado exitosamente`,
+        products: cart.products,
+      });
     } catch (error) {
-      throw new Error(`Error al actualizar el carrito: ${error.message}`);
+      return res.status(500).send({ message: error.message });
     }
   }
 
-  //Método para eliminar todos los productos del carrito, según el ID especificado
-  async deleteProd(cartId) {
+  //Método para eliminar productos del carrito, según el ID especificado
+  async deleteProductDos(req, res) {
     try {
+      const cartId = req.params.cid;
       const cart = await CartModel.findById(cartId);
 
       // Validación para verificar si existe el carrito con el ID especificado
       if (!cart) {
-        console.log("El carrito no fue encontrado.");
+        res.send(`El carrito con el ID: ${cartId} no fue encontrado.`);
         return null;
+      } else {
+        // Elimino los productos del array del carrito especificado
+        cart.products = [];
       }
-      // Elimino los productos del array del carrito especificado
-      cart.products = [];
 
       // Guardo los cambios en MongoDB
       await cart.save();
 
-      console.log(
-        `Los productos del carrito con el ID: ${cartId} fueron eliminados.`
-      );
-      return cart;
+      return res.json({
+        message: `El carrito con el ID: ${cartId} fue vaciado.`,
+        cart: cart.products,
+      });
     } catch (error) {
-      throw new Error(`Error al eliminar los productos: ${error.message}`);
+      return res.status(500).send({ message: error.message });
     }
   }
 }
-
-//Exporto la clase para que sea utilizada por app.js
 module.exports = CartManager;
