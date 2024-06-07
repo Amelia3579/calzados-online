@@ -1,20 +1,19 @@
-{{!-- Actividad 2° pre-entrega --}}
-<h1>Carrito de Compras</h1>
+{{! Actividad 2° pre-entrega }}
+<h1>Shopping Cart</h1>
 
 <div class="cardContainer">
   {{#each products}}
     <div class="card">
-      <p> Producto: {{product.title}}</p> 
-      <p> Cantidad: {{quantity}}</p>
-      <p> Precio: {{product.price}}</p> 
+      <p> Product: {{product.title}}</p>
+      <p> Quantity: {{quantity}}</p>
+      <p> Price: ${{product.price}}</p>
 
-      <button> Eliminar </button>
+      <button> Eliminate </button>
     </div>
 
     <div>
-      <button> Vaciar Carrito</button>
-      <p> Total de la compra: </p>
+      <button> Empty Cart </button>
+      <p> Total Purchase: </p>
     </div>
   {{/each}}
 </div>
-

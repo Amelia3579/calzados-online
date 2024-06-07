@@ -1,5 +1,4 @@
-// const ProductModel = require("../models/product.model.js");
-const productRepository = require("../services/index.js");
+const { productRepository } = require("../services/index.js");
 const mongoose = require("mongoose");
 
 class ProductManager {
@@ -33,17 +32,17 @@ class ProductManager {
         !category ||
         status === undefined
       ) {
-        return res.send({
+        return res.status(422).send({
           message:
             "Para que el producto quede agregado, todos los campos tienen que estar completos",
         });
       }
 
       //Validación para buscar código de producto
-      const existProduct = await productRepository.findOne({ code: code });
+      const searchedProduct = await productRepository.findOne({ code: code });
 
-      if (existProduct) {
-        return res.send({
+      if (searchedProduct) {
+        return res.status(409).send({
           message: `El código ${code} del producto ya está ingresado.`,
         });
       }
@@ -60,8 +59,10 @@ class ProductManager {
         status: true,
       });
 
-      return res.json({
-        message: `Producto agregado correctamente: ${newProduct}`,
+      return res.status(200).json({
+        success: true,
+        message: `El producto fue agregado exitosamente.`,
+        product: JSON.parse(JSON.stringify(newProduct, null, 2)),
       });
     } catch (error) {
       return res.status(500).send({ message: error.message });
@@ -129,15 +130,18 @@ class ProductManager {
   async getProductById(req, res) {
     try {
       const productId = req.params.id;
-      const searchId = await productRepository.findById(productId);
+      const searchedId = await productRepository.findById(productId);
 
-      if (!searchId) {
-        return res.send({
-          message: `Producto con el ${productId} no fue encontrado.`,
+      if (!searchedId) {
+        return res.status(404).send({
+          success: false,
+          message: `El producto con el ID: ${productId} no fue encontrado. Verificar el identificador ingresado.`,
         });
       } else {
-        return res.json({
-          message: `El producto fue encontrado: ${searchId}`,
+        return res.status(200).json({
+          success: true,
+          message: `El producto con el ID ${productId} fue encontrado.`,
+          product: JSON.parse(JSON.stringify(searchedId, null, 2)),
         });
       }
     } catch (error) {
@@ -152,18 +156,21 @@ class ProductManager {
       const putProductBody = req.body;
 
       // Validación para verificar si existe  el producto con el ID especificado
-      const productExists = await productRepository.findByIdAndUpdate(
+      const updatedProduct = await productRepository.findByIdAndUpdate(
         productId,
         putProductBody
       );
 
-      if (!productExists) {
-        return res.send({
-          message: `El producto con el ID ${productId} no fue encontrado. Verificar el identificador ingresado.`,
+      if (!updatedProduct) {
+        return res.status(404).send({
+          success: false,
+          message: `El producto con el ID: ${productId} no fue encontrado. Verificar el identificador ingresado.`,
         });
       } else {
-        return res.json({
-          message: `El producto con el ID: ${productId} fue actualizado correctamente.`,
+        return res.status(200).json({
+          success: true,
+          message: `El producto con el ID ${productId} fue actualizado correctamente.`,
+          product: JSON.parse(JSON.stringify(updatedProduct, null, 2)),
         });
       }
     } catch (error) {
@@ -175,21 +182,21 @@ class ProductManager {
   async deleteProduct(req, res) {
     try {
       const productId = req.params.id;
-      const putProductBody = req.body;
 
       // Validación para verificar si existe  el producto con el ID especificado
-      const productExists = await productRepository.findByIdAndDelete(
-        productId,
-        putProductBody
+      const deletedProduct = await productRepository.findByIdAndDelete(
+        productId
       );
 
-      if (!productExists) {
-        return res.send({
+      if (!deletedProduct) {
+        return res.status(404).send({
+          success: false,
           message: `El producto con el ID: ${productId} no fue encontrado. Verificar el identificador ingresado.`,
         });
       } else {
-        return res.json({
-          message: `El producto con el ID: ${productId} fue eliminado.`,
+        return res.status(200).json({
+          success: true,
+          message: `El producto con el ID ${productId} fue eliminado.`,
         });
       }
     } catch (error) {
@@ -198,48 +205,69 @@ class ProductManager {
   }
 
   //Lógica para realtimeproduct.handlebars y Websocket
-  
+
   //Función para realtimeproduct.handlebars
   getRealTimeProducts(req, res) {
     try {
       return res.render("realtimeproducts");
     } catch (error) {
-      return console.log(
-        "Error al mostrar el formulario para agregar productos"
-      );
-    }
-  }
-
-  //Método para mostrar productos usando Socket
-  async getAllProducts() {
-    try {
-      const products = await ProductModel.find().lean();
-      return products;
-    } catch (error) {
-      console.log("Error al obtener productos", error);
-      return [];
+      return res.status(500).send({ message: error.message });
     }
   }
 
   //Método para agregar productos usando Socket
-  async addP(product) {
+  async addProductSocket(product) {
     try {
-      await ProductModel.create(product);
+      const addedProduct = await productRepository.create(product);
+
+      if (!addedProduct) {
+        console.log("Error al intentar agregar el producto");
+        return { success: false, error: "El producto no se puede agregar" };
+      } else {
+        console.log("El producto fue agregado exitosamente.");
+        return { success: true, addedProduct };
+      }
     } catch (error) {
-      console.log("Error al agregar producto", error);
+      console.log("Error al agregar el producto".error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  //Método para mostrar productos usando Socket
+  async getProductsSocket() {
+    try {
+      const searchedProduct = await productRepository.find();
+
+      if (!searchedProduct) {
+        console.log("Error al intentar mostrar los productos");
+        return { success: false, error: "Los productos no se pueden mostrar" };
+      } else {
+        console.log("Los productos disponibles son: ", searchedProduct);
+        return searchedProduct;
+      }
+    } catch (error) {
+      console.log("Error al mostrar los productos", error.message);
+      return [];
     }
   }
 
   //Método para eliminar productos usando Socket
-  async deleteP(id) {
+  async deleteProductSocket(id) {
     try {
-      await ProductModel.findByIdAndDelete(id);
+      const deletedProduct = await productRepository.findByIdAndDelete(id);
+
+      if (!deletedProduct) {
+        console.log("Error al intentar eliminar el producto.");
+        return { success: false, error: "El producto no existe" };
+      } else {
+        console.log("El producto fue eliminado exitosamente.");
+        return { success: true };
+      }
     } catch (error) {
-      console.log("Error al eliminar producto", error);
+      console.log("Error al eliminar el producto", error.message);
+      return { success: false, error: error.message };
     }
   }
 }
-
-/////////////////////////////////////////////
 
 module.exports = ProductManager;

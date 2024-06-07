@@ -3,9 +3,40 @@ const router = express.Router();
 const SessionManager = require("../controllers/sessionManagerDb.js");
 const sessionTest = new SessionManager();
 const passport = require("passport");
+const jwt = require("jsonwebtoken");
 //Middleware de autenticación con JWT
 const authenticateJWT = passport.authenticate("jwt", { session: false });
-const jwt = require("jsonwebtoken");
+
+//Estructuración por capas
+router.get(
+  "/github",
+  passport.authenticate("github", { scope: ["user:email"] })
+);
+router.get(
+  "/githubcallback",
+  passport.authenticate("github", { failureRedirect: "./login" }),
+  async (req, res) => {
+    res.redirect("./profile");
+  }
+);
+router.post("/login", sessionTest.loginUser);
+//Ruta para Profile(protegida por jwt)- Ruta Current
+router.get("/profile", authenticateJWT, sessionTest.getProfile);
+router.get("/admin", authenticateJWT, sessionTest.getAdmin);
+router.post("/logout", sessionTest.logoutUser);
+
+module.exports = router;
+
+
+
+
+
+
+
+
+
+
+
 
 //Ruta para Login
 // router.post("/login", async (req, res) => {
@@ -69,25 +100,3 @@ const jwt = require("jsonwebtoken");
 // });
 
 //Ruta versión para Github
-
-
-//Estructuración por capas
-router.get(
-  "/github",
-  passport.authenticate("github", { scope: ["user:email"] })
-);
-
-router.get(
-  "/githubcallback",
-  passport.authenticate("github", { failureRedirect: "./login" }),
-  async (req, res) => {
-    res.redirect("./profile");
-  }
-);
-router.post("/login", sessionTest.loginUser);
-//Ruta para Profile(protegida por jwt)- Ruta Current
-router.get("/profile", authenticateJWT, sessionTest.getProfile);
-router.get("/admin", authenticateJWT, sessionTest.getAdmin);
-router.post("/logout", sessionTest.logoutUser);
-
-module.exports = router;

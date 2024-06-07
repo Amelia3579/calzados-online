@@ -1,5 +1,4 @@
-const UserModel = require("../models/user.model.js");
-const CartModel = require("../models/cart.model.js");
+const { cartRepository, userRepository } = require("../services/index.js");
 const mongoose = require("mongoose");
 const { createHash, isValidPassword } = require("../utils/hashbcrypt.js");
 const passport = require("passport");
@@ -12,20 +11,22 @@ class UserManager {
 
     try {
       //Verifico si el user ya existe
-      const existUser = await UserModel.findOne({ email: email });
+      const searchedUser = await userRepository.findOne({ email: email });
 
-      if (existUser) {
-        console.log("El usuario ingresado ya existe.");
-        return res.render("profile");
+      if (searchedUser) {
+        return res.status(200).json({
+          success: true,
+          message: "El usuario ingresado ya existe.",
+          redirect: "/api/sessions/profile",
+        });
       }
-
       //Si no existe, creo un usuario nuevo, al cual se asociará un nuevo carrito
-      let newCart = await CartModel.create({ products: [] });
+      let newCart = await cartRepository.addCart();
 
       //Defino el rol de usuario y admin
       const role = email === "adminapp@gmail.com" ? "admin" : "usuario";
 
-      const newUser = new UserModel({
+      const newUser = await userRepository.addUser({
         first_name,
         last_name,
         email,
@@ -36,8 +37,8 @@ class UserManager {
         cart: newCart._id,
       });
 
-      //Lo guardo en la base de datos
-      await newUser.save();
+      // //Lo guardo en la base de datos
+      // await newUser.save();
 
       //Genero el token
       const token = jwt.sign(
@@ -52,10 +53,8 @@ class UserManager {
 
       //Establezco el token como cookie en el servidor
       res.cookie("cookieToken", token, {
-        //Configuro 1 hora de vida para el token
-        maxAge: 3600000,
-        //Restrinjo el acceso a una petición http
-        httpOnly: true,
+        maxAge: 3600000, //Configuro 1 hora de vida para el token
+        httpOnly: true, //Restrinjo el acceso a una petición http
       });
 
       //Cuando termine la operación de registro, se redirige a profile

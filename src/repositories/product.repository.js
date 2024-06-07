@@ -53,7 +53,47 @@ class ProductRepository {
     try {
       return await ProductModel.findByIdAndDelete(productId, putProductBody);
     } catch (error) {
-      throw new Error("Error al eliminar el producto");
+      throw new Error(`Error al eliminar el producto: ${error.message}`);
+    }
+  }
+
+  //Lógica para realtimeproduct.handlebars y Websocket
+
+  //Método para mostrar productos usando Socket
+  async find() {
+    try {
+      return await ProductModel.find().lean();
+    } catch (error) {
+      throw new Error("Error al intentar mostrar los productos: ");
+    }
+  }
+
+  //Método para agregar productos usando Socket
+  async create(product) {
+    try {
+      return await ProductModel.create(product);
+    } catch (error) {
+      throw new Error("Error al intentar generar el producto: ");
+    }
+  }
+
+  //Método para eliminar productos usando Socket
+  async findByIdAndDelete(id) {
+    console.log(id)
+    try {
+      console.log(id)
+      return await ProductModel.findByIdAndDelete(id);
+    } catch (error) {
+      throw new Error("Error al intentar eliminar el producto: ");
+    }
+  }
+
+  //Método para listar productos del carrito según el ID especificado, con renderizado de cart.handlebars
+  async findById(product) {
+    try {
+      return await ProductModel.findById(product).lean();
+    } catch (error) {
+      throw new Error("Error al mostrar los productos.");
     }
   }
 }

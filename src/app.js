@@ -49,6 +49,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 initializePassport();
 
+//Middleware para manejo de errores
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send({ success: false, message: "Error ocurred", error: err.message });
+});
+
 //Configuro Handlebars
 app.engine("handlebars", exphbs.engine());
 app.set("view engine", "handlebars");
@@ -84,20 +90,20 @@ const ProductModel = require("./models/product.model.js");
 io.on("connection", async (socket) => {
 
   //Envio el array de productos al cliente
-  socket.emit("productos", await productTest.getAllProducts());
+  socket.emit("productos", await productTest.getProductsSocket());
 
   //Recibo el evento "eliminarProducto" desde el cliente
   socket.on("eliminarProducto", async (id) => {
-    await productTest.deleteP(id);
+    await productTest.deleteProductSocket(id);
 
     //Envío el array actualizado
-    socket.emit("productos", await productTest.getAllProducts());
+    socket.emit("productos", await productTest.getProductsSocket());
   });
 
   //Recibo el evento "agregarProducto" desde el cliente
   socket.on("agregarProducto", async (producto) => {
-    await productTest.addP(producto);
-    socket.emit("productos", await productTest.getAllProducts());
+    await productTest.addProductSocket(producto);
+    socket.emit("productos", await productTest.getProductsSocket());
   });
 });
 

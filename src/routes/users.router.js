@@ -69,8 +69,6 @@ const userTest = new UserManager();
 
 
 
-
-
 router.post("/", userTest.registerUser);
 
 module.exports = router;

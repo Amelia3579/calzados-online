@@ -1,4 +1,4 @@
-const UserModel = require("../models/user.model.js");
+const { userRepository } = require("../services/index.js");
 const mongoose = require("mongoose");
 const { isValidPassword } = require("../utils/hashbcrypt.js");
 const passport = require("passport");
@@ -19,34 +19,43 @@ class SessionManager {
     const { email, password } = req.body;
 
     try {
-      //Verifico si el user ya existe en la base de datos
-      const userFound = await UserModel.findOne({ email }).lean();
-      if (!userFound) {
-        return res.status(401).send("El usuario no fue encontrado");
+      const searchedUser = await userRepository.findOne({ email });
+
+      if (!searchedUser) {
+        return res.status(401).send({
+          success: false,
+          message: `El usuario no fue encontrado. Verificar el email ingresado.`,
+        });
       }
 
       //Si el usuario fue encontrado, verifico la contraseña
-      if (!isValidPassword(password, userFound)) {
-        return res.status(401).send("Password inválido");
+      if (!isValidPassword(password, searchedUser)) {
+        return res
+          .status(401)
+          .send({ success: false, message: "El password es inválido." });
       }
 
       //Si la contraseña es correcta, genero el token
       const token = jwt.sign(
-        { id: userFound._id, email: userFound.email, role: userFound.role },
+        {
+          id: searchedUser._id,
+          email: searchedUser.email,
+          role: searchedUser.role,
+        },
         "secretWord",
         {
           expiresIn: "1h",
         }
       );
 
-      //Establezco el token como cookie
+      //Establezco ese token como cookie
       res.cookie("cookieToken", token, {
         maxAge: 3600000, //Configuro 1 hora de vida para el token
         httpOnly: true, //Restrinjo el acceso a una petición http
       });
 
       //Cuando termina la validación, verifico el rol
-      if (userFound.role !== "admin") {
+      if (searchedUser.role !== "Admin") {
         return res.redirect("/products");
       }
 
@@ -58,7 +67,7 @@ class SessionManager {
 
   //Método para register.handlebars
   async getRegister(req, res) {
-    //Validación para chequear si el usuario está logueado, si es asi, redirijo al perfil
+    //Validación para chequear si el usuario está logueado, si es así, redirijo al perfil
     if (req.user) {
       return res.redirect("/profile");
     }
@@ -71,12 +80,17 @@ class SessionManager {
       // Verifico si el usuario está autenticado
       if (!req.user) {
         // Si no está autenticado, redirijo a Login
-        return res.render("login");
-      }
-      //Si es un usuario registrado, guardo su información
-      const user = await UserModel.findById(req.user._id).lean();
+        res.status(401).send({
+          success: false,
+          message: `El usuario no fue encontrado.`,
+        });
 
-      res.render("profile", { user });
+        return res.render("login");
+      } else {
+        //Si es un usuario registrado, guardo su información
+        const user = await userRepository.findById(req.user._id);
+        res.render("profile", { user });
+      }
     } catch (error) {
       return res.status(500).send({ message: error.message });
     }
@@ -84,17 +98,17 @@ class SessionManager {
 
   //Método para admin.handlebars
   async getAdmin(req, res) {
-    const user = await UserModel.findById(req.user._id).lean();
-
     try {
-      if (user.role === "admin") {
-        return res.render("admin", { user });
+      const searchedUser = await userRepository.findById(req.user._id);
+
+      if (searchedUser.role === "Admin") {
+        return res.render("admin", { searchedUser });
       } else {
-        return res
-          .status(403)
-          .send(
-            "Uups, lo siento! Te faltan los permisos correspondientes para el acceso."
-          );
+        return res.status(403).send({
+          success: false,
+          message:
+            "Uups, lo siento! Te faltan los permisos correspondientes para el acceso.",
+        });
       }
     } catch (error) {
       return res.status(500).send({ message: error.message });

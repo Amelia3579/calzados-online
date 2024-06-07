@@ -22,7 +22,7 @@ const renderProductos = (productos) => {
     card.classList.add("cardContainer");
     card.innerHTML = `
                           <div class = "card">
-                          <p> ID: ${element.id}</p>
+                          <p> ID: ${element._id}</p>
                           <p> Título: ${element.title} </p>
                           <p> Precio: ${element.price} </p>
                           <button class = "cardButton"> Eliminar producto </button>
@@ -32,14 +32,14 @@ const renderProductos = (productos) => {
 
     //Evento al botón de eliminar producto
     card.querySelector("button").addEventListener("click", () => {
-      eliminarProducto(element.id);
+      eliminarProducto(element._id);
     });
   });
 };
 
 //Elimino producto
-const eliminarProducto = (id) => {
-  socket.emit("eliminarProducto", id);
+const eliminarProducto = (_id) => {
+  socket.emit("eliminarProducto", _id);
 };
 
 //Agrego producto

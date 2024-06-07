@@ -1,5 +1,5 @@
-<h1> Bienvenid@ {{user.first_name}} </h1>
-<p> Role: {{user.role}} </p>
-<form action="/api/users/admin" method="POST">
+<h1> Welcome {{searchedUser.first_name}} </h1>
+<p> Role: {{searchedUser.role}} </p>
+<form action="/api/sessions/admin" method="GET">
   <button type="submit">Add To Product</button>
 </form>
