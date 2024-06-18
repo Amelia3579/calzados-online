@@ -1,4 +1,4 @@
-const { productRepository } = require("../services/index.js");
+const { productRepository, userRepository } = require("../services/index.js");
 const mongoose = require("mongoose");
 
 class ProductManager {
@@ -203,7 +203,6 @@ class ProductManager {
       return res.status(500).send({ message: error.message });
     }
   }
-
   //Lógica para realtimeproduct.handlebars y Websocket
 
   //Función para realtimeproduct.handlebars
@@ -216,22 +215,41 @@ class ProductManager {
   }
 
   //Método para agregar productos usando Socket
-  async addProductSocket(product) {
+  async addProductSocket(product, user) {
     try {
-      const addedProduct = await productRepository.create(product);
+      if (user.role === "Admin") {
+        const addedProduct = await productRepository.create(product);
 
-      if (!addedProduct) {
-        console.log("Error al intentar agregar el producto");
-        return { success: false, error: "El producto no se puede agregar" };
-      } else {
         console.log("El producto fue agregado exitosamente.");
         return { success: true, addedProduct };
+      } else {
+        console.log("Error al intentar agregar el producto");
+        return {
+          success: false,
+          error:
+            "El producto no se puede agregar. No cuenta con los permisos necesarios.",
+        };
       }
     } catch (error) {
-      console.log("Error al agregar el producto".error);
+      console.log("Error al agregar el producto:", error);
       return { success: false, error: error.message };
     }
   }
+
+  //     const addedProduct = await productRepository.create(product);
+
+  //     if (!addedProduct) {
+  //       console.log("Error al intentar agregar el producto");
+  //       return { success: false, error: "El producto no se puede agregar" };
+  //     } else {
+  //       console.log("El producto fue agregado exitosamente.");
+  //       return { success: true, addedProduct };
+  //     }
+  //   } catch (error) {
+  //     console.log("Error al agregar el producto".error);
+  //     return { success: false, error: error.message };
+  //   }
+  // }
 
   //Método para mostrar productos usando Socket
   async getProductsSocket() {
@@ -252,16 +270,17 @@ class ProductManager {
   }
 
   //Método para eliminar productos usando Socket
-  async deleteProductSocket(id) {
+  async deleteProductSocket(id, user) {
     try {
-      const deletedProduct = await productRepository.findByIdAndDelete(id);
+      // const deletedProduct = await productRepository.findByIdAndDelete(id);
 
-      if (!deletedProduct) {
+      if (user.role === "Admin") {
+        const deletedProduct = await productRepository.findByIdAndDelete(id);
+        console.log("El producto fue eliminado exitosamente.");
+        return { success: true, deletedProduct };
+      } else {
         console.log("Error al intentar eliminar el producto.");
         return { success: false, error: "El producto no existe" };
-      } else {
-        console.log("El producto fue eliminado exitosamente.");
-        return { success: true };
       }
     } catch (error) {
       console.log("Error al eliminar el producto", error.message);
@@ -269,5 +288,4 @@ class ProductManager {
     }
   }
 }
-
 module.exports = ProductManager;

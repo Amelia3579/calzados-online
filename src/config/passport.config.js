@@ -68,13 +68,8 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       //Datos del perfil
-      console.log("Profile:", profile);
 
       try {
-        /////////////////////////
-        console.log("Access Token:", accessToken);
-        console.log("Profile:", profile);
-
         let userGith = await UserModel.findOne({
           email: profile._json.email,
         });
@@ -96,7 +91,6 @@ passport.use(
           done(null, userGith);
         }
       } catch (error) {
-        console.error("Error during GitHub authentication:", error);
         return done(error);
       }
     }
@@ -116,6 +110,22 @@ passport.deserializeUser(async (id, done) => {
     done(error);
   }
 });
+
+module.exports = { initializePassport };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // //Estrategia para registro
 // passport.use(
@@ -198,5 +208,3 @@ passport.deserializeUser(async (id, done) => {
 //   let userDes = await UserModel.findById(id).populate("cart");
 //   done(null, userDes);
 // });
-
-module.exports = { initializePassport };

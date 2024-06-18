@@ -24,7 +24,7 @@ class UserManager {
       let newCart = await cartRepository.addCart();
 
       //Defino el rol de usuario y admin
-      const role = email === "adminapp@gmail.com" ? "admin" : "usuario";
+      const role = email === "adminapp@gmail.com" ? "Admin" : "User";
 
       const newUser = await userRepository.addUser({
         first_name,
@@ -37,8 +37,6 @@ class UserManager {
         cart: newCart._id,
       });
 
-      // //Lo guardo en la base de datos
-      // await newUser.save();
 
       //Genero el token
       const token = jwt.sign(

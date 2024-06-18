@@ -1,4 +1,8 @@
-const { cartRepository, productRepository } = require("../services/index.js");
+const {
+  cartRepository,
+  productRepository,
+  ticketRepository,
+} = require("../services/index.js");
 const mongoose = require("mongoose");
 
 class CartManager {
@@ -64,11 +68,11 @@ class CartManager {
         const products = await Promise.all(
           cart.products.map(async (elem) => {
             const product = await productRepository.findById(elem.product);
-            return { ...elem, product };
+            return { ...elem, product, quantity: elem.quantity };
           })
         );
 
-        res.render("cart", { products });
+        res.render("cart", { products, cart });
       }
     } catch (error) {
       return res.status(500).send({ message: error.message });
@@ -118,7 +122,6 @@ class CartManager {
           success: false,
           message: `El carrito con el ID: ${cartId} no fue encontrado. Verificar el identificador ingresado.`,
         });
-        // res.send(`El carrito con el ID: ${cartId} no fue encontrado`);
         return null;
       }
 
@@ -266,6 +269,72 @@ class CartManager {
       return res.status(200).json({
         message: `El carrito con el ID: ${cartId} fue vaciado.`,
         cart: searchedCart.products,
+      });
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
+    }
+  }
+
+  //Actividad de la 3° pre-entrega
+  //Método para verificar el stock del producto
+  async purchaseCart(req, res) {
+    const cartId = req.params.cid;
+
+    try {
+      //Busco el carrito por su ID y los productos que contiene
+      const searchedCart = await cartRepository.findById(cartId);
+
+      //Array para almacenar los productos no disponibles
+      const productsNotAvailable = [];
+
+      if (!searchedCart) {
+        return res
+          .status(404)
+          .json({ success: false, message: "El carrito no fue encontrado." });
+      }
+
+      // Verifico el stock de cada producto en el carrito
+      for (const item of searchedCart.products) {
+        const product = item.product;
+        const productId = await productRepository.findById(product);
+
+        // Verifico si hay suficiente stock
+        if (productId.stock >= item.quantity) {
+          // Resto la cantidad del stock del producto
+          productId.stock -= item.quantity;
+          await productId.save();
+        } else {
+          // Si no hay suficiente stock, dicho producto, sea agrega a productsNotAvailable
+          productsNotAvailable.push(product);
+          return res.status(400).json({
+            success: false,
+            message:
+              "La compra no pudo ser completada. Hay stock insuficiente de: ${product.name}.",
+          });
+        }
+      }
+      res
+        .status(200)
+        .json({ success: true, message: "Compra realizada exitosamente." });
+
+      //Creo un ticket con los datos de la compra realizada
+      const newTicket = await ticketRepository.createTicket();
+
+      await newTicket.save();
+
+      // Elimino del carrito los productos que se compraron
+      cart.products = cart.products.filter((item) =>
+        productsNotAvailable.some((product) => product.equals(item.productId))
+      );
+
+      // Guardo el carrito actualizado en MongoDB
+      await searchedCart.save();
+
+      return res.status(200).json({
+        success: true,
+        message:
+          "Los productos que no se han agregado a la compra por falta de stock son:",
+        cart: JSON.parse(JSON.stringify(productsNotAvailable, null, 2)),
       });
     } catch (error) {
       return res.status(500).send({ message: error.message });

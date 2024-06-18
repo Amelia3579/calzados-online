@@ -7,6 +7,7 @@ class UserRepository {
     try {
       return await UserModel.findOne(dataBody);
     } catch (error) {
+      console.error(`Error al buscar el usuario: ${error.message}`);
       throw new Error("Error al buscar el usuario.");
     }
   }
@@ -16,6 +17,7 @@ class UserRepository {
     try {
       return await UserModel.findById(dataUser).lean();
     } catch (error) {
+      console.error(`Error al verificar el usuario: ${error.message}`);
       throw new Error("Error en la verificación del usuario.");
     }
   }
@@ -27,6 +29,7 @@ class UserRepository {
 
       return await newUserR.save();
     } catch (error) {
+      console.error(`Error al crear el usuario: ${error.message}`);
       throw new Error("Error al crear el usuario");
     }
   }

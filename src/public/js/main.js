@@ -1,6 +1,32 @@
 // Actividad desafío4 (Websockets)
-//Genero instancia de Socket.io del lado del cliente
-const socket = io();
+//Obtengo mi token para la ruta realtimeproducts
+const getCookie = (name) => {
+  const cookieValue = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(`${name}=`));
+
+  if (cookieValue) {
+    return cookieValue.split("=")[1];
+  } else {
+    return null;
+  }
+};
+
+const authToken = getCookie("cookieToken");
+
+const socket = io("http://localhost:8080", {
+  auth: {
+    token: authToken,
+  },
+});
+
+socket.on("connect", () => {
+  console.log("Conectado al servidor de WebSocket");
+});
+
+socket.on("error", (error) => {
+  console.error("Error del servidor:", error);
+});
 
 //Uso la instancia creada para establecer la conexión
 socket.on("productos", (data) => {
@@ -14,7 +40,7 @@ const renderProductos = (productos) => {
 
   const titulo = document.createElement("h1");
   titulo.classList.add("tituloPrinc");
-  titulo.textContent = "Lista de Productos";
+  titulo.textContent = "List of Products";
   containerProducts.appendChild(titulo);
 
   productos.forEach((element) => {
@@ -23,9 +49,9 @@ const renderProductos = (productos) => {
     card.innerHTML = `
                           <div class = "card">
                           <p> ID: ${element._id}</p>
-                          <p> Título: ${element.title} </p>
-                          <p> Precio: ${element.price} </p>
-                          <button class = "cardButton"> Eliminar producto </button>
+                          <p> Title : ${element.title} </p>
+                          <p> Price: $${element.price} </p>
+                          <button class = "cardButton"> Remove Product </button>
                           </div>
         `;
     containerProducts.appendChild(card);
@@ -108,7 +134,3 @@ const agregarProducto = () => {
 //   });
 //   log.innerHTML = messages;
 // });
-
-
-
-  

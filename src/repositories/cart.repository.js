@@ -10,6 +10,7 @@ class CartRepository {
 
       return await newCartR.save();
     } catch (error) {
+      console.error(`Error al crear el carrito: ${error.message}`);
       throw new Error("Error al crear el carrito");
     }
   }
@@ -19,6 +20,7 @@ class CartRepository {
     try {
       return await CartModel.find();
     } catch (error) {
+      console.error(`Error al mostrar los carritos: ${error.message}`);
       throw new Error("Error al intentar mostrar los carritos: ");
     }
   }
@@ -28,6 +30,8 @@ class CartRepository {
     try {
       return await CartModel.findById(cartId).populate("products.product");
     } catch (error) {
+      console.error(`Error al mostrar los productos
+        : ${error.message}`);
       throw new Error("Error al intentar mostrar los productos: ");
     }
   }

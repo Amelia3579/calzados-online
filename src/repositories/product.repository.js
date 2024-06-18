@@ -9,8 +9,8 @@ class ProductRepository {
 
       return await newProductR.save();
     } catch (error) {
-      //Lanzo el objeto error hacia el controlador, ya no gestiono las respuestas
-      throw new Error("Error al crear el producto");
+      console.error(`Error al agregar el producto: ${error.message}`);
+      throw new Error("Error al agregar el producto");
     }
   }
   //Método para validar el código de un producto
@@ -18,6 +18,7 @@ class ProductRepository {
     try {
       return await ProductModel.findOne(query);
     } catch (error) {
+      console.error(`Error al buscar el producto: ${error.message}`);
       throw new Error("Error al buscar el producto");
     }
   }
@@ -26,6 +27,7 @@ class ProductRepository {
     try {
       return await ProductModel.paginate(query, options);
     } catch (error) {
+      console.error(`Error al efectuar la paginación: ${error.message}`);
       throw new Error("Error al efectuar la paginación");
     }
   }
@@ -35,6 +37,7 @@ class ProductRepository {
     try {
       return await ProductModel.findById(productId);
     } catch (error) {
+      console.error(`Error al mostrar el producto: ${error.message}`);
       throw new Error("Error al mostrar el producto");
     }
   }
@@ -44,6 +47,7 @@ class ProductRepository {
     try {
       return await ProductModel.findByIdAndUpdate(productId, putProductBody);
     } catch (error) {
+      console.error(`Error al actualizar el producto: ${error.message}`);
       throw new Error("Error al actualizar el producto");
     }
   }
@@ -53,6 +57,7 @@ class ProductRepository {
     try {
       return await ProductModel.findByIdAndDelete(productId, putProductBody);
     } catch (error) {
+      console.error(`Error al eliminar el producto: ${error.message}`);
       throw new Error(`Error al eliminar el producto: ${error.message}`);
     }
   }
@@ -64,6 +69,7 @@ class ProductRepository {
     try {
       return await ProductModel.find().lean();
     } catch (error) {
+      console.error(`Error al mostrar los productos: ${error.message}`);
       throw new Error("Error al intentar mostrar los productos: ");
     }
   }
@@ -73,17 +79,17 @@ class ProductRepository {
     try {
       return await ProductModel.create(product);
     } catch (error) {
-      throw new Error("Error al intentar generar el producto: ");
+      console.error(`Error al agregar el producto: ${error.message}`);
+      throw new Error("Error al intentar agregar el producto: ");
     }
   }
 
   //Método para eliminar productos usando Socket
   async findByIdAndDelete(id) {
-    console.log(id)
     try {
-      console.log(id)
       return await ProductModel.findByIdAndDelete(id);
     } catch (error) {
+      console.error(`Error al eliminar el producto: ${error.message}`);
       throw new Error("Error al intentar eliminar el producto: ");
     }
   }
@@ -93,6 +99,7 @@ class ProductRepository {
     try {
       return await ProductModel.findById(product).lean();
     } catch (error) {
+      console.error(`Error al mostrar los productos: ${error.message}`);
       throw new Error("Error al mostrar los productos.");
     }
   }

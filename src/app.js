@@ -12,7 +12,9 @@ const configObject = require("./config/config.js");
 const { mongo_url, puerto } = configObject;
 
 const jwt = require("passport-jwt");
+const jwtSocket = require("jsonwebtoken");
 const { initializePassport } = require("./config/passport.config.js");
+
 const PUERTO = 8080;
 const database = require("./database.js");
 
@@ -22,8 +24,6 @@ const cartsRouter = require("./routes/carts.router.js");
 const viewsRouter = require("./routes/views.router.js");
 const usersRouter = require("./routes/users.router.js");
 const sessionsRouter = require("./routes/sessions.router.js");
-
-
 
 //Middleware
 //Indico al servidor que voy a trabajar con JSON y datos complejos
@@ -39,7 +39,7 @@ app.use(
     store: MongoStore.create({
       mongoUrl:
         "mongodb+srv://meligallegos:Paranaer1979@cluster0.kvvktyg.mongodb.net/Ecommerce?retryWrites=true&w=majority&appName=Cluster0",
-        ttl: 100,
+      ttl: 100,
     }),
   })
 );
@@ -52,7 +52,9 @@ initializePassport();
 //Middleware para manejo de errores
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send({ success: false, message: "Error ocurred", error: err.message });
+  res
+    .status(500)
+    .send({ success: false, message: "Error ocurred", error: err.message });
 });
 
 //Configuro Handlebars
@@ -77,8 +79,6 @@ mongoose
   .then(() => console.log("Conección a MongoDB"))
   .catch((error) => console.log("Error de conección", error));
 
-
-
 //Configuro instancia de Socket.io del lado del servidor (desafío 4)
 const io = socket(httpServer);
 
@@ -87,8 +87,31 @@ const productTest = new ProductManager();
 const ProductModel = require("./models/product.model.js");
 
 //Configuración para realtimeproducts.handlebars
-io.on("connection", async (socket) => {
+//Middleware de autenticación para Socket.io
 
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
+
+  if (!token) {
+    return next(new Error("Autenticación fallida"));
+  }
+
+  jwtSocket.verify(token, "secretWord", async (err, decoded) => {
+    if (err) {
+      return next(new Error("La autenticación falló"));
+    }
+
+    const user = await UserModel.findById(decoded.id);
+    if (!user) {
+      return next(new Error("Usuario no encontrado"));
+    }
+    socket.user = user;
+    next();
+  });
+});
+
+io.on("connection", async (socket) => {
+  console.log("Nuevo cliente conectado");
   //Envio el array de productos al cliente
   socket.emit("productos", await productTest.getProductsSocket());
 
@@ -102,9 +125,21 @@ io.on("connection", async (socket) => {
 
   //Recibo el evento "agregarProducto" desde el cliente
   socket.on("agregarProducto", async (producto) => {
-    await productTest.addProductSocket(producto);
-    socket.emit("productos", await productTest.getProductsSocket());
+    const response = await productTest.addProductSocket(producto, socket.user);
+    if (response.success) {
+      io.emit("productos", await productTest.getProductsSocket());
+    } else {
+      socket.emit("error", response.error);
+    }
   });
+
+  // socket.on("agregarProducto", async (producto) => {
+  //   /////////////
+  //   const user = socket.user;
+  //   ////////////////
+  //   await productTest.addProductSocket(producto, user);
+  //   socket.emit("productos", await productTest.getProductsSocket());
+  // });
 });
 
 //Actividad desafío complementario

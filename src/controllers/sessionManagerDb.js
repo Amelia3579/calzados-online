@@ -1,4 +1,5 @@
 const { userRepository } = require("../services/index.js");
+const UserDto = require("../dtos/user.dto.js");
 const mongoose = require("mongoose");
 const { isValidPassword } = require("../utils/hashbcrypt.js");
 const passport = require("passport");
@@ -52,6 +53,7 @@ class SessionManager {
       res.cookie("cookieToken", token, {
         maxAge: 3600000, //Configuro 1 hora de vida para el token
         httpOnly: true, //Restrinjo el acceso a una petición http
+        sameSite: "strict",
       });
 
       //Cuando termina la validación, verifico el rol
@@ -89,7 +91,14 @@ class SessionManager {
       } else {
         //Si es un usuario registrado, guardo su información
         const user = await userRepository.findById(req.user._id);
-        res.render("profile", { user });
+
+        if (!user) {
+          return res.status(404).send({ message: "Usuario no encontrado" });
+        }
+        //Creo un DTO del usuario
+        const userDto = new UserDto(user);
+
+        res.render("profile", { userDto });
       }
     } catch (error) {
       return res.status(500).send({ message: error.message });
