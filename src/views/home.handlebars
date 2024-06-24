@@ -13,6 +13,10 @@
 
 {{! Actividad desafío4 (Websockets) }}
 <h1>Products Available for Sale</h1>
+ <a href="/carts/{{cartId}}" >
+    
+  </a>
+
 
 <div class="cardContainer">
   {{#each products}}
@@ -21,9 +25,11 @@
       <p>Description: {{this.description}}</p>
       <p>Price: ${{this.price}}</p>
 
-      <button class="btnAgregar" data-product-id="{{this._id}}">
-       Add to Cart
-      </button>
+      <form action="/api/carts/{{../cartId}}/product/{{this._id}}" method="POST">
+        <button class="btnAdd" type="submit">
+          Add to Cart
+        </button></form>
+
     </div>
   {{/each}}
 </div>

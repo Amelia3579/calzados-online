@@ -62,9 +62,8 @@ class ProductRepository {
     }
   }
 
-  //Lógica para realtimeproduct.handlebars y Websocket
-
-  //Método para mostrar productos usando Socket
+  //Lógica para Socket (realtimeproduct.handlebars y chat.handlebars)
+  //Método para mostrar productos
   async find() {
     try {
       return await ProductModel.find().lean();
@@ -75,9 +74,10 @@ class ProductRepository {
   }
 
   //Método para agregar productos usando Socket
-  async create(product) {
+  async addProduct(product) {
     try {
-      return await ProductModel.create(product);
+      const newProduct = new ProductModel(product);
+      return await newProduct.save();
     } catch (error) {
       console.error(`Error al agregar el producto: ${error.message}`);
       throw new Error("Error al intentar agregar el producto: ");

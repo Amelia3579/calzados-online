@@ -37,7 +37,6 @@ class UserManager {
         cart: newCart._id,
       });
 
-
       //Genero el token
       const token = jwt.sign(
         {

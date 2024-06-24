@@ -1,4 +1,6 @@
-//Middleware de autorización para role admin
+const passport = require("passport");
+
+//Middleware de autorización para rol de admin
 const authorize = (role) => {
   return (req, res, next) => {
     if (req.user && req.user.role === role) {

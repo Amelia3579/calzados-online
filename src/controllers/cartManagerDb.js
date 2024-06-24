@@ -1,9 +1,13 @@
+const { totalPurchase, generateUniqueCode } = require("../utils/ticket.js");
 const {
   cartRepository,
   productRepository,
   ticketRepository,
+  userRepository,
 } = require("../services/index.js");
 const mongoose = require("mongoose");
+const TicketModel = require("../models/ticket.model.js");
+const UserModel = require("../models/user.model.js");
 
 class CartManager {
   //Método para crear carrito
@@ -58,7 +62,6 @@ class CartManager {
     try {
       const cartId = req.params.cid;
       const cart = await cartRepository.findById(cartId);
-
       if (!cart) {
         return res.status(404).send({
           success: false,
@@ -72,7 +75,12 @@ class CartManager {
           })
         );
 
-        res.render("cart", { products, cart });
+        // Calculo el total de la compra para pasarlo a la plantilla
+        // const totalPurchase = products.reduce((total, item) => {
+        //   return total + item.product.price * item.quantity;
+        // }, 0);
+
+        res.render("cart", { products, cart, totalPurchase });
       }
     } catch (error) {
       return res.status(500).send({ message: error.message });
@@ -87,7 +95,14 @@ class CartManager {
       const quantity = req.body.quantity || 1;
 
       const searchedCart = await cartRepository.findById(cartId);
-      console.log(searchedCart);
+      // Verifico si el carrito existe
+      if (!searchedCart) {
+        return res.status(404).send({
+          success: false,
+          message: `El carrito con el ID: ${cartId} no se encontró.`,
+        });
+      }
+
       const searchedProduct = searchedCart.products.find(
         (elem) => elem.product._id.toString() === prodId
       );
@@ -102,7 +117,8 @@ class CartManager {
       searchedCart.markModified("products");
 
       await searchedCart.save();
-      return res.send(JSON.stringify(searchedCart, null, 2));
+      res.redirect(`/carts/${searchedCart._id}`);
+      // return res.send(JSON.stringify(searchedCart, null, 2));
     } catch (error) {
       return res.status(500).send({ message: error.message });
     }
@@ -245,7 +261,7 @@ class CartManager {
     }
   }
 
-  //Método para eliminar productos del carrito, según el ID especificado
+  //Método para vaciar el carrito, según el ID especificado
   async deleteProductDos(req, res) {
     try {
       const cartId = req.params.cid;
@@ -276,12 +292,13 @@ class CartManager {
   }
 
   //Actividad de la 3° pre-entrega
-  //Método para verificar el stock del producto
+  //Método para verificar el stock del producto, antes de confirmar la compra
   async purchaseCart(req, res) {
     const cartId = req.params.cid;
+    const purchaserEmail = req.body.email;
 
     try {
-      //Busco el carrito por su ID y los productos que contiene
+      //Busco el carrito por su ID
       const searchedCart = await cartRepository.findById(cartId);
 
       //Array para almacenar los productos no disponibles
@@ -299,31 +316,36 @@ class CartManager {
         const productId = await productRepository.findById(product);
 
         // Verifico si hay suficiente stock
-        if (productId.stock >= item.quantity) {
-          // Resto la cantidad del stock del producto
-          productId.stock -= item.quantity;
-          await productId.save();
-        } else {
-          // Si no hay suficiente stock, dicho producto, sea agrega a productsNotAvailable
-          productsNotAvailable.push(product);
-          return res.status(400).json({
-            success: false,
-            message:
-              "La compra no pudo ser completada. Hay stock insuficiente de: ${product.name}.",
-          });
+        if (productId && productId.toObject) {
+          if (productId.stock >= item.quantity) {
+            // Resto la cantidad del stock del producto
+            productId.stock -= item.quantity;
+            await productId.save();
+            return res.status(200).json({
+              success: true,
+              message: "Compra realizada exitosamente.",
+            });
+          } else {
+            // Si no hay suficiente stock, el producto, sea agrega a productsNotAvailable
+            productsNotAvailable.push(product);
+          }
         }
       }
-      res
-        .status(200)
-        .json({ success: true, message: "Compra realizada exitosamente." });
 
       //Creo un ticket con los datos de la compra realizada
-      const newTicket = await ticketRepository.createTicket();
+      const uniqueCode = await generateUniqueCode();
+      const totalAmount = totalPurchase(searchedCart.products); //Total de la compra usando función totalPurchase
+      const newTicket = await ticketRepository.createTicket({
+        code: uniqueCode,
+        purchase_datetime: new Date(),
+        amount: totalAmount,
+        purchaser: purchaserEmail,
+      });
 
       await newTicket.save();
 
       // Elimino del carrito los productos que se compraron
-      cart.products = cart.products.filter((item) =>
+      searchedCart.products = searchedCart.products.filter((item) =>
         productsNotAvailable.some((product) => product.equals(item.productId))
       );
 
@@ -335,6 +357,7 @@ class CartManager {
         message:
           "Los productos que no se han agregado a la compra por falta de stock son:",
         cart: JSON.parse(JSON.stringify(productsNotAvailable, null, 2)),
+        ticket: newTicket,
       });
     } catch (error) {
       return res.status(500).send({ message: error.message });

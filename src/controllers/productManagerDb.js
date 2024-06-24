@@ -104,11 +104,14 @@ class ProductManager {
         doc.toObject({ getters: false })
       );
 
-      //Guardo la información del usuario
+      //Guardo la información del usuario y del carrito
       const user = req.user;
-
+      const cartId = user.cart; 
+     
       res.render("home", {
         products: availableProd.docs,
+        cartId,
+        user: user,
         totalDocs: availableProd.totalDocs,
         limit: availableProd.limit,
         totalPages: availableProd.totalPages,
@@ -119,7 +122,6 @@ class ProductManager {
         hasNextPage: availableProd.hasNextPage,
         prevPage: availableProd.prevPage,
         nextPage: availableProd.nextPagePage,
-        user: user,
       });
     } catch (error) {
       return res.status(500).send({ message: error.message });

@@ -93,7 +93,7 @@ input {
 }
 }
 
-.btnLogin, #btnRegister {
+.btnLogin, #btnRegister, .btnAdd {
   color: whitesmoke;
   background-color: rgb(10, 106, 10);
   padding: 0.5rem;

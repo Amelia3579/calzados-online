@@ -14,20 +14,24 @@ const SessionManager = require("../controllers/sessionManagerDb.js");
 const sessionTest = new SessionManager();
 
 const passport = require("passport");
+//Verificación del rol
+const verifyRole = require("../config/verifyRole.config.js");
 //Middleware de autenticación con JWT
 const authenticateJWT = passport.authenticate("jwt", { session: false });
-//Autorización para rol
-const authorize = require("../config/authorize.config.js");
 
 //Estructuración por capas
 router.get("/carts/:cid", cartTest.getCartById);
 router.post("/carts/:cid", cartTest.addProductToCart);
-router.get("/products", authenticateJWT, productTest.getProducts);
-router.get("/chat", chatTest.getChat);
+router.get(
+  "/products",
+  verifyRole(["User"]),
+  authenticateJWT,
+  productTest.getProducts
+);
+router.get("/chat", verifyRole(["User"]), chatTest.getChat);
 router.get(
   "/realtimeproducts",
-  authenticateJWT,
-  authorize("Admin"),
+  verifyRole(["Admin"]),
   productTest.getRealTimeProducts
 );
 //Ruta para que cuando cargue la app, Login sea lo 1° que se renderize

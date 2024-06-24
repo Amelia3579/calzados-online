@@ -1,5 +1,4 @@
 const CartModel = require("../models/cart.model.js");
-const ProductModel = require("../models/product.model.js");
 const mongoose = require("mongoose");
 
 class CartRepository {
@@ -21,7 +20,7 @@ class CartRepository {
       return await CartModel.find();
     } catch (error) {
       console.error(`Error al mostrar los carritos: ${error.message}`);
-      throw new Error("Error al intentar mostrar los carritos: ");
+      throw new Error("Error al intentar mostrar los carritos.");
     }
   }
 
@@ -32,7 +31,7 @@ class CartRepository {
     } catch (error) {
       console.error(`Error al mostrar los productos
         : ${error.message}`);
-      throw new Error("Error al intentar mostrar los productos: ");
+      throw new Error("Error al intentar mostrar los productos.");
     }
   }
 }

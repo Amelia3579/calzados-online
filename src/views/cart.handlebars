@@ -8,12 +8,17 @@
       <p> Quantity: {{this.quantity}}</p>
       <p> Price: ${{this.product.price}}</p>
 
-      <button> Eliminate </button>
-    </div>
-
-    <div>
-      <button> Empty Cart </button>
-      <p> Total Purchase: </p>
+     <button onclick="removeProduct(`{{../cartId}}`, `{{this.product._id}}`)"
+                class="btnAdd">Remove Product</button>  
     </div>
   {{/each}}
+
+  <div>
+    <button onclick="emptyCart(`{{cartId}}`)"> Empty Cart </button>
+    <p> Total Purchase: ${{totalPurchase}} </p>
+  </div>
 </div>
+
+<script src="/js/cart.js"></script> 
+
+

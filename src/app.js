@@ -1,20 +1,26 @@
+//Import Express
 const express = require("express");
-const exphbs = require("express-handlebars");
-const socket = require("socket.io");
 const app = express();
-const session = require("express-session");
+const exphbs = require("express-handlebars");
 const cookieParser = require("cookie-parser");
-const MongoStore = require("connect-mongo");
+// const session = require("express-session");
+// const MongoStore = require("connect-mongo");
+//Importo Mongoose
 const mongoose = require("mongoose");
-const passport = require("passport");
 const configObject = require("./config/config.js");
-
 const { mongo_url, puerto } = configObject;
 
+//Importo Passport
+const passport = require("passport");
 const jwt = require("passport-jwt");
-const jwtSocket = require("jsonwebtoken");
+// const jwtSocket = require("jsonwebtoken");
 const { initializePassport } = require("./config/passport.config.js");
+const cors = require("cors");
 
+//Importo Socket
+const SocketManager = require("./controllersSockets/socketManager.js");
+
+const path = require("path");
 const PUERTO = 8080;
 const database = require("./database.js");
 
@@ -26,28 +32,29 @@ const usersRouter = require("./routes/users.router.js");
 const sessionsRouter = require("./routes/sessions.router.js");
 
 //Middleware
-//Indico al servidor que voy a trabajar con JSON y datos complejos
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static("./src/public"));
+// app.use(express.static("./src/public"));
+app.use(express.static(path.join(__dirname, "public")));
+app.use(cors());
 app.use(cookieParser());
-app.use(
-  session({
-    secret: "secretPass",
-    resave: true,
-    saveUninitialized: true,
-    store: MongoStore.create({
-      mongoUrl:
-        "mongodb+srv://meligallegos:Paranaer1979@cluster0.kvvktyg.mongodb.net/Ecommerce?retryWrites=true&w=majority&appName=Cluster0",
-      ttl: 100,
-    }),
-  })
-);
+// app.use(
+//   session({
+//     secret: "secretPass",
+//     resave: true,
+//     saveUninitialized: true,
+//     store: MongoStore.create({
+//       mongoUrl:
+//         "mongodb+srv://meligallegos:Paranaer1979@cluster0.kvvktyg.mongodb.net/Ecommerce?retryWrites=true&w=majority&appName=Cluster0",
+//       ttl: 100,
+//     }),
+//   })
+// );
 
 //Middleware Passport
 app.use(passport.initialize());
-app.use(passport.session());
 initializePassport();
+// app.use(passport.session());
 
 //Middleware para manejo de errores
 app.use((err, req, res, next) => {
@@ -73,89 +80,12 @@ const httpServer = app.listen(puerto, () => {
   console.log(`Servidor express en el puerto http://localhost:${puerto}`);
 });
 
-//Me conecto MongoDB usando .env
+//Configuro instancia de Socket.io del lado del servidor (desafío 4)
+new SocketManager(httpServer);
+
+//Me conecto a MongoDB usando .env
 mongoose
   .connect(mongo_url)
   .then(() => console.log("Conección a MongoDB"))
   .catch((error) => console.log("Error de conección", error));
 
-//Configuro instancia de Socket.io del lado del servidor (desafío 4)
-const io = socket(httpServer);
-
-const ProductManager = require("./controllers/productManagerDb.js");
-const productTest = new ProductManager();
-const ProductModel = require("./models/product.model.js");
-
-//Configuración para realtimeproducts.handlebars
-//Middleware de autenticación para Socket.io
-
-io.use((socket, next) => {
-  const token = socket.handshake.auth.token;
-
-  if (!token) {
-    return next(new Error("Autenticación fallida"));
-  }
-
-  jwtSocket.verify(token, "secretWord", async (err, decoded) => {
-    if (err) {
-      return next(new Error("La autenticación falló"));
-    }
-
-    const user = await UserModel.findById(decoded.id);
-    if (!user) {
-      return next(new Error("Usuario no encontrado"));
-    }
-    socket.user = user;
-    next();
-  });
-});
-
-io.on("connection", async (socket) => {
-  console.log("Nuevo cliente conectado");
-  //Envio el array de productos al cliente
-  socket.emit("productos", await productTest.getProductsSocket());
-
-  //Recibo el evento "eliminarProducto" desde el cliente
-  socket.on("eliminarProducto", async (id) => {
-    await productTest.deleteProductSocket(id);
-
-    //Envío el array actualizado
-    socket.emit("productos", await productTest.getProductsSocket());
-  });
-
-  //Recibo el evento "agregarProducto" desde el cliente
-  socket.on("agregarProducto", async (producto) => {
-    const response = await productTest.addProductSocket(producto, socket.user);
-    if (response.success) {
-      io.emit("productos", await productTest.getProductsSocket());
-    } else {
-      socket.emit("error", response.error);
-    }
-  });
-
-  // socket.on("agregarProducto", async (producto) => {
-  //   /////////////
-  //   const user = socket.user;
-  //   ////////////////
-  //   await productTest.addProductSocket(producto, user);
-  //   socket.emit("productos", await productTest.getProductsSocket());
-  // });
-});
-
-//Actividad desafío complementario
-//Configuración para chat.handlebars
-const MessageModel = require("./models/message.model.js");
-
-io.on("connection", (socket) => {
-  //Empiezo a escuchar los mensajes
-  socket.on("message", async (data) => {
-    //Guardo-creo documento con mensajes en MongoDB
-    await MessageModel.create(data);
-
-    //Recibo los mensajes de MongoDB
-    const allMessages = await MessageModel.find();
-
-    //Envío mensajes al cliente
-    io.emit("logMessages", allMessages);
-  });
-});
