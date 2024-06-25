@@ -1,4 +1,4 @@
-const TicketModel = require("../models/ticket.model.js");
+const { TicketModel } = require("../models/ticket.model.js");
 const mongoose = require("mongoose");
 
 class TicketRepository {

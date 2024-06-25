@@ -9,5 +9,6 @@ router.get("/:id", productTest.getProductById);
 router.post("/", productTest.addProduct);
 router.put("/:id", productTest.updateProduct);
 router.delete("/:id", productTest.deleteProduct);
+router.get("/mockingproducts", productTest.generateProductsFocker);
 
 module.exports = router;

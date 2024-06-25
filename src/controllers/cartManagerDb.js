@@ -1,4 +1,3 @@
-const { totalPurchase, generateUniqueCode } = require("../utils/ticket.js");
 const {
   cartRepository,
   productRepository,
@@ -6,7 +5,8 @@ const {
   userRepository,
 } = require("../services/index.js");
 const mongoose = require("mongoose");
-const TicketModel = require("../models/ticket.model.js");
+const totalPurchase = require("../utils/ticket.js");
+const { generateUniqueCode } = require("../models/ticket.model.js");
 const UserModel = require("../models/user.model.js");
 
 class CartManager {
@@ -74,13 +74,13 @@ class CartManager {
             return { ...elem, product, quantity: elem.quantity };
           })
         );
+        const totalAmount = totalPurchase(products);
 
-        // Calculo el total de la compra para pasarlo a la plantilla
-        // const totalPurchase = products.reduce((total, item) => {
-        //   return total + item.product.price * item.quantity;
-        // }, 0);
-
-        res.render("cart", { products, cart, totalPurchase });
+        res.render("cart", {
+          products,
+          cart,
+          totalPurchase: totalAmount,
+        });
       }
     } catch (error) {
       return res.status(500).send({ message: error.message });
@@ -321,10 +321,6 @@ class CartManager {
             // Resto la cantidad del stock del producto
             productId.stock -= item.quantity;
             await productId.save();
-            return res.status(200).json({
-              success: true,
-              message: "Compra realizada exitosamente.",
-            });
           } else {
             // Si no hay suficiente stock, el producto, sea agrega a productsNotAvailable
             productsNotAvailable.push(product);
@@ -341,8 +337,6 @@ class CartManager {
         amount: totalAmount,
         purchaser: purchaserEmail,
       });
-
-      await newTicket.save();
 
       // Elimino del carrito los productos que se compraron
       searchedCart.products = searchedCart.products.filter((item) =>

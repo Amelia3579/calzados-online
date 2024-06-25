@@ -1,5 +1,6 @@
 const { productRepository, userRepository } = require("../services/index.js");
 const mongoose = require("mongoose");
+const { generateProducts } = require("../utils/faker.js");
 
 class ProductManager {
   //Método para agregar producto
@@ -106,8 +107,8 @@ class ProductManager {
 
       //Guardo la información del usuario y del carrito
       const user = req.user;
-      const cartId = user.cart; 
-     
+      const cartId = user.cart;
+
       res.render("home", {
         products: availableProd.docs,
         cartId,
@@ -205,7 +206,8 @@ class ProductManager {
       return res.status(500).send({ message: error.message });
     }
   }
-  //Lógica para realtimeproduct.handlebars y Websocket
+
+  //------Lógica para realtimeproduct.handlebars y Websocket------
 
   //Función para realtimeproduct.handlebars
   getRealTimeProducts(req, res) {
@@ -237,21 +239,6 @@ class ProductManager {
       return { success: false, error: error.message };
     }
   }
-
-  //     const addedProduct = await productRepository.create(product);
-
-  //     if (!addedProduct) {
-  //       console.log("Error al intentar agregar el producto");
-  //       return { success: false, error: "El producto no se puede agregar" };
-  //     } else {
-  //       console.log("El producto fue agregado exitosamente.");
-  //       return { success: true, addedProduct };
-  //     }
-  //   } catch (error) {
-  //     console.log("Error al agregar el producto".error);
-  //     return { success: false, error: error.message };
-  //   }
-  // }
 
   //Método para mostrar productos usando Socket
   async getProductsSocket() {
@@ -287,6 +274,18 @@ class ProductManager {
     } catch (error) {
       console.log("Error al eliminar el producto", error.message);
       return { success: false, error: error.message };
+    }
+  }
+
+  //------Lógica para Focker------
+  async generateProductsFocker() {
+    try {
+      const products = [];
+      for (let i = 0; i < 100; i++) {
+        products.push(generateProducts());
+      }
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
     }
   }
 }
