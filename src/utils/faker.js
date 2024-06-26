@@ -15,25 +15,4 @@ const generateProducts = () => {
   };
 };
 
-const generateUsers = () => {
-  const quantityProducts = parseInt(faker.string.numeric());
-
-  let products = [];
-
-  for (let i = 0; i < quantityProducts; i++) {
-    products.push(generateProducts());
-  }
-
-  return {
-    id: faker.database.mongodbObjectId(),
-    first_name: faker.person.firstName(),
-    last_name: faker.person.lastName(),
-    email: faker.internet.email(),
-    password: faker.internet.password(),
-    age: faker.number.int({ min: 18, max: 80 }),
-    role: faker.helpers.arrayElement(["Admin", "User"]),
-    products,
-  };
-};
-
-module.exports = { generateProducts, generateUsers };
+module.exports = { generateProducts };

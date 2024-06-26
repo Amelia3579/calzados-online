@@ -34,7 +34,6 @@ const sessionsRouter = require("./routes/sessions.router.js");
 //Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use(express.static("./src/public"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
 app.use(cookieParser());
@@ -56,14 +55,6 @@ app.use(passport.initialize());
 initializePassport();
 // app.use(passport.session());
 
-//Middleware para manejo de errores
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res
-    .status(500)
-    .send({ success: false, message: "Error ocurred", error: err.message });
-});
-
 //Configuro Handlebars
 app.engine("handlebars", exphbs.engine());
 app.set("view engine", "handlebars");
@@ -75,6 +66,14 @@ app.use("/api/carts", cartsRouter);
 app.use("/", viewsRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/sessions", sessionsRouter);
+
+//Middleware para manejo de errores
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res
+    .status(500)
+    .send({ success: false, message: "Ocurrió un error", error: err.message });
+});
 
 const httpServer = app.listen(puerto, () => {
   console.log(`Servidor express en el puerto http://localhost:${puerto}`);
@@ -88,4 +87,3 @@ mongoose
   .connect(mongo_url)
   .then(() => console.log("Conección a MongoDB"))
   .catch((error) => console.log("Error de conección", error));
-

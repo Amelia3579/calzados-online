@@ -278,12 +278,18 @@ class ProductManager {
   }
 
   //------Lógica para Focker------
-  async generateProductsFocker() {
+  async getProductsFocker(req, res) {
     try {
-      const products = [];
+      let products = [];
       for (let i = 0; i < 100; i++) {
         products.push(generateProducts());
       }
+
+      return res.status(200).send({
+        success: true,
+        message: "Los productos Focker se han generado exitosamente",
+        products: products
+      });
     } catch (error) {
       return res.status(500).send({ message: error.message });
     }
