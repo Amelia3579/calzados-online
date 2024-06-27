@@ -13,9 +13,12 @@ const chatTest = new ChatManager();
 const SessionManager = require("../controllers/sessionManagerDb.js");
 const sessionTest = new SessionManager();
 
+const SocketManager = require("../controllersSockets/socketManager.js");
+
 const passport = require("passport");
 //Verificación del rol
 const verifyRole = require("../config/verifyRole.config.js");
+
 //Middleware de autenticación con JWT
 const authenticateJWT = passport.authenticate("jwt", { session: false });
 

@@ -24,12 +24,15 @@ const path = require("path");
 const PUERTO = 8080;
 const database = require("./database.js");
 
-//Vinculo las rutas
+//Importo las rutas
 const productsRouter = require("./routes/products.router.js");
 const cartsRouter = require("./routes/carts.router.js");
 const viewsRouter = require("./routes/views.router.js");
 const usersRouter = require("./routes/users.router.js");
 const sessionsRouter = require("./routes/sessions.router.js");
+
+//Importo Middleware handleError
+const handleError = require("./middleware/handleError.js");
 
 //Middleware
 app.use(express.json());
@@ -68,12 +71,7 @@ app.use("/api/users", usersRouter);
 app.use("/api/sessions", sessionsRouter);
 
 //Middleware para manejo de errores
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res
-    .status(500)
-    .send({ success: false, message: "Ocurrió un error", error: err.message });
-});
+app.use(handleError);
 
 const httpServer = app.listen(puerto, () => {
   console.log(`Servidor express en el puerto http://localhost:${puerto}`);

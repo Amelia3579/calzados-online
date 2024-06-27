@@ -4,7 +4,7 @@ const ProductManager = require("../controllers/productManagerDb.js");
 const productTest = new ProductManager();
 
 //Estructuración por capas
-router.get("/mockingproducts", productTest.getProductsFocker);
+router.get("/mockingproducts", productTest.getProductsFaker);
 router.get("/", productTest.getProducts);
 router.get("/:id", productTest.getProductById);
 router.post("/", productTest.addProduct);

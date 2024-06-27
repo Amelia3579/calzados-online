@@ -2,12 +2,13 @@ const socket = require("socket.io");
 
 const ProductRepository = require("../repositories/product.repository.js");
 const productRepository = new ProductRepository();
+
 const MessageModel = require("../models/message.model.js");
 
 class SocketManager {
   constructor(httpServer) {
     this.io = socket(httpServer);
-    this.productRepository = productRepository; 
+    this.productRepository = productRepository;
     this.initSocketConnection();
   }
 
@@ -15,7 +16,7 @@ class SocketManager {
     this.io.on("connection", async (socket) => {
       console.log("Conección Socket");
 
-      //Configuración para realtimeproducts.handlebars
+      //Configuración para realtimeproducts.handlebar
       // Envío la lista de productos al cliente cuando se conecta
       socket.emit("products", await this.productRepository.find());
 

@@ -25,7 +25,7 @@ class SessionManager {
       if (!searchedUser) {
         return res.status(401).send({
           success: false,
-          message: `El usuario no fue encontrado. Verificar el email ingresado.`,
+          message: "El usuario no fue encontrado. Verificar el email ingresado.",
         });
       }
 

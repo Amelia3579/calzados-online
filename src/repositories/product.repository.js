@@ -1,5 +1,8 @@
 const ProductModel = require("../models/product.model.js");
 const mongoose = require("mongoose");
+const CustomError = require("../services/errors/custom-error.js");
+const infoError = require("../services/errors/info.js");
+const { dictionaryError } = require("../services/errors/enum.js");
 
 class ProductRepository {
   //Método para agregar productos
@@ -45,10 +48,32 @@ class ProductRepository {
   //Método para actualizar el producto según el ID especificado
   async findByIdAndUpdate(productId, putProductBody) {
     try {
-      return await ProductModel.findByIdAndUpdate(productId, putProductBody);
+      const {
+        title,
+        description,
+        price,
+        thumbnail,
+        code,
+        stock,
+        img,
+        category,
+        status,
+      } = putProductBody;
+
+      const updatedProduct = await ProductModel.findByIdAndUpdate(
+        productId,
+        putProductBody,
+        { new: true }
+      );
+
+      return updatedProduct;
     } catch (error) {
-      console.error(`Error al actualizar el producto: ${error.message}`);
-      throw new Error("Error al actualizar el producto");
+      throw CustomError.createError({
+        name: "Error de actualización",
+        cause: infoError(putProductBody),
+        message: "Error al actualizar el producto",
+        code: dictionaryError.INVALID_TYPES_ERROR,
+      });
     }
   }
 
@@ -62,7 +87,8 @@ class ProductRepository {
     }
   }
 
-  //Lógica para Socket (realtimeproduct.handlebars y chat.handlebars)
+  //------Lógica para realtimeproduct.handlebars con Websocket------
+
   //Método para mostrar productos
   async find() {
     try {
@@ -73,7 +99,7 @@ class ProductRepository {
     }
   }
 
-  //Método para agregar productos usando Socket
+  //Método para agregar productos
   async addProduct(product) {
     try {
       const newProduct = new ProductModel(product);
@@ -84,7 +110,7 @@ class ProductRepository {
     }
   }
 
-  //Método para eliminar productos usando Socket
+  //Método para eliminar productos
   async findByIdAndDelete(id) {
     try {
       return await ProductModel.findByIdAndDelete(id);

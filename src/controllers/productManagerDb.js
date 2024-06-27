@@ -1,6 +1,9 @@
 const { productRepository, userRepository } = require("../services/index.js");
 const mongoose = require("mongoose");
 const { generateProducts } = require("../utils/faker.js");
+const CustomError = require("../services/errors/custom-error.js");
+const infoError = require("../services/errors/info.js");
+const { dictionaryError } = require("../services/errors/enum.js");
 
 class ProductManager {
   //Método para agregar producto
@@ -153,33 +156,101 @@ class ProductManager {
   }
 
   //Método para actualizar el producto según el ID especificado
-  async updateProduct(req, res) {
+  // async updateProduct(req, res) {
+  //   try {
+  //     const productId = req.params.id;
+  //     const putProductBody = req.body;
+
+  //     // Validación para verificar si existe  el producto con el ID especificado
+  //     const updatedProduct = await productRepository.findByIdAndUpdate(
+  //       productId,
+  //       putProductBody
+  //     );
+
+  //     if (!updatedProduct) {
+  //       return res.status(404).send({
+  //         success: false,
+  //         message: `El producto con el ID: ${productId} no fue encontrado. Verificar el identificador ingresado.`,
+  //       });
+  //     } else {
+  //       return res.status(200).json({
+  //         success: true,
+  //         message: `El producto con el ID ${productId} fue actualizado correctamente.`,
+  //         product: JSON.parse(JSON.stringify(updatedProduct, null, 2)),
+  //       });
+  //     }
+  //   } catch (error) {
+  //     return res.status(500).send({ message: error.message });
+  //   }
+  // }
+
+  ////////////////////////////////////////////
+  //------Lógica para Handle.Errors------
+
+  //Método para actualizar el producto según el ID especificado
+  async updateProduct(req, res, next) {
     try {
       const productId = req.params.id;
       const putProductBody = req.body;
 
+      const {
+        title,
+        description,
+        price,
+        thumbnail,
+        code,
+        stock,
+        img,
+        category,
+        status,
+      } = putProductBody;
+
       // Validación para verificar si existe  el producto con el ID especificado
+      const existProduct = await productRepository.findById(productId);
+
+      if (!existProduct) {
+        return res.status(404).send({
+          success: false,
+          message: `El producto con el ID: ${productId} no fue encontrado. Verificar el identificador ingresado.`,
+        });
+      }
+
+      //Si el producto fue encontrado.Valido para modificarlo una vez completos todos los campos
+      if (
+        !title ||
+        !description ||
+        !price ||
+        !thumbnail ||
+        !code ||
+        !stock ||
+        !img ||
+        !category ||
+        status === undefined
+      ) {
+        throw CustomError.createError({
+          name: "Producto sin actualizar",
+          cause: infoError(putProductBody),
+          message: "Error al intentar actualizar el producto",
+          code: dictionaryError.INVALID_TYPES_ERROR,
+        });
+      }
+
+      // Actualizo el producto
       const updatedProduct = await productRepository.findByIdAndUpdate(
         productId,
         putProductBody
       );
 
-      if (!updatedProduct) {
-        return res.status(404).send({
-          success: false,
-          message: `El producto con el ID: ${productId} no fue encontrado. Verificar el identificador ingresado.`,
-        });
-      } else {
-        return res.status(200).json({
-          success: true,
-          message: `El producto con el ID ${productId} fue actualizado correctamente.`,
-          product: JSON.parse(JSON.stringify(updatedProduct, null, 2)),
-        });
-      }
+      return res.status(200).json({
+        success: true,
+        message: `El producto con el ID ${productId} fue actualizado correctamente.`,
+        product: JSON.parse(JSON.stringify(updatedProduct, null, 2)),
+      });
     } catch (error) {
-      return res.status(500).send({ message: error.message });
+      next(error);
     }
   }
+  /////////////////////////////////////////////////
 
   //Método para eliminar producto según ID especificado
   async deleteProduct(req, res) {
@@ -207,10 +278,10 @@ class ProductManager {
     }
   }
 
-  //------Lógica para realtimeproduct.handlebars y Websocket------
+  //------Lógica para realtimeproduct.handlebars con Websocket------
 
-  //Función para realtimeproduct.handlebars
-  getRealTimeProducts(req, res) {
+  //Función para mostrar la plantilla
+  async getRealTimeProducts(req, res) {
     try {
       return res.render("realtimeproducts");
     } catch (error) {
@@ -218,67 +289,8 @@ class ProductManager {
     }
   }
 
-  //Método para agregar productos usando Socket
-  async addProductSocket(product, user) {
-    try {
-      if (user.role === "Admin") {
-        const addedProduct = await productRepository.create(product);
-
-        console.log("El producto fue agregado exitosamente.");
-        return { success: true, addedProduct };
-      } else {
-        console.log("Error al intentar agregar el producto");
-        return {
-          success: false,
-          error:
-            "El producto no se puede agregar. No cuenta con los permisos necesarios.",
-        };
-      }
-    } catch (error) {
-      console.log("Error al agregar el producto:", error);
-      return { success: false, error: error.message };
-    }
-  }
-
-  //Método para mostrar productos usando Socket
-  async getProductsSocket() {
-    try {
-      const searchedProduct = await productRepository.find();
-
-      if (!searchedProduct) {
-        console.log("Error al intentar mostrar los productos");
-        return { success: false, error: "Los productos no se pueden mostrar" };
-      } else {
-        console.log("Los productos disponibles son: ", searchedProduct);
-        return searchedProduct;
-      }
-    } catch (error) {
-      console.log("Error al mostrar los productos", error.message);
-      return [];
-    }
-  }
-
-  //Método para eliminar productos usando Socket
-  async deleteProductSocket(id, user) {
-    try {
-      // const deletedProduct = await productRepository.findByIdAndDelete(id);
-
-      if (user.role === "Admin") {
-        const deletedProduct = await productRepository.findByIdAndDelete(id);
-        console.log("El producto fue eliminado exitosamente.");
-        return { success: true, deletedProduct };
-      } else {
-        console.log("Error al intentar eliminar el producto.");
-        return { success: false, error: "El producto no existe" };
-      }
-    } catch (error) {
-      console.log("Error al eliminar el producto", error.message);
-      return { success: false, error: error.message };
-    }
-  }
-
-  //------Lógica para Focker------
-  async getProductsFocker(req, res) {
+  //------Lógica para Faker------
+  async getProductsFaker(req, res) {
     try {
       let products = [];
       for (let i = 0; i < 100; i++) {
@@ -287,8 +299,8 @@ class ProductManager {
 
       return res.status(200).send({
         success: true,
-        message: "Los productos Focker se han generado exitosamente",
-        products: products
+        message: "Los productos Facker se han generado exitosamente",
+        products: products,
       });
     } catch (error) {
       return res.status(500).send({ message: error.message });
