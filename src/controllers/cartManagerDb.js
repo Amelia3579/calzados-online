@@ -290,8 +290,8 @@ class CartManager {
       return res.status(500).send({ message: error.message });
     }
   }
+  //------Actividad 3° pre-entrega y lógica para Logger------
 
-  //Actividad de la 3° pre-entrega
   //Método para verificar el stock del producto, antes de confirmar la compra
   async purchaseCart(req, res) {
     const cartId = req.params.cid;
@@ -305,6 +305,7 @@ class CartManager {
       const productsNotAvailable = [];
 
       if (!searchedCart) {
+        req.logger.warning(`El carrito con el ID ${cartId} no fue encontrado.`);
         return res
           .status(404)
           .json({ success: false, message: "El carrito no fue encontrado." });
@@ -321,9 +322,15 @@ class CartManager {
             // Resto la cantidad del stock del producto
             productId.stock -= item.quantity;
             await productId.save();
+
+            req.logger.info(`El producto ${product} fue actualizado.`);
           } else {
             // Si no hay suficiente stock, el producto, sea agrega a productsNotAvailable
             productsNotAvailable.push(product);
+
+            req.logger.warning(
+              `El producto ${product} no está disponible en cantidad suficiente.`
+            );
           }
         }
       }
@@ -337,6 +344,10 @@ class CartManager {
         amount: totalAmount,
         purchaser: purchaserEmail,
       });
+
+      req.logger.info(
+        `Fue generado el ticket con el código: ${uniqueCode} para el comprador: ${purchaserEmail}.`
+      );
 
       // Elimino del carrito los productos que se compraron
       searchedCart.products = searchedCart.products.filter((item) =>
@@ -354,6 +365,7 @@ class CartManager {
         ticket: newTicket,
       });
     } catch (error) {
+      req.logger.error("Error en el proceso de compra:", error);
       return res.status(500).send({ message: error.message });
     }
   }

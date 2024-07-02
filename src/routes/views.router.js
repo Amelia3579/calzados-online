@@ -21,6 +21,8 @@ const verifyRole = require("../config/verifyRole.config.js");
 
 //Middleware de autenticación con JWT
 const authenticateJWT = passport.authenticate("jwt", { session: false });
+//Middleware de loggers
+const addLogger = require("../utils/loggers.js");
 
 //Estructuración por capas
 router.get("/carts/:cid", cartTest.getCartById);
@@ -40,5 +42,16 @@ router.get(
 //Ruta para que cuando cargue la app, Login sea lo 1° que se renderize
 router.get("/", sessionTest.getLoguin);
 router.get("/register", sessionTest.getRegister);
+//Ruta para mostrar logs
+router.get("/loggerTest", addLogger, (req, res) => {
+  req.logger.fatal("Mensaje del nivel 0: Fatal");
+  req.logger.error("Mensaje del nivel 1: Error");
+  req.logger.warning("Mensaje del nivel 2: Warning");
+  req.logger.info("Mensaje del nivel 3: Info");
+  req.logger.http("Mensaje del nivel 4: Http");
+  req.logger.debug("Mensaje del nivel 5: Debug");
+
+  res.send("Logs generados");
+});
 
 module.exports = router;

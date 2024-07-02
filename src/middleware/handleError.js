@@ -6,20 +6,14 @@ const handleError = (error, req, res, next) => {
       res.send({
         status: "error",
         error: error.name,
-        details: error.cause
-          .split("\n")
-          .map((line) => line.trim())
-          .filter((line) => line.length > 0),
+        cause: error.cause
       });
       break;
     default:
       res.status(500).send({
         status: "error",
         error: "Error desconocido.",
-        details: error.cause
-          .split("\n")
-          .map((line) => line.trim())
-          .filter((line) => line.length > 0),
+        cause: error.cause
       });
   }
 };

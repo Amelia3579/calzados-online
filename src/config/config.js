@@ -1,11 +1,18 @@
 const dotenv = require("dotenv");
+const program = require("../utils/commander.js");
+
+//Recibo el modo de trabajo
+const { mode } = program.opts();
 
 //Cargo el archivo .env
-dotenv.config({ path: './.env.desarrollo' });
+dotenv.config({
+  path: mode === "production" ? "./.env.production" : "./.env.development",
+});
 
 const configObject = {
   mongo_url: process.env.MONGO_URL,
-  puerto: process.env.PUERTO
+  puerto: process.env.PUERTO,
+  mode,
 };
 
-module.exports = configObject;
+module.exports = { configObject };

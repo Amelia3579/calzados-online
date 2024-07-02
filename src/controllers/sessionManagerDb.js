@@ -15,6 +15,8 @@ class SessionManager {
     }
   }
 
+  //------Lógica para Logger------
+  
   //Método para verificar la existencia de un usuario
   async loginUser(req, res) {
     const { email, password } = req.body;

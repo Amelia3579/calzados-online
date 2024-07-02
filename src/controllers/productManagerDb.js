@@ -155,37 +155,7 @@ class ProductManager {
     }
   }
 
-  //Método para actualizar el producto según el ID especificado
-  // async updateProduct(req, res) {
-  //   try {
-  //     const productId = req.params.id;
-  //     const putProductBody = req.body;
-
-  //     // Validación para verificar si existe  el producto con el ID especificado
-  //     const updatedProduct = await productRepository.findByIdAndUpdate(
-  //       productId,
-  //       putProductBody
-  //     );
-
-  //     if (!updatedProduct) {
-  //       return res.status(404).send({
-  //         success: false,
-  //         message: `El producto con el ID: ${productId} no fue encontrado. Verificar el identificador ingresado.`,
-  //       });
-  //     } else {
-  //       return res.status(200).json({
-  //         success: true,
-  //         message: `El producto con el ID ${productId} fue actualizado correctamente.`,
-  //         product: JSON.parse(JSON.stringify(updatedProduct, null, 2)),
-  //       });
-  //     }
-  //   } catch (error) {
-  //     return res.status(500).send({ message: error.message });
-  //   }
-  // }
-
-  ////////////////////////////////////////////
-  //------Lógica para Handle.Errors------
+  //------Lógica para handleError------
 
   //Método para actualizar el producto según el ID especificado
   async updateProduct(req, res, next) {
@@ -214,8 +184,8 @@ class ProductManager {
           message: `El producto con el ID: ${productId} no fue encontrado. Verificar el identificador ingresado.`,
         });
       }
-
-      //Si el producto fue encontrado.Valido para modificarlo una vez completos todos los campos
+req.logger.warning("Todos los campos tienen que estar completos, para poder modificar el producto.")
+      //Si el producto fue encontrado. Hago validación para modificarlo una vez completos todos los campos
       if (
         !title ||
         !description ||
@@ -250,7 +220,6 @@ class ProductManager {
       next(error);
     }
   }
-  /////////////////////////////////////////////////
 
   //Método para eliminar producto según ID especificado
   async deleteProduct(req, res) {

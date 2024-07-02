@@ -3,11 +3,10 @@ const express = require("express");
 const app = express();
 const exphbs = require("express-handlebars");
 const cookieParser = require("cookie-parser");
-// const session = require("express-session");
-// const MongoStore = require("connect-mongo");
+
 //Importo Mongoose
 const mongoose = require("mongoose");
-const configObject = require("./config/config.js");
+const { configObject } = require("./config/config.js");
 const { mongo_url, puerto } = configObject;
 
 //Importo Passport
@@ -20,9 +19,9 @@ const cors = require("cors");
 //Importo Socket
 const SocketManager = require("./controllersSockets/socketManager.js");
 
+//Importo Logger
+const addLogger = require("./utils/loggers.js");
 const path = require("path");
-const PUERTO = 8080;
-const database = require("./database.js");
 
 //Importo las rutas
 const productsRouter = require("./routes/products.router.js");
@@ -40,23 +39,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
 app.use(cookieParser());
-// app.use(
-//   session({
-//     secret: "secretPass",
-//     resave: true,
-//     saveUninitialized: true,
-//     store: MongoStore.create({
-//       mongoUrl:
-//         "mongodb+srv://meligallegos:Paranaer1979@cluster0.kvvktyg.mongodb.net/Ecommerce?retryWrites=true&w=majority&appName=Cluster0",
-//       ttl: 100,
-//     }),
-//   })
-// );
+//Middleware Logger
+app.use(addLogger);
 
 //Middleware Passport
 app.use(passport.initialize());
 initializePassport();
-// app.use(passport.session());
 
 //Configuro Handlebars
 app.engine("handlebars", exphbs.engine());
@@ -73,6 +61,7 @@ app.use("/api/sessions", sessionsRouter);
 //Middleware para manejo de errores
 app.use(handleError);
 
+//Escucho el puerto usando Commander
 const httpServer = app.listen(puerto, () => {
   console.log(`Servidor express en el puerto http://localhost:${puerto}`);
 });
@@ -80,7 +69,7 @@ const httpServer = app.listen(puerto, () => {
 //Configuro instancia de Socket.io del lado del servidor (desafío 4)
 new SocketManager(httpServer);
 
-//Me conecto a MongoDB usando .env
+//Me conecto a MongoDB usando Commander
 mongoose
   .connect(mongo_url)
   .then(() => console.log("Conección a MongoDB"))
