@@ -7,13 +7,14 @@ const cartTest = new CartManager();
 const ProductManager = require("../controllers/productManagerDb.js");
 const productTest = new ProductManager();
 
-const ChatManager = require("../controllers/chatManagerDb.js");
+const ChatManager = require("../controllers/chatController.js");
 const chatTest = new ChatManager();
 
 const SessionManager = require("../controllers/sessionManagerDb.js");
 const sessionTest = new SessionManager();
 
-const SocketManager = require("../controllersSockets/socketManager.js");
+const ViewsController = require("../controllers/view.controller.js");
+const viewsTest = new ViewsController();
 
 const passport = require("passport");
 //Verificación del rol
@@ -21,7 +22,7 @@ const verifyRole = require("../config/verifyRole.config.js");
 
 //Middleware de autenticación con JWT
 const authenticateJWT = passport.authenticate("jwt", { session: false });
-//Middleware de loggers
+//Middleware de Loggers
 const addLogger = require("../utils/loggers.js");
 
 //Estructuración por capas
@@ -36,7 +37,7 @@ router.get(
 router.get("/chat", verifyRole(["User"]), chatTest.getChat);
 router.get(
   "/realtimeproducts",
-  verifyRole(["Admin"]),
+  verifyRole(["Premium"]),
   productTest.getRealTimeProducts
 );
 //Ruta para que cuando cargue la app, Login sea lo 1° que se renderize
@@ -54,4 +55,8 @@ router.get("/loggerTest", addLogger, (req, res) => {
   res.send("Logs generados");
 });
 
+//------Rutas para Envío de Emails (3° Práctica Integradora)------
+router.get("/resetpassword", viewsTest.renderResetPassword);
+router.get("/password", viewsTest.renderChangePassword);
+router.get("/shippingconfirmation", viewsTest.renderConfirmation);
 module.exports = router;

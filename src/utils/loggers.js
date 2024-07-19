@@ -48,9 +48,9 @@ const optionsLogger =
 // //Creo un middleware
 const addLogger = (req, res, next) => {
   req.logger = optionsLogger;
-  req.logger.http(
-    `${req.method} en ${req.url} - ${new Date().toLocaleTimeString()}`
-  );
+  // req.logger.http(
+  //   `${req.method} en ${req.url} - ${new Date().toLocaleTimeString()}`
+  // );
   next();
 };
 

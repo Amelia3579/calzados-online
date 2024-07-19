@@ -22,6 +22,11 @@ class SocketManager {
 
       //Manejo el evento "eliminarProducto" desde el cliente
       socket.on("deleteProduct", async (id) => {
+        const userId = socket.handshake.query.userId;
+        const user = await UserModel.findById(userId);
+        const product = await this.productRepository.findById(id);
+
+
         await this.productRepository.findByIdAndDelete(id);
         //Envío la lista de productos actualizada
         this.updatedProducts();

@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { schema } = require("./cart.model");
 
 const userSchema = new mongoose.Schema({
   first_name: {
@@ -8,7 +7,7 @@ const userSchema = new mongoose.Schema({
   },
   last_name: {
     type: String,
-    // required: true,
+    required: true,
   },
   email: {
     type: String,
@@ -18,11 +17,10 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    // required: true,
   },
   age: {
     type: Number,
-    // required: true,
+    required: true,
   },
   cart: {
     type: mongoose.Schema.Types.ObjectId,
@@ -30,9 +28,14 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["Admin", "User"],
-    default: "User"
-  }
+    enum: ["Admin", "User", "Premium"], //Enumero las opciones válidas
+    default: "User",
+  },
+  //Nuevo campo dentro del documento del usuario para guardar token generado
+  resetToken: {
+    token: String,
+    expire: Date,
+  },
 });
 
 const UserModel = mongoose.model("users", userSchema);

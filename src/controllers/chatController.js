@@ -1,4 +1,3 @@
-const MessageModel = require("../models/message.model.js");
 const mongoose = require("mongoose");
 
 class ChatManager {
