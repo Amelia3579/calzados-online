@@ -9,7 +9,7 @@ const verifyRole = (roles) => {
 
     //Verifico si se ingresa un token
     if (!token) {
-      res.status(403).send("Falta ingresar el token.");
+      return res.status(403).send("Falta ingresar el token.");
     }
 
     try {

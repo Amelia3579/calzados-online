@@ -7,7 +7,7 @@ class ViewsController {
 
   async renderResetPassword(req, res) {
     try {
-      res.render("resetPassword");
+      res.render("resetpassword");
     } catch (error) {
       return res.status(500).send({ message: error.message });
     }

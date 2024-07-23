@@ -23,6 +23,7 @@ const SocketManager = require("./controllersSockets/socketManager.js");
 const addLogger = require("./utils/loggers.js");
 const path = require("path");
 
+
 //Importo las rutas
 const productsRouter = require("./routes/products.router.js");
 const cartsRouter = require("./routes/carts.router.js");

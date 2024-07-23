@@ -93,6 +93,7 @@ class CartManager {
       const cartId = req.params.cid;
       const prodId = req.params.pid;
       const quantity = req.body.quantity || 1;
+      const user = req.user;
 
       const searchedCart = await cartRepository.findById(cartId);
       // Verifico si el carrito existe
@@ -100,6 +101,23 @@ class CartManager {
         return res.status(404).send({
           success: false,
           message: `El carrito con el ID: ${cartId} no se encontró.`,
+        });
+      }
+
+      // Busco el producto en la base de datos
+      const product = await productRepository.findById(prodId);
+      if (!product) {
+        return res.status(404).send({
+          success: false,
+          message: `El producto con el ID: ${prodId} no fue encontrado.`,
+        });
+      }
+
+      // Verifico si el producto pertenece al usuario premium
+      if (user.role === "Premium" && product.owner === user.email) {
+        return res.status(403).send({
+          success: false,
+          message: "No podés agregar productos que te pertenecen a tu carrito.",
         });
       }
 

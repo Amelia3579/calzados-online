@@ -87,7 +87,7 @@ class ProductRepository {
     }
   }
 
-  //------Lógica para realtimeproduct.handlebars con Websocket------
+  //------Lógica para realtimeproducts.handlebars con Websocket------
 
   //Método para mostrar productos
   async find() {
@@ -111,9 +111,9 @@ class ProductRepository {
   }
 
   //Método para eliminar productos
-  async findByIdAndDelete(id) {
+  async findByIdAndDelete(_id) {
     try {
-      return await ProductModel.findByIdAndDelete(id);
+      return await ProductModel.findByIdAndDelete(_id);
     } catch (error) {
       console.error(`Error al eliminar el producto: ${error.message}`);
       throw new Error("Error al intentar eliminar el producto: ");

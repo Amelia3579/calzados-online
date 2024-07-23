@@ -184,7 +184,9 @@ class ProductManager {
           message: `El producto con el ID: ${productId} no fue encontrado. Verificar el identificador ingresado.`,
         });
       }
-req.logger.warning("Todos los campos tienen que estar completos, para poder modificar el producto.")
+      req.logger.warning(
+        "Todos los campos tienen que estar completos, para poder modificar el producto."
+      );
       //Si el producto fue encontrado. Hago validación para modificarlo una vez completos todos los campos
       if (
         !title ||
@@ -247,12 +249,16 @@ req.logger.warning("Todos los campos tienen que estar completos, para poder modi
     }
   }
 
-  //------Lógica para realtimeproduct.handlebars con Websocket------
+  //------Lógica para realtimeproducts.handlebars con Websocket------
 
   //Función para mostrar la plantilla
   async getRealTimeProducts(req, res) {
+    const user = req.user;
     try {
-      return res.render("realtimeproducts");
+      return res.render("realtimeproducts", {
+        role: user.role,
+        email: user.email,
+      });
     } catch (error) {
       return res.status(500).send({ message: error.message });
     }

@@ -1,9 +1,9 @@
-.tituloPrinc {
+.mainTitle {
   display: flex;
   justify-content: center;
 }
 
-.tituloSec {
+.secondatyTitle {
   display: flex;
   justify-content: center;
 }

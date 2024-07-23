@@ -37,9 +37,6 @@ class UserManager {
       //Si no existe, creo un usuario nuevo, al cual se asociará un nuevo carrito
       let newCart = await cartRepository.addCart();
 
-      //Defino el rol de usuario y admin
-      // const role = email === "adminapp@gmail.com" ? "Admin" : "User";
-
       // Determino el rol del usuario según el email
       let role;
       if (email === "adminapp@gmail.com") {
@@ -86,7 +83,7 @@ class UserManager {
     }
   }
 
-  //------Lógica para Envío de Emails (3° Práctica Integradora)------
+  //------Lógica para envío de emails y cambio de rol (3° Práctica Integradora)------
   async requestPasswordReset(req, res) {
     //Recibo el email del usuario
     const { email } = req.body;
@@ -111,12 +108,11 @@ class UserManager {
         expire: new Date(Date.now() + 3600000), //Le doy 1 hora de duración
       };
       await user.save();
-      console.log("Prueba4", user);
+
       //Luego de guardar los cambios, envío el email
-      await emailManager.sendEmailReset(email, user.first_name, token);
-      console.log("Prueba5");
+      await emailManager.sendEmailReset(user.first_name, token);
+
       res.redirect("/shippingconfirmation");
-      console.log("Prueba6");
     } catch (error) {
       return res.status(500).send({ message: error.message });
     }
@@ -133,7 +129,7 @@ class UserManager {
 
       //Si no hay usuario, lo envío nuevamente a que cargue sus datos
       if (!user) {
-        return res.render("changepassword", {
+        return res.render("resetpassword", {
           error: "No se encontró usuario con el email ingresado.",
         });
       }
@@ -142,8 +138,8 @@ class UserManager {
       const resetToken = user.resetToken;
 
       if (!resetToken || resetToken.token !== token) {
-        return res.render("resetpassword", {
-          error: "El token verificado es inválido.",
+        return res.render("changepassword", {
+          error: "El token ingresado es inválido. Generá otro por favor.",
         });
       }
 
@@ -151,14 +147,14 @@ class UserManager {
       const tokenDuration = new Date();
 
       if (tokenDuration > resetToken.expire) {
-        return res.render("resetpassword", {
+        return res.render("changepassword", {
           error: "El token ingresado ha caducado.",
         });
       }
 
       //Verifico que la nueva contraseña sea distinta a la anterior
       if (isValidPassword(password, user)) {
-        return res.render("changepassword", {
+        return res.render("resetpassword", {
           error: "La nueva contraseña tiene que ser distinta a la anterior.",
         });
       }
@@ -170,11 +166,40 @@ class UserManager {
       await user.save();
 
       //Redirecciono a Login para ingresar la nueva contraseña
-      return res.redirect("./login");
+      return res.redirect("/");
     } catch (error) {
-      res.status(500).render("resetpassword", { message: error.message });
+      res.status(500).render("changepassword", { message: error.message });
+    }
+  }
+
+  //Método para cambiar el rol del usuario
+  async premiumRoleChange(req, res) {
+    //Recibo el id del usuario
+    const { uid } = req.params;
+
+    try {
+      //Busco al usuario
+      const user = await userRepository.findById(uid);
+
+      if (!user) {
+        return res.status(404).send("El usuario no fue encontrado.");
+      }
+
+      //Si lo encuentro,le cambio el rol
+      const newRole = user.role === "User" ? "Premium" : "User";
+
+      const updateRole = await userRepository.findByIdAndUpdate(uid, {
+        role: newRole,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "El rol fue actualizado exitosamente.",
+        user: JSON.parse(JSON.stringify(updateRole, null, 2)),
+      });
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
     }
   }
 }
-
 module.exports = UserManager;

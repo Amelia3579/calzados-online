@@ -1,9 +1,11 @@
 {{!-- Actividad desafío4 (Websockets) --}}
 <div id="containerProducts"></div>
-<h2 class="tituloSec">Form to add Products to the Store</h2>
+<h2 class="secondaryTitle">Form to add Products to the Store</h2>
+<p id="role">User role: {{role}}</p>
+<p id="email">User email: {{email}}</p>
 
 <form>
-  <input type="text" id="title" placeholder="Título" />
+  <input type="text" id="title" placeholder="Product name" />
   <input type="text" id="description" placeholder="Description" />
   <input type="number" id="price" placeholder="Price" />
   <input type="text" id="img" value="Without Image" />
@@ -20,4 +22,4 @@
 <script
   src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"
 ></script>
-<script src="js/main.js"></script>
+<script src="js/realtimeproducts.js"></script>

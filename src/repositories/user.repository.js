@@ -33,6 +33,16 @@ class UserRepository {
       throw new Error("Error al crear el usuario");
     }
   }
+
+  //Método para buscar y actualizar rol del usuario
+  async findByIdAndUpdate(uid, updateData) {
+    try {
+      return await UserModel.findByIdAndUpdate(uid, updateData, { new: true });
+    } catch (error) {
+      console.error(`Error al actualizar el rol: ${error.message}`);
+      throw new Error("Error al actualizar el rol");
+    }
+  }
 }
 
 module.exports = UserRepository;

@@ -8,18 +8,21 @@ class EmailManager {
       service: "gmail",
       port: 587,
       auth: {
-        user: "<ameliaisabelgallegos@gmail.com>",
-        pass: "kzje kcmh epbf mrtq",
+        user: "ameliaisabelgallegos@gmail.com",
+        pass: "cksa mrzn zham knqd",
+      },
+      tls: {
+        rejectUnauthorized: false,
       },
     });
   }
-  
+
   //Método para envío de mail con el ckeck out de la compra
-  async sendEmailCheckOut(email, first_name, ticket) {
+  async sendEmailCheckOut(first_name, ticket) {
     try {
       const mailOptions = {
         from: "Mail App Test<ameliaisabelgallegos@gmail.com>", //Remitente
-        to: email, //Destinatario
+        to: "<meli_gallegos@yahoo.com.ar>", //Destinatario
         subject: "Check Out Purchase",
         html: `
          <h1> Ckeck Out Purchase </h1>
@@ -28,36 +31,37 @@ class EmailManager {
          <h2> Come Back Soon </h2>
         `,
       };
+
       await this.transporter.sendMail(mailOptions);
     } catch (error) {
       console.log(
-        "Error al verificar la compra realizada. Verificá los pasos por favor.", error
+        "Error al verificar la compra realizada. Verificá los pasos por favor.",
+        error
       );
     }
   }
 
   //Método para envío de mail con el restablecimiento de la contraseña
-  async sendEmailReset(email, first_name, token) {
-    console.log("Prueba1");
+  async sendEmailReset(first_name, token) {
     try {
       const mailOptions = {
         from: "Mail App Test<ameliaisabelgallegos@gmail.com>", //Remitente
-        to: email, //Destinatario
+        to: "<meli_gallegos@yahoo.com.ar>", //Destinatario
         subject: "Password Reset",
         html: `
          <h1> Password Reset </h1>
          <p> Hello ${first_name}  </p>
-         <p> Are you about to resest your password</p>
+         <p> Are you about to reset your password</p>
          <h2> Your confirmation code is: ${token} and expires in 1 hour  </h2>
-         <a href= "http://localhost:8080/password" > Reset Password </a>
+         <a href= "http://localhost:8080/resetpassword" > Enter the code </a>
         `,
       };
-      console.log("Prueba2", mailOptions);
+
       await this.transporter.sendMail(mailOptions);
-      console.log("Prueba3");
     } catch (error) {
       console.log(
-        "Error en el restablecimiento de la contraseña. Verificá los pasos por favor.",error
+        "Error en el restablecimiento de la contraseña. Verificá los pasos por favor.",
+        error
       );
     }
   }

@@ -30,19 +30,20 @@ router.get("/carts/:cid", cartTest.getCartById);
 router.post("/carts/:cid", cartTest.addProductToCart);
 router.get(
   "/products",
-  verifyRole(["User"]),
+  verifyRole(["User", "Premium"]),
   authenticateJWT,
   productTest.getProducts
 );
 router.get("/chat", verifyRole(["User"]), chatTest.getChat);
 router.get(
   "/realtimeproducts",
-  verifyRole(["Premium"]),
+  verifyRole(["Admin", "Premium"]),
   productTest.getRealTimeProducts
 );
-//Ruta para que cuando cargue la app, Login sea lo 1° que se renderize
+//Ruta para que Login sea lo 1° que se renderize
 router.get("/", sessionTest.getLoguin);
 router.get("/register", sessionTest.getRegister);
+
 //Ruta para mostrar logs
 router.get("/loggerTest", addLogger, (req, res) => {
   req.logger.fatal("Mensaje del nivel 0: Fatal");
@@ -56,7 +57,7 @@ router.get("/loggerTest", addLogger, (req, res) => {
 });
 
 //------Rutas para Envío de Emails (3° Práctica Integradora)------
-router.get("/resetpassword", viewsTest.renderResetPassword);
-router.get("/password", viewsTest.renderChangePassword);
 router.get("/shippingconfirmation", viewsTest.renderConfirmation);
+router.get("/resetpassword", viewsTest.renderResetPassword);
+router.get("/changepassword", viewsTest.renderChangePassword);
 module.exports = router;

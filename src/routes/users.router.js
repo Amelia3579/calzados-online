@@ -72,6 +72,6 @@ router.post("/", userTest.registerUser);
 //------Rutas para Envío de Emails (3° Práctica Integradora)------
 router.post("/requestpasswordreset", userTest.requestPasswordReset);
 router.post("/resetpassword", userTest.resetPassword);
-//router.post("/premium/:uid", userTest.premiumRoleChange);
+router.put("/premium/:uid", userTest.premiumRoleChange);
 
 module.exports = router;

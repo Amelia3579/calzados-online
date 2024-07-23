@@ -21,22 +21,35 @@ class SocketManager {
       socket.emit("products", await this.productRepository.find());
 
       //Manejo el evento "eliminarProducto" desde el cliente
-      socket.on("deleteProduct", async (id) => {
-        const userId = socket.handshake.query.userId;
-        const user = await UserModel.findById(userId);
-        const product = await this.productRepository.findById(id);
-
-
-        await this.productRepository.findByIdAndDelete(id);
-        //Envío la lista de productos actualizada
-        this.updatedProducts();
+      socket.on("deleteProduct", async (_id) => {
+        console.log("Prueba4");
+        try {
+          await this.productRepository.findByIdAndDelete(_id);
+          //Envío la lista de productos actualizada
+          this.updatedProducts();
+          console.log("Prueba5");
+        } catch (error) {
+          socket.emit("error", {
+            message:
+              "No tenés los permisos necesarios para eliminar productos de la tienda.",
+            details: error.message,
+          });
+        }
       });
 
       //Manejo el evento "agregarProducto" desde el cliente
       socket.on("addProduct", async (product) => {
-        await this.productRepository.addProduct(product);
-        //Envío la lista de productos actualizada
-        this.updatedProducts();
+        try {
+          await this.productRepository.addProduct(product);
+          //Envío la lista de productos actualizada
+          this.updatedProducts();
+        } catch (error) {
+          socket.emit("error", {
+            message:
+              "No tenés los permisos necesarios para agregar productos a la tienda.",
+            details: error.message,
+          });
+        }
       });
 
       //Configuración para chat.handlebars
