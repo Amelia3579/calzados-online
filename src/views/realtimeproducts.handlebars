@@ -1,8 +1,8 @@
-{{!-- Actividad desafío4 (Websockets) --}}
+{{! Actividad desafío4 (Websockets) }}
 <div id="containerProducts"></div>
 <h2 class="secondaryTitle">Form to add Products to the Store</h2>
-<p id="role">User role: {{role}}</p>
-<p id="email">User email: {{email}}</p>
+<p id="role"> {{role}} </p>
+<p id="email"> {{email}} </p>
 
 <form>
   <input type="text" id="title" placeholder="Product name" />
@@ -19,6 +19,7 @@
   <button type="button" id="btnEnviar"> Add Product </button>
 </form>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script
   src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"
 ></script>

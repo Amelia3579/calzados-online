@@ -22,12 +22,10 @@ class SocketManager {
 
       //Manejo el evento "eliminarProducto" desde el cliente
       socket.on("deleteProduct", async (_id) => {
-        console.log("Prueba4");
         try {
           await this.productRepository.findByIdAndDelete(_id);
           //Envío la lista de productos actualizada
           this.updatedProducts();
-          console.log("Prueba5");
         } catch (error) {
           socket.emit("error", {
             message:
