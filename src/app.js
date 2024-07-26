@@ -4,10 +4,27 @@ const app = express();
 const exphbs = require("express-handlebars");
 const cookieParser = require("cookie-parser");
 
+//Importo Swagger
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerUiExpress = require("swagger-ui-express");
+
 //Importo Mongoose
 const mongoose = require("mongoose");
 const { configObject } = require("./config/config.js");
 const { mongo_url, puerto } = configObject;
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.1",
+    info: {
+      title: "Succulent Store App Documentation",
+      description: "App dedicated to the sale of succulents and cacti",
+    },
+  },
+  apis: [`./src/docs/**/*.yaml`],
+};
+
+const specs = swaggerJsdoc(swaggerOptions);
+app.use("/apidocs", swaggerUiExpress.serve, swaggerUiExpress.setup(specs));
 
 //Importo Passport
 const passport = require("passport");
@@ -22,7 +39,6 @@ const SocketManager = require("./controllersSockets/socketManager.js");
 //Importo Logger
 const addLogger = require("./utils/loggers.js");
 const path = require("path");
-
 
 //Importo las rutas
 const productsRouter = require("./routes/products.router.js");

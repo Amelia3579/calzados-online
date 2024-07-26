@@ -22,13 +22,13 @@
   border-radius: 0.8rem;
   margin: 2rem;
   padding: 1rem;
-  background-color: rgb(101, 183, 101);
+  background-color: rgb(91, 166, 91);
   width: 15vw;
   box-shadow: 0px 1px 10px #2b413a;
 }
 
 .cardButton {
-  color: whitesmoke;
+  color: #fef8f4;
   background-color: rgb(10, 106, 10);
   padding: 0.8rem;
   margin: 0.8rem;
@@ -48,7 +48,7 @@
 }
 
 #btnGitHub {
-  color: whitesmoke;
+  color: #fef8f4;
   background-color: rgb(10, 106, 10);
   padding: 0.7rem;
   margin: 0.8rem;
@@ -94,7 +94,7 @@ input {
 }
 
 .btnLogin, #btnRegister, .btnAdd {
-  color: whitesmoke;
+  color: #fef8f4;
   background-color: rgb(10, 106, 10);
   padding: 0.5rem;
   margin: 0.8rem;
