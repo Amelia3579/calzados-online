@@ -18,12 +18,12 @@ class CartManager {
       if (newCart) {
         return res.status(200).send({
           success: true,
-          message: "El carrito fue generado exitosamente.",
+          message: "The shopping cart was successfully created.",
         });
       } else {
         return res.status(400).json({
           success: false,
-          message: "El carrito no se pudo generar.",
+          message: "The cart could not be created.",
         });
       }
     } catch (error) {
@@ -42,13 +42,13 @@ class CartManager {
         res.status(404).send({
           success: false,
           message:
-            "No se pueden mostrar los carritos. Verificá la operación que realizaste.",
+            "The carts cannot be displayed because they were not found. Please check if the operation you performed is correct.",
         });
         return null;
       } else {
         return res.status(200).json({
           success: true,
-          message: "Los carritos disponibles son: ",
+          message: "The available carts are: ",
           carts: JSON.parse(JSON.stringify(searchedCart, null, 2)),
         });
       }
@@ -65,7 +65,7 @@ class CartManager {
       if (!cart) {
         return res.status(404).send({
           success: false,
-          message: `Error al mostrar el carrito con el ID: ${cartId}.`,
+          message: `The cart with the ID ${cartId} cannot be displayed because it was not found.`,
         });
       } else {
         const products = await Promise.all(
@@ -95,12 +95,12 @@ class CartManager {
       const quantity = req.body.quantity || 1;
       const user = req.user;
 
-      const searchedCart = await cartRepository.findById(cartId);
+      const cart = await cartRepository.findById(cartId);
       // Verifico si el carrito existe
-      if (!searchedCart) {
+      if (!cart) {
         return res.status(404).send({
           success: false,
-          message: `El carrito con el ID: ${cartId} no se encontró.`,
+          message: `The cart with the ID ${cartId} was not found.`,
         });
       }
 
@@ -109,7 +109,7 @@ class CartManager {
       if (!product) {
         return res.status(404).send({
           success: false,
-          message: `El producto con el ID: ${prodId} no fue encontrado.`,
+          message: `The product with the ID ${prodId} was not found.`,
         });
       }
 
@@ -117,26 +117,26 @@ class CartManager {
       if (user.role === "Premium" && product.owner === user.email) {
         return res.status(403).send({
           success: false,
-          message: "No podés agregar productos que te pertenecen a tu carrito.",
+          message: "You can't add your products to your cart.",
         });
       }
 
-      const searchedProduct = searchedCart.products.find(
+      const productInCart = cart.products.find(
         (elem) => elem.product._id.toString() === prodId
       );
 
-      if (searchedProduct) {
-        searchedProduct.quantity += quantity;
+      if (productInCart) {
+        productInCart.quantity += quantity;
       } else {
-        searchedCart.products.push({ product: prodId, quantity });
+        cart.products.push({ product: prodId, quantity });
       }
 
       //Marco la propiedad products como modificada
-      searchedCart.markModified("products");
+      cart.markModified("products");
 
-      await searchedCart.save();
-      res.redirect(`/carts/${searchedCart._id}`);
-      // return res.send(JSON.stringify(searchedCart, null, 2));
+      await cart.save();
+      res.redirect(`/carts/${cart._id}`);
+      // return res.send(JSON.stringify(cart, null, 2));
     } catch (error) {
       return res.status(500).send({ message: error.message });
     }
@@ -148,43 +148,43 @@ class CartManager {
       const cartId = req.params.cid;
       const prodId = req.params.pid;
 
-      const searchedCart = await cartRepository.findById(cartId);
+      const cart = await cartRepository.findById(cartId);
 
       // Validación para verificar si existe el carrito con el ID especificado
-      if (!searchedCart) {
+      if (!cart) {
         res.status(404).send({
           success: false,
-          message: `El carrito con el ID: ${cartId} no fue encontrado. Verificar el identificador ingresado.`,
+          message: `The cart with the ID ${cartId} was not found.`,
         });
         return null;
       }
 
       // Validación para verificar si existe el producto con el ID especificado
-      const searchedProduct = searchedCart.products.findIndex(
+      const productIndex = cart.products.findIndex(
         (elem) => elem.product._id.toString() === prodId
       );
 
-      if (searchedProduct === -1) {
+      if (productIndex === -1) {
         res.status(404).send({
           success: false,
-          message: `El producto con el ID: ${prodId} no fue encontrado. Verificar el identificador ingresado.`,
+          message: `The product with the ID ${prodId} was not found.`,
         });
         return null;
       }
 
       // Si la cantidad es mayor a 1, descuento en 1 el producto
-      if (searchedCart.products[searchedProduct].quantity > 1) {
-        searchedCart.products[searchedProduct].quantity -= 1;
+      if (cart.products[productIndex].quantity > 1) {
+        cart.products[productIndex].quantity -= 1;
       } else {
         // Si la cantidad es 1, elimino el producto del array
-        searchedCart.products.splice(searchedProduct, 1);
+        cart.products.splice(productIndex, 1);
       }
 
       // Guardo los cambios en MongoDB
-      await searchedCart.save();
+      await cart.save();
       return res.status(200).json({
-        message: `El producto con el ID: ${prodId} fue eliminado exitosamente del carrito ${cartId}`,
-        searchedCart,
+        message: `The product with the ID ${prodId} was successfully deleted at the cart${cartId}`,
+        cart,
       });
     } catch (error) {
       return res.status(500).send({ message: error.message });
@@ -192,43 +192,42 @@ class CartManager {
   }
 
   //Método para actualizar carrito, según el ID especificado
-  async updateProduct(req, res) {
+  async updateCartProduct(req, res) {
     try {
       const cartId = req.params.cid;
-      const updatedProducts = req.body;
+      const updatedProduct = req.body;
 
-      const searchedCart = await cartRepository.findById(cartId);
+      const cart = await cartRepository.findById(cartId);
 
       // Validación para verificar si existe el carrito con el ID especificado
-      if (!searchedCart) {
+      if (!cart) {
         res.status(404).send({
           success: false,
-          message: `El carrito con el ID: ${cartId} no fue encontrado. Verificar el identificador ingresado.`,
+          message: `The cart with the ID ${cartId} was not found.`,
         });
         return null;
       }
 
       // Validación para verificar si existe el producto en el carrito, según el ID especificado
-      const searchedProduct = searchedCart.products.findIndex(
-        (elem) => elem.product._id.toString() === updatedProducts.product
+      const productIndex = cart.products.findIndex(
+        (elem) => elem.product._id.toString() === updatedProduct.product
       );
 
-      if (searchedProduct !== -1) {
+      if (productIndex !== -1) {
         // Si el producto existe, actualizo su cantidad
-        searchedCart.products[searchedProduct].quantity =
-          updatedProducts.quantity;
+        cart.products[productIndex].quantity = updatedProduct.quantity;
       } else {
         // Si el producto no existe, lo agrego al carrito
-        searchedCart.products.push({ product, quantity });
+        cart.products.push({ product, quantity });
       }
 
       // Guardo los cambios en MongoDB
-      await searchedCart.save();
+      await cart.save();
 
       return res.status(200).json({
         success: true,
-        message: `El carrito ${cartId} fue actualizado exitosamente.`,
-        products: JSON.parse(JSON.stringify(searchedCart.products, null, 2)),
+        message: `The cart ${cartId} was successfully updated.`,
+        products: JSON.parse(JSON.stringify(cart.products, null, 2)),
       });
     } catch (error) {
       return res.status(500).send({ message: error.message });
@@ -236,7 +235,7 @@ class CartManager {
   }
 
   //Método para actualizar la cantidad de productos de un carrito, según el ID especificado
-  async updateProductDos(req, res) {
+  async updateQuantityProduct(req, res) {
     try {
       const cartId = req.params.cid;
       const prodId = req.params.pid;
@@ -248,7 +247,7 @@ class CartManager {
       if (!searchedCart) {
         res.status(404).send({
           success: false,
-          message: `El carrito con el ID: ${cartId} no fue encontrado. Verificar el identificador ingresado.`,
+          message: `The cart with the ID ${cartId} was not found.`,
         });
         return null;
       }
@@ -271,7 +270,7 @@ class CartManager {
 
       return res.status(200).json({
         success: true,
-        message: `El carrito ${cartId} fue actualizado exitosamente.`,
+        message: `The product quantity was updated successfully.`,
         products: JSON.parse(JSON.stringify(searchedCart.products, null, 2)),
       });
     } catch (error) {
@@ -280,29 +279,29 @@ class CartManager {
   }
 
   //Método para vaciar el carrito, según el ID especificado
-  async deleteProductDos(req, res) {
+  async emptyCart(req, res) {
     try {
       const cartId = req.params.cid;
-      const searchedCart = await cartRepository.findById(cartId);
+      const cart = await cartRepository.findById(cartId);
 
       // Validación para verificar si existe el carrito con el ID especificado
-      if (!searchedCart) {
+      if (!cart) {
         res.status(404).send({
           success: false,
-          message: `El carrito con el ID: ${cartId} no fue encontrado. Verificar el identificador ingresado.`,
+          message: `The cart with the ID ${cartId} was not found.`,
         });
         return null;
       } else {
         // Vacío el carrito especificado
-        searchedCart.products = [];
+        cart.products = [];
       }
 
       // Guardo los cambios en MongoDB
-      await searchedCart.save();
+      await cart.save();
 
       return res.status(200).json({
-        message: `El carrito con el ID: ${cartId} fue vaciado.`,
-        cart: searchedCart.products,
+        message: `The cart with ID: ${cartId} was emptied.`,
+        cart: cart.products,
       });
     } catch (error) {
       return res.status(500).send({ message: error.message });
@@ -317,20 +316,20 @@ class CartManager {
 
     try {
       //Busco el carrito por su ID
-      const searchedCart = await cartRepository.findById(cartId);
+      const cart = await cartRepository.findById(cartId);
 
       //Array para almacenar los productos no disponibles
       const productsNotAvailable = [];
 
-      if (!searchedCart) {
-        req.logger.warning(`El carrito con el ID ${cartId} no fue encontrado.`);
+      if (!cart) {
+        req.logger.warning(`The cart with the ID ${cartId} was not found.`);
         return res
           .status(404)
-          .json({ success: false, message: "El carrito no fue encontrado." });
+          .json({ success: false, message: "The cart was not found." });
       }
 
       // Verifico el stock de cada producto en el carrito
-      for (const item of searchedCart.products) {
+      for (const item of cart.products) {
         const product = item.product;
         const productId = await productRepository.findById(product);
 
@@ -341,13 +340,13 @@ class CartManager {
             productId.stock -= item.quantity;
             await productId.save();
 
-            req.logger.info(`El producto ${product} fue actualizado.`);
+            req.logger.info(`The product ${product} was successfully updated.`);
           } else {
             // Si no hay suficiente stock, el producto, sea agrega a productsNotAvailable
             productsNotAvailable.push(product);
 
             req.logger.warning(
-              `El producto ${product} no está disponible en cantidad suficiente.`
+              `The product ${product} is not available in sufficient quantity.`
             );
           }
         }
@@ -355,7 +354,7 @@ class CartManager {
 
       //Creo un ticket con los datos de la compra realizada
       const uniqueCode = await generateUniqueCode();
-      const totalAmount = totalPurchase(searchedCart.products); //Total de la compra usando función totalPurchase
+      const totalAmount = totalPurchase(cart.products); //Total de la compra usando función totalPurchase
       const newTicket = await ticketRepository.createTicket({
         code: uniqueCode,
         purchase_datetime: new Date(),
@@ -364,26 +363,26 @@ class CartManager {
       });
 
       req.logger.info(
-        `Fue generado el ticket con el código: ${uniqueCode} para el comprador: ${purchaserEmail}.`
+        `The ticket was generated with the code: ${uniqueCode} for the buyer: ${purchaserEmail}.`
       );
 
       // Elimino del carrito los productos que se compraron
-      searchedCart.products = searchedCart.products.filter((item) =>
+      cart.products = cart.products.filter((item) =>
         productsNotAvailable.some((product) => product.equals(item.productId))
       );
 
       // Guardo el carrito actualizado en MongoDB
-      await searchedCart.save();
+      await cart.save();
 
       return res.status(200).json({
         success: true,
         message:
-          "Los productos que no se han agregado a la compra por falta de stock son:",
+          "The ticket was generated successfully. The products that were not added to the purchase due to lack of stock are:",
         cart: JSON.parse(JSON.stringify(productsNotAvailable, null, 2)),
         ticket: newTicket,
       });
     } catch (error) {
-      req.logger.error("Error en el proceso de compra:", error);
+      req.logger.error("Error in the purchase process:", error);
       return res.status(500).send({ message: error.message });
     }
   }

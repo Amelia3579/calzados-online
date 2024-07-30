@@ -6,9 +6,9 @@ const productTest = new ProductManager();
 //Estructuración por capas
 router.get("/mockingproducts", productTest.getProductsFaker);
 router.get("/", productTest.getProducts);
-router.get("/:id", productTest.getProductById);
+router.get("/:pid", productTest.getProductById);
 router.post("/", productTest.addProduct);
-router.put("/:id", productTest.updateProduct);
-router.delete("/:id", productTest.deleteProduct);
+router.put("/:pid", productTest.updateProduct);
+router.delete("/:pid", productTest.deleteProduct);
 
 module.exports = router;

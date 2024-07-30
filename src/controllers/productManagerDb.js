@@ -24,7 +24,7 @@ class ProductManager {
         status,
       } = addProductBody;
 
-      //Validación para que el producto quede ingresado una vez completos todos los campos
+      //Validación para que el producto quede ingresado una vez completados todos los campos
       if (
         !title ||
         !description ||
@@ -38,16 +38,16 @@ class ProductManager {
       ) {
         return res.status(422).send({
           message:
-            "Para que el producto quede agregado, todos los campos tienen que estar completos",
+            "In order for the product to be added, all its fields must be completed.",
         });
       }
 
       //Validación para buscar código de producto
-      const searchedProduct = await productRepository.findOne({ code: code });
+      const product = await productRepository.findOne({ code: code });
 
-      if (searchedProduct) {
+      if (product) {
         return res.status(409).send({
-          message: `El código ${code} del producto ya está ingresado.`,
+          message: `The code ${code} already exists.`,
         });
       }
 
@@ -65,7 +65,7 @@ class ProductManager {
 
       return res.status(200).json({
         success: true,
-        message: `El producto fue agregado exitosamente.`,
+        message: `The product was successfully added .`,
         product: JSON.parse(JSON.stringify(newProduct, null, 2)),
       });
     } catch (error) {
@@ -109,13 +109,13 @@ class ProductManager {
       );
 
       //Guardo la información del usuario y del carrito
-      const user = req.user;
-      const cartId = user.cart;
+      const user = req.user || {};
+      const cartId = user.cart || null;
 
       res.render("home", {
         products: availableProd.docs,
-        cartId,
         user: user,
+        cartId,
         totalDocs: availableProd.totalDocs,
         limit: availableProd.limit,
         totalPages: availableProd.totalPages,
@@ -135,19 +135,19 @@ class ProductManager {
   //Método para mostrar producto por id
   async getProductById(req, res) {
     try {
-      const productId = req.params.id;
-      const searchedId = await productRepository.findById(productId);
+      const prodId = req.params.pid;
+      const product = await productRepository.findById(prodId);
 
-      if (!searchedId) {
+      if (!product) {
         return res.status(404).send({
           success: false,
-          message: `El producto con el ID: ${productId} no fue encontrado. Verificar el identificador ingresado.`,
+          message: `The product with the ID ${prodId} was not found.`,
         });
       } else {
         return res.status(200).json({
           success: true,
-          message: `El producto con el ID ${productId} fue encontrado.`,
-          product: JSON.parse(JSON.stringify(searchedId, null, 2)),
+          message: `The product with the ID ${prodId} was found.`,
+          product: JSON.parse(JSON.stringify(product, null, 2)),
         });
       }
     } catch (error) {
@@ -160,7 +160,7 @@ class ProductManager {
   //Método para actualizar el producto según el ID especificado
   async updateProduct(req, res, next) {
     try {
-      const productId = req.params.id;
+      const prodId = req.params.pid;
       const putProductBody = req.body;
 
       const {
@@ -176,18 +176,18 @@ class ProductManager {
       } = putProductBody;
 
       // Validación para verificar si existe  el producto con el ID especificado
-      const existProduct = await productRepository.findById(productId);
+      const existProduct = await productRepository.findById(prodId);
 
       if (!existProduct) {
         return res.status(404).send({
           success: false,
-          message: `El producto con el ID: ${productId} no fue encontrado. Verificar el identificador ingresado.`,
+          message: `The product with the ID: ${prodId} was not found.`,
         });
       }
       req.logger.warning(
-        "Todos los campos tienen que estar completos, para poder modificar el producto."
+        "In order for the product to be updated, all its fields must be completed."
       );
-      //Si el producto fue encontrado. Hago validación para modificarlo una vez completos todos los campos
+      //Si el producto fue encontrado. Valido para modificarlo una vez completados todos los campos
       if (
         !title ||
         !description ||
@@ -200,22 +200,22 @@ class ProductManager {
         status === undefined
       ) {
         throw CustomError.createError({
-          name: "Producto sin actualizar",
+          name: "Product not updated",
           cause: infoError(putProductBody),
-          message: "Error al intentar actualizar el producto",
+          message: "Error trying to update the product",
           code: dictionaryError.INVALID_TYPES_ERROR,
         });
       }
 
       // Actualizo el producto
       const updatedProduct = await productRepository.findByIdAndUpdate(
-        productId,
+        prodId,
         putProductBody
       );
 
       return res.status(200).json({
         success: true,
-        message: `El producto con el ID ${productId} fue actualizado correctamente.`,
+        message: `The product with the ID ${prodId} was successfully updated.`,
         product: JSON.parse(JSON.stringify(updatedProduct, null, 2)),
       });
     } catch (error) {
@@ -226,22 +226,20 @@ class ProductManager {
   //Método para eliminar producto según ID especificado
   async deleteProduct(req, res) {
     try {
-      const productId = req.params.id;
+      const prodId = req.params.pid;
 
       // Validación para verificar si existe  el producto con el ID especificado
-      const deletedProduct = await productRepository.findByIdAndDelete(
-        productId
-      );
+      const deletedProduct = await productRepository.findByIdAndDelete(prodId);
 
       if (!deletedProduct) {
         return res.status(404).send({
           success: false,
-          message: `El producto con el ID: ${productId} no fue encontrado. Verificar el identificador ingresado.`,
+          message: `The product with the ID: ${prodId} was not found.`,
         });
       } else {
         return res.status(200).json({
           success: true,
-          message: `El producto con el ID ${productId} fue eliminado.`,
+          message: `The product with the ID: ${prodId} was deleted.`,
         });
       }
     } catch (error) {
@@ -274,7 +272,7 @@ class ProductManager {
 
       return res.status(200).send({
         success: true,
-        message: "Los productos Facker se han generado exitosamente",
+        message: "The products Facker was successfully updated",
         products: products,
       });
     } catch (error) {
