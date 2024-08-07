@@ -16,9 +16,10 @@ class CartManager {
       const newCart = await cartRepository.addCart();
 
       if (newCart) {
-        return res.status(200).send({
-          success: true,
+        return res.status(201).send({
+          status: "success",
           message: "The shopping cart was successfully created.",
+          payload: newCart,
         });
       } else {
         return res.status(400).json({
@@ -136,7 +137,6 @@ class CartManager {
 
       await cart.save();
       res.redirect(`/carts/${cart._id}`);
-      // return res.send(JSON.stringify(cart, null, 2));
     } catch (error) {
       return res.status(500).send({ message: error.message });
     }

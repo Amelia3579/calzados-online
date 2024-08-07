@@ -7,8 +7,8 @@ class UserRepository {
     try {
       return await UserModel.findOne(dataBody);
     } catch (error) {
-      console.error(`Error al buscar el usuario: ${error.message}`);
-      throw new Error("Error al buscar el usuario.");
+      console.error(`Error searching for user: ${error.message}`);
+      throw new Error("Error searching for user.");
     }
   }
 
@@ -17,8 +17,8 @@ class UserRepository {
     try {
       return await UserModel.findById(dataUser).lean();
     } catch (error) {
-      console.error(`Error al verificar el usuario: ${error.message}`);
-      throw new Error("Error en la verificación del usuario.");
+      console.error(`Error verifying authentication: ${error.message}`);
+      throw new Error("Error verifying authentication.");
     }
   }
 
@@ -29,8 +29,8 @@ class UserRepository {
 
       return await newUserR.save();
     } catch (error) {
-      console.error(`Error al crear el usuario: ${error.message}`);
-      throw new Error("Error al crear el usuario");
+      console.error(`Error creating user: ${error.message}`);
+      throw new Error("Error creating user");
     }
   }
 
@@ -39,8 +39,8 @@ class UserRepository {
     try {
       return await UserModel.findByIdAndUpdate(uid, updateData, { new: true });
     } catch (error) {
-      console.error(`Error al actualizar el rol: ${error.message}`);
-      throw new Error("Error al actualizar el rol");
+      console.error(`Error updating role: ${error.message}`);
+      throw new Error("Error updating role");
     }
   }
 }

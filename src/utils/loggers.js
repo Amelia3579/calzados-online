@@ -45,12 +45,10 @@ const productionLogger = winston.createLogger({
 const optionsLogger =
   configObject.mode === "production" ? productionLogger : developmentLogger;
 
-// //Creo un middleware
+//Creo un middleware
 const addLogger = (req, res, next) => {
   req.logger = optionsLogger;
-  // req.logger.http(
-  //   `${req.method} en ${req.url} - ${new Date().toLocaleTimeString()}`
-  // );
+
   next();
 };
 

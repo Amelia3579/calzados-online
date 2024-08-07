@@ -16,34 +16,34 @@ class SessionManager {
   }
 
   //------Lógica para Logger------
-  
-  //Método para verificar la existencia de un usuario
+
+  //Método para logueo de un usuario
   async loginUser(req, res) {
     const { email, password } = req.body;
 
     try {
-      const searchedUser = await userRepository.findOne({ email });
+      const user = await userRepository.findOne({ email });
 
-      if (!searchedUser) {
+      if (!user) {
         return res.status(401).send({
           success: false,
-          message: "El usuario no fue encontrado. Verificar el email ingresado.",
+          message: "The user was not found. Please check the email entered..",
         });
       }
 
       //Si el usuario fue encontrado, verifico la contraseña
-      if (!isValidPassword(password, searchedUser)) {
+      if (!isValidPassword(password, user)) {
         return res
           .status(401)
-          .send({ success: false, message: "El password es inválido." });
+          .send({ success: false, message: "The password is invalid." });
       }
 
       //Si la contraseña es correcta, genero el token
       const token = jwt.sign(
         {
-          id: searchedUser._id,
-          email: searchedUser.email,
-          role: searchedUser.role,
+          id: user._id,
+          email: user.email,
+          role: user.role,
         },
         "secretWord",
         {
@@ -59,7 +59,7 @@ class SessionManager {
       });
 
       //Cuando termina la validación, verifico el rol
-      if (searchedUser.role !== "Admin") {
+      if (user.role !== "Admin") {
         return res.redirect("/products");
       }
 
@@ -86,7 +86,7 @@ class SessionManager {
         // Si no está autenticado, redirijo a Login
         res.status(401).send({
           success: false,
-          message: `El usuario no fue encontrado.`,
+          message: `The user was not found..`,
         });
 
         return res.render("login");
@@ -94,13 +94,17 @@ class SessionManager {
         //Si es un usuario registrado, guardo su información
         const user = await userRepository.findById(req.user._id);
 
-        if (!user) {
-          return res.status(404).send({ message: "Usuario no encontrado" });
-        }
         //Creo un DTO del usuario
         const userDto = new UserDto(user);
 
-        res.render("profile", { userDto });
+        if (req.headers["content-type"] === "application/json") {
+          return res.status(200).send({
+            success: true,
+            payload: userDto,
+          });
+        } else {
+          return res.render("profile", { userDto });
+        }
       }
     } catch (error) {
       return res.status(500).send({ message: error.message });
@@ -117,8 +121,7 @@ class SessionManager {
       } else {
         return res.status(403).send({
           success: false,
-          message:
-            "Uups, lo siento! Te faltan los permisos correspondientes para el acceso.",
+          message: "You are missing the corresponding permissions for access.",
         });
       }
     } catch (error) {

@@ -11,7 +11,7 @@ dotenv.config({
 
 const configObject = {
   mongo_url: process.env.MONGO_URL,
-  puerto: process.env.PUERTO,
+  port: process.env.PORT,
   mode,
 };
 

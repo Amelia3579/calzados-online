@@ -11,13 +11,13 @@ const swaggerUiExpress = require("swagger-ui-express");
 //Importo Mongoose
 const mongoose = require("mongoose");
 const { configObject } = require("./config/config.js");
-const { mongo_url, puerto } = configObject;
+const { mongo_url, port } = configObject;
 const swaggerOptions = {
   definition: {
     openapi: "3.0.1",
     info: {
       title: "Succulent Store App Documentation",
-      description: "App dedicated to the sale of succulents and cacti",
+      description: "App dedicated to the sale of Succulents and Cacti",
     },
   },
   apis: [`./src/docs/**/*.yaml`],
@@ -79,8 +79,8 @@ app.use("/api/sessions", sessionsRouter);
 app.use(handleError);
 
 //Escucho el puerto usando Commander
-const httpServer = app.listen(puerto, () => {
-  console.log(`Servidor express en el puerto http://localhost:${puerto}`);
+const httpServer = app.listen(port, () => {
+  console.log(`Express server on port http://localhost:${port}`);
 });
 
 //Configuro instancia de Socket.io del lado del servidor (desafío 4)
@@ -89,5 +89,5 @@ new SocketManager(httpServer);
 //Me conecto a MongoDB usando Commander
 mongoose
   .connect(mongo_url)
-  .then(() => console.log("Conección a MongoDB"))
-  .catch((error) => console.log("Error de conección", error));
+  .then(() => console.log("Connecting to MongoDB"))
+  .catch((error) => console.log("Connection error", error));

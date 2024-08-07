@@ -12,8 +12,8 @@ class ProductRepository {
 
       return await newProductR.save();
     } catch (error) {
-      console.error(`Error al agregar el producto: ${error.message}`);
-      throw new Error("Error al agregar el producto");
+      console.error(`Error adding product: ${error.message}`);
+      throw new Error("Error adding product");
     }
   }
   //Método para validar el código de un producto
@@ -21,8 +21,8 @@ class ProductRepository {
     try {
       return await ProductModel.findOne(query);
     } catch (error) {
-      console.error(`Error al buscar el producto: ${error.message}`);
-      throw new Error("Error al buscar el producto");
+      console.error(`Error searching product: ${error.message}`);
+      throw new Error("Error searching product");
     }
   }
   //Método para mostrar la paginación
@@ -30,8 +30,8 @@ class ProductRepository {
     try {
       return await ProductModel.paginate(query, options);
     } catch (error) {
-      console.error(`Error al efectuar la paginación: ${error.message}`);
-      throw new Error("Error al efectuar la paginación");
+      console.error(`Error performing pagination: ${error.message}`);
+      throw new Error("Error performing pagination");
     }
   }
 
@@ -40,8 +40,8 @@ class ProductRepository {
     try {
       return await ProductModel.findById(productId);
     } catch (error) {
-      console.error(`Error al mostrar el producto: ${error.message}`);
-      throw new Error("Error al mostrar el producto");
+      console.error(`Error displaying product: ${error.message}`);
+      throw new Error("Error displaying product");
     }
   }
 
@@ -69,9 +69,9 @@ class ProductRepository {
       return updatedProduct;
     } catch (error) {
       throw CustomError.createError({
-        name: "Error de actualización",
+        name: "Update error",
         cause: infoError(putProductBody),
-        message: "Error al actualizar el producto",
+        message: "Error updating product",
         code: dictionaryError.INVALID_TYPES_ERROR,
       });
     }
@@ -82,8 +82,8 @@ class ProductRepository {
     try {
       return await ProductModel.findByIdAndDelete(productId, putProductBody);
     } catch (error) {
-      console.error(`Error al eliminar el producto: ${error.message}`);
-      throw new Error(`Error al eliminar el producto: ${error.message}`);
+      console.error(`Error deleting product: ${error.message}`);
+      throw new Error(`Error deleting product: ${error.message}`);
     }
   }
 
@@ -125,8 +125,8 @@ class ProductRepository {
     try {
       return await ProductModel.findById(product).lean();
     } catch (error) {
-      console.error(`Error al mostrar los productos: ${error.message}`);
-      throw new Error("Error al mostrar los productos.");
+      console.error(`Error displaying products: ${error.message}`);
+      throw new Error("Error displaying products.");
     }
   }
 }

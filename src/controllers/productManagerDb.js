@@ -7,10 +7,10 @@ const { dictionaryError } = require("../services/errors/enum.js");
 
 class ProductManager {
   //Método para agregar producto
-  async addProduct(req, res) {
+  async addProduct(req, res = null) {
     try {
       //Capturo datos que vienen del body
-      const addProductBody = req.body;
+      const addProductBody = req.body || req;
 
       const {
         title,
@@ -63,11 +63,16 @@ class ProductManager {
         status: true,
       });
 
-      return res.status(200).json({
-        success: true,
-        message: `The product was successfully added .`,
-        product: JSON.parse(JSON.stringify(newProduct, null, 2)),
-      });
+      if (res) {
+        return res.status(201).send({
+          status: "success",
+          message: "The product was successfully added.",
+          // payload: JSON.parse(JSON.stringify(newProduct, null, 2)),
+          payload: newProduct
+        });
+      } else {
+        return newProduct;
+      }
     } catch (error) {
       return res.status(500).send({ message: error.message });
     }
@@ -216,7 +221,7 @@ class ProductManager {
       return res.status(200).json({
         success: true,
         message: `The product with the ID ${prodId} was successfully updated.`,
-        product: JSON.parse(JSON.stringify(updatedProduct, null, 2)),
+        payload: JSON.parse(JSON.stringify(updatedProduct, null, 2)),
       });
     } catch (error) {
       next(error);
@@ -239,7 +244,7 @@ class ProductManager {
       } else {
         return res.status(200).json({
           success: true,
-          message: `The product with the ID: ${prodId} was deleted.`,
+          message: "The product was successfully deleted",
         });
       }
     } catch (error) {

@@ -7,12 +7,12 @@ const chatBox = document.getElementById("chatBox");
 
 //Utilizo Sweet Alert para el mensaje de bienvenida
 Swal.fire({
-  title: "Identificate",
+  title: "Identify yourself",
   input: "text",
-  text: "Ingresá un nombre para iniciar el chat",
+  text: "Enter a name to start the chat",
   //Validación para que contenga el nombre
   inputValidator: (value) => {
-    return !value && "Es necesario completar el nombre para continuar";
+    return !value && "It is necessary to complete the name to continue";
   },
   //Anulo los clicks por fuera
   allowOutsideClick: false,

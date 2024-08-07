@@ -38,7 +38,7 @@ const renderProductos = (products) => {
       if (role === "Admin" || (role === "Premium" && element.owner === email)) {
         deleteProduct(element._id);
       } else {
-        Swal.fire("Disculpá! Solamente podés eliminar productos que te pertenecen.");
+        Swal.fire("Sorry! You can only delete products that belong to you..");
       }
     });
   });

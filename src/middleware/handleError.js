@@ -12,7 +12,7 @@ const handleError = (error, req, res, next) => {
     default:
       res.status(500).send({
         status: "error",
-        error: "Error desconocido.",
+        error: "Unknown error.",
         cause: error.cause
       });
   }

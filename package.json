@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha test/carts.test.js",
     "dev": "nodemon src/app.js --mode development",
     "start": "node src/app.js --mode production"
   },
@@ -36,7 +36,9 @@
     "winston": "^3.13.0"
   },
   "devDependencies": {
+    "chai": "^4.3.6",
     "mocha": "^10.7.0",
-    "nodemon": "^3.1.0"
+    "nodemon": "^3.1.0",
+    "supertest": "^7.0.0"
   }
 }

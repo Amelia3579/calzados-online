@@ -9,7 +9,7 @@ const verifyRole = (roles) => {
 
     //Verifico si se ingresa un token
     if (!token) {
-      return res.status(403).send("Falta ingresar el token.");
+      return res.status(403).send("Token not yet entered.");
     }
 
     try {
@@ -18,7 +18,7 @@ const verifyRole = (roles) => {
       const userId = decoded.id;
 
       if (!userId) {
-        return res.status(403).send("El token que se ingresó es inválido.");
+        return res.status(403).send("The token is invalid.");
       }
 
       //Verifico el rol del usuario
@@ -28,15 +28,15 @@ const verifyRole = (roles) => {
         return res
           .status(403)
           .send(
-            "El token que se ingresó no cuenta con los permisos necesarios para realizar esta operación."
+            "The token entered does not have the necessary permissions to perform this operation."
           );
       }
 
       req.user = user;
       next();
     } catch (error) {
-      console.error("Error al verificar el token:", error.message);
-      return res.status(403).send("El token ingresado es inválido.");
+      console.error("Error verifying token:", error.message);
+      return res.status(403).send("The token is invalid.");
     }
   };
 };

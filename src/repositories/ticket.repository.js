@@ -8,8 +8,8 @@ class TicketRepository {
       const newTicket = new TicketModel(dataTicket);
       return await newTicket.save();
     } catch (error) {
-      console.error(`Error al crear el ticket: ${error.message}`);
-      throw new Error("Error al crear el ticket");
+      console.error(`Error creating ticket: ${error.message}`);
+      throw new Error("Error creating ticket");
     }
   }
 }

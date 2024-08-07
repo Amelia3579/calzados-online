@@ -10,7 +10,7 @@ const authorize = (role) => {
         .status(403)
         .json({
           success: false,
-          message: "Faltan permisos para realizar la operación.",
+          message: "Permits are missing to carry out the operation.",
         });
     }
   };

@@ -9,8 +9,8 @@ class CartRepository {
 
       return await newCartR.save();
     } catch (error) {
-      console.error(`Error al crear el carrito: ${error.message}`);
-      throw new Error("Error al crear el carrito");
+      console.error(`Error creating cart: ${error.message}`);
+      throw new Error("Error creating cart");
     }
   }
 
@@ -19,8 +19,8 @@ class CartRepository {
     try {
       return await CartModel.find();
     } catch (error) {
-      console.error(`Error al mostrar los carritos: ${error.message}`);
-      throw new Error("Error al intentar mostrar los carritos.");
+      console.error(`Error displaying carts: ${error.message}`);
+      throw new Error("Error displaying carts.");
     }
   }
 
@@ -29,9 +29,9 @@ class CartRepository {
     try {
       return await CartModel.findById(cartId).populate("products.product");
     } catch (error) {
-      console.error(`Error al mostrar los productos
+      console.error(`Error displaying products
         : ${error.message}`);
-      throw new Error("Error al intentar mostrar los productos.");
+      throw new Error("Error displaying products.");
     }
   }
 }

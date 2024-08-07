@@ -11,27 +11,27 @@ const emailManager = new EmailManager();
 class UserManager {
   //------Lógica para Logger------
 
-  //Método para registrar usuario
-  async registerUser(req, res) {
-    const { first_name, last_name, email, password, age } = req.body;
+  //Método para registro de un usuario
+  async registerUser(req, res = null) {
+    const { first_name, last_name, email, password, age } = req.body || req;
 
     try {
       req.logger.info(
-        "Para saber si ya estás registrado, ingresá tu email y contraseña por favor."
+        "To find out if you are already registered, please enter your email and password."
       );
       //Verifico si el user ya existe
-      const searchedUser = await userRepository.findOne({ email: email });
+      const user = await userRepository.findOne({ email: email });
 
-      if (searchedUser) {
-        req.logger.warning("El email ingresado ya existe");
-        return res.status(200).json({
+      if (user) {
+        req.logger.warning("The email entered already exists");
+        return res.status(200).send({
           success: true,
-          message: "El usuario ingresado ya existe.",
+          message: "The user entered already exists.",
           redirect: "/api/sessions/profile",
         });
       }
       req.logger.info(
-        "Para que quedes registrado, completá todos los campos del formulario."
+        "In order to register, all fields in the form must be completed.."
       );
 
       //Si no existe, creo un usuario nuevo, al cual se asociará un nuevo carrito
@@ -57,7 +57,9 @@ class UserManager {
         //Al nuevo usuario, vinculo el id del carrito nuevo
         cart: newCart._id,
       });
-      req.logger.info(`Ya fuiste registrado, con el email: ${newUser.email}`);
+      req.logger.info(
+        `You have already been registered, with the email: ${newUser.email}`
+      );
       //Genero el token
       const token = jwt.sign(
         {
@@ -69,16 +71,23 @@ class UserManager {
         { expiresIn: "1h" }
       );
 
-      //Establezco el token como cookie en el servidor
-      res.cookie("cookieToken", token, {
-        maxAge: 3600000, //Configuro 1 hora de vida para el token
-        httpOnly: true, //Limito el acceso sólo a una petición http
-      });
+      const response = {
+        success: true,
+        message: "User registered successfully.",
+        payload: newUser
+      };
 
-      //Cuando termine la operación de registro, se redirige a profile
-      res.redirect("/api/sessions/profile");
+      if (res) {
+        res.cookie("cookieToken", token, {
+          maxAge: 3600000,
+          httpOnly: true,
+        });
+        res.redirect("/api/sessions/profile");
+      } else {
+        return response;
+      }
     } catch (error) {
-      req.logger.error("Error en el proceso de registro:", error);
+      req.logger.error("Error in the registration process:", error);
       return res.status(500).send({ message: error.message });
     }
   }
@@ -94,9 +103,7 @@ class UserManager {
 
       if (!user) {
         //Si no hay usuario, la ejecución termina
-        return res
-          .status(404)
-          .send("No se encontró usuario. Hace falta que te registres.");
+        return res.status(404).send("User not found. You need to register.");
       }
 
       //Si se encuentra usuario, genero un token
@@ -130,7 +137,7 @@ class UserManager {
       //Si no hay usuario, lo envío nuevamente a que cargue sus datos
       if (!user) {
         return res.render("resetpassword", {
-          error: "No se encontró usuario con el email ingresado.",
+          error: "No user was found with the entered email.",
         });
       }
 
@@ -139,7 +146,7 @@ class UserManager {
 
       if (!resetToken || resetToken.token !== token) {
         return res.render("changepassword", {
-          error: "El token ingresado es inválido. Generá otro por favor.",
+          error: "The token entered is invalid.",
         });
       }
 
@@ -148,14 +155,14 @@ class UserManager {
 
       if (tokenDuration > resetToken.expire) {
         return res.render("changepassword", {
-          error: "El token ingresado ha caducado.",
+          error: "The token entered was expired.",
         });
       }
 
       //Verifico que la nueva contraseña sea distinta a la anterior
       if (isValidPassword(password, user)) {
         return res.render("resetpassword", {
-          error: "La nueva contraseña tiene que ser distinta a la anterior.",
+          error: "The new password must be different from the previous one..",
         });
       }
       //Actualizo la contraseña
@@ -182,7 +189,7 @@ class UserManager {
       const user = await userRepository.findById(uid);
 
       if (!user) {
-        return res.status(404).send("El usuario no fue encontrado.");
+        return res.status(404).send("The user not found.");
       }
 
       //Si lo encuentro,le cambio el rol
@@ -194,7 +201,7 @@ class UserManager {
 
       return res.status(200).json({
         success: true,
-        message: "El rol fue actualizado exitosamente.",
+        message: "The role was successfully updated.",
         user: JSON.parse(JSON.stringify(updateRole, null, 2)),
       });
     } catch (error) {
