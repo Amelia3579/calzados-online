@@ -35,7 +35,7 @@ class EmailManager {
       await this.transporter.sendMail(mailOptions);
     } catch (error) {
       console.log(
-        "Error al verificar la compra realizada. Verificá los pasos por favor.",
+        "Error when verifying the purchase made. Please check the steps.",
         error
       );
     }
@@ -60,7 +60,7 @@ class EmailManager {
       await this.transporter.sendMail(mailOptions);
     } catch (error) {
       console.log(
-        "Error en el restablecimiento de la contraseña. Verificá los pasos por favor.",
+        "Password reset failed. Please check the steps below..",
         error
       );
     }

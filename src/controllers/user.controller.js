@@ -5,8 +5,10 @@ const passport = require("passport");
 const jwt = require("jsonwebtoken");
 
 const { generateResetToken } = require("../utils/tokenreset.js");
+const UserModel = require("../models/user.model.js");
 const EmailManager = require("../services/email.js");
 const emailManager = new EmailManager();
+const upload = require("../middleware/multer.js");
 
 class UserManager {
   //------Lógica para Logger------
@@ -74,7 +76,7 @@ class UserManager {
       const response = {
         success: true,
         message: "User registered successfully.",
-        payload: newUser
+        payload: newUser,
       };
 
       if (res) {
@@ -179,6 +181,65 @@ class UserManager {
     }
   }
 
+  //Método para subir documentos
+  async uploadDocuments(req, res) {
+    const { uid } = req.params;
+    const uploadedFiles = req.files;
+
+    try {
+      const user = await userRepository.findOne({ _id: uid });
+
+      if (!user) {
+        return res.status(404).send("The user not found.");
+      }
+
+      // Inicializar user.documents si es undefined
+      if (!user.documents) {
+        user.documents = [];
+      }
+
+      if (uploadedFiles) {
+        // Verifico y almaceno cada tipo de documento
+        if (uploadedFiles.profile) {
+          user.documents = user.documents.concat(
+            uploadedFiles.profile.map((doc) => ({
+              type: "profile",
+              name: doc.originalname,
+              reference: doc.path,
+            }))
+          );
+        }
+
+        if (uploadedFiles.products) {
+          user.documents = user.documents.concat(
+            uploadedFiles.products.map((doc) => ({
+              type: "products",
+              name: doc.originalname,
+              reference: doc.path,
+            }))
+          );
+        }
+
+        if (uploadedFiles.documents) {
+          user.documents = user.documents.concat(
+            uploadedFiles.documents.map((doc) => ({
+              type: "documents",
+              name: doc.originalname,
+              reference: doc.path,
+            }))
+          );
+        }
+      }
+      await user.save();
+
+      res
+        .status(200)
+        .send({ message: "Documents uploaded successfully.", user });
+    } catch (error) {
+      res.status(500).send({ message: error.message });
+    }
+  }
+
   //Método para cambiar el rol del usuario
   async premiumRoleChange(req, res) {
     //Recibo el id del usuario
@@ -191,6 +252,29 @@ class UserManager {
       if (!user) {
         return res.status(404).send("The user not found.");
       }
+
+      ////////////////////////////////////
+      // Verifico si el usuario envió la documentación requerida:
+      const documentacionRequerida = [
+        "Identificacion",
+        "Comprobante de domicilio",
+        "Comprobante de estado de cuenta",
+      ];
+
+      const userDocuments = user.documents.map((doc) => doc.name);
+
+      const tieneDocumentacion = documentacionRequerida.every((doc) =>
+        userDocuments.includes(doc)
+      );
+
+      if (!tieneDocumentacion) {
+        return res
+          .status(400)
+          .send(
+            "El usuario tiene que completar toda la documentacion requerida o no tendra feriados la proxima semana"
+          );
+      }
+      /////////////////////////////////////////////
 
       //Si lo encuentro,le cambio el rol
       const newRole = user.role === "User" ? "Premium" : "User";

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const ProductManager = require("../src/controllers/productManagerDb.js");
+const ProductManager = require("../src/controllers/product.controller.js");
 const assert = require("assert");
 const { expect } = require("chai");
 const supertest = require("supertest");

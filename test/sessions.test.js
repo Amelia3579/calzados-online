@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const UserManager = require("../src/controllers/userManagerDb.js");
+const UserManager = require("../src/controllers/user.controller.js");
 const { userRepository } = require("../src/services/index.js");
 const assert = require("assert");
 const { expect } = require("chai");

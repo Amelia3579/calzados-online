@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const CartManager = require("../controllers/cartManagerDb.js");
+const CartManager = require("../controllers/cart.controller.js");
 const cartTest = new CartManager();
 const passport = require("passport");
 //Middleware de autenticación con JWT

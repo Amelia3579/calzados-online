@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const SessionManager = require("../controllers/sessionManagerDb.js");
+const SessionManager = require("../controllers/session.controller.js");
 const sessionTest = new SessionManager();
 const passport = require("passport");
 const jwt = require("jsonwebtoken");

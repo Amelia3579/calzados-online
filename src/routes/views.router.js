@@ -1,16 +1,16 @@
 const express = require("express");
 const router = express.Router();
 
-const CartManager = require("../controllers/cartManagerDb.js");
+const CartManager = require("../controllers/cart.controller.js");
 const cartTest = new CartManager();
 
-const ProductManager = require("../controllers/productManagerDb.js");
+const ProductManager = require("../controllers/product.controller.js");
 const productTest = new ProductManager();
 
-const ChatManager = require("../controllers/chatController.js");
+const ChatManager = require("../controllers/chat.controller.js");
 const chatTest = new ChatManager();
 
-const SessionManager = require("../controllers/sessionManagerDb.js");
+const SessionManager = require("../controllers/session.controller.js");
 const sessionTest = new SessionManager();
 
 const ViewsController = require("../controllers/view.controller.js");

@@ -31,10 +31,21 @@ const userSchema = new mongoose.Schema({
     enum: ["Admin", "User", "Premium"], //Enumero las opciones válidas
     default: "User",
   },
-  //Nuevo campo dentro del documento del usuario para guardar token generado
+  //Campo para guardar token generado
   resetToken: {
     token: String,
     expire: Date,
+  },
+  //4° práctica integradora (guardará la documentación del user que quiere ser premium)
+  documents: [
+    {
+      name: String,
+      reference: String,
+    },
+  ],
+  last_connection: {
+    type: Date,
+    default: Date.now,
   },
 });
 

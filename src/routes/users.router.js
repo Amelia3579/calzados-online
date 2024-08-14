@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const UserManager = require("../controllers/userManagerDb.js");
+const upload = require("../middleware/multer.js");
+const UserManager = require("../controllers/user.controller.js");
 const userTest = new UserManager();
 
 //Ruta para generar un usuario y almacenarlo en MongoDB
@@ -73,5 +74,15 @@ router.post("/", userTest.registerUser);
 router.post("/requestpasswordreset", userTest.requestPasswordReset);
 router.post("/resetpassword", userTest.resetPassword);
 router.put("/premium/:uid", userTest.premiumRoleChange);
+//------Lógica para el cambio de rol del usuario (4° Práctica Integradora)------
+router.post(
+  "/:uid/documents",
+  upload.fields([
+    { name: "profile", maxCount: 1 },
+    { name: "products", maxCount: 10 },
+    { name: "documents", maxCount: 10 },
+  ]),
+  userTest.uploadDocuments
+);
 
 module.exports = router;

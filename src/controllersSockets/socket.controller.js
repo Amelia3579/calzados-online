@@ -29,7 +29,7 @@ class SocketManager {
         } catch (error) {
           socket.emit("error", {
             message:
-              "No tenés los permisos necesarios para eliminar productos de la tienda.",
+              "You do not have the necessary permissions to remove products from the store.",
             details: error.message,
           });
         }
@@ -44,7 +44,7 @@ class SocketManager {
         } catch (error) {
           socket.emit("error", {
             message:
-              "No tenés los permisos necesarios para agregar productos a la tienda.",
+              "You do not have the necessary permissions to add products from the store.",
             details: error.message,
           });
         }

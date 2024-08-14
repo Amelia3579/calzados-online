@@ -51,10 +51,14 @@ class SessionManager {
         }
       );
 
+      //------Lógica para la propiedad last_connection (4° Práctica Integradora)------
+      user.last_connection = new Date();
+      await user.save();
+
       //Establezco ese token como cookie
       res.cookie("cookieToken", token, {
-        maxAge: 3600000, //Configuro 1 hora de vida para el token
-        httpOnly: true, //Restrinjo el acceso a una petición http
+        maxAge: 3600000,
+        httpOnly: true,
         sameSite: "strict",
       });
 
@@ -129,8 +133,18 @@ class SessionManager {
     }
   }
 
+  //------Lógica para la propiedad last_connection (4° Práctica Integradora)------
+
   //Método para deslogueo
   async logoutUser(req, res) {
+    if (req.user) {
+      try {
+        req.user.last_connection = new Date();
+        await req.user.save();
+      } catch (error) {
+        res.status(500).send({ message: error.message });
+      }
+    }
     //Limpio la cookie del Token
     res.clearCookie("cookieToken");
     //Redirijo a Login

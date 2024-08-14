@@ -3,6 +3,7 @@ const express = require("express");
 const app = express();
 const exphbs = require("express-handlebars");
 const cookieParser = require("cookie-parser");
+const path = require("path");
 
 //Importo Swagger
 const swaggerJsdoc = require("swagger-jsdoc");
@@ -29,16 +30,15 @@ app.use("/apidocs", swaggerUiExpress.serve, swaggerUiExpress.setup(specs));
 //Importo Passport
 const passport = require("passport");
 const jwt = require("passport-jwt");
-// const jwtSocket = require("jsonwebtoken");
+
 const { initializePassport } = require("./config/passport.config.js");
 const cors = require("cors");
 
 //Importo Socket
-const SocketManager = require("./controllersSockets/socketManager.js");
+const SocketManager = require("./controllersSockets/socket.controller.js");
 
 //Importo Logger
 const addLogger = require("./utils/loggers.js");
-const path = require("path");
 
 //Importo las rutas
 const productsRouter = require("./routes/products.router.js");

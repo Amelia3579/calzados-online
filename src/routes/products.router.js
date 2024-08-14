@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const ProductManager = require("../controllers/productManagerDb.js");
+const ProductManager = require("../controllers/product.controller.js");
 const productTest = new ProductManager();
 
 //Estructuración por capas
