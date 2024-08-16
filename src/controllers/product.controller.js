@@ -5,7 +5,7 @@ const CustomError = require("../services/errors/custom-error.js");
 const infoError = require("../services/errors/info.js");
 const { dictionaryError } = require("../services/errors/enum.js");
 
-class ProductManager {
+class ProductController {
   //Método para agregar producto
   async addProduct(req, res = null) {
     try {
@@ -68,7 +68,7 @@ class ProductManager {
           status: "success",
           message: "The product was successfully added.",
           // payload: JSON.parse(JSON.stringify(newProduct, null, 2)),
-          payload: newProduct
+          payload: newProduct,
         });
       } else {
         return newProduct;
@@ -254,7 +254,7 @@ class ProductManager {
 
   //------Lógica para realtimeproducts.handlebars con Websocket------
 
-  //Función para mostrar la plantilla
+  //Función para renderizar la plantilla
   async getRealTimeProducts(req, res) {
     const user = req.user;
     try {
@@ -285,4 +285,4 @@ class ProductManager {
     }
   }
 }
-module.exports = ProductManager;
+module.exports = ProductController;

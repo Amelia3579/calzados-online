@@ -27,39 +27,6 @@
   box-shadow: 0px 1px 10px #2b413a;
 }
 
-.cardButton {
-  color: #fef8f4;
-  background-color: rgb(10, 106, 10);
-  padding: 0.8rem;
-  margin: 0.8rem;
-  font-size: small;
-  border: none;
-  border-radius: 10px;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-/* login.handlebars */
-.btnContainer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 4rem 0 2.5rem 0;
-}
-
-#btnGitHub {
-  color: #fef8f4;
-  background-color: rgb(10, 106, 10);
-  padding: 0.7rem;
-  margin: 0.8rem;
-  width: 20rem;
-  font-size: small;
-  border: none;
-  border-radius: 10px;
-  text-decoration: none;
-  cursor: pointer;
-}
-
 .separator {
   display: flex;
   align-items: center;
@@ -86,14 +53,27 @@
     margin: 0.5rem 7rem 0.5rem 0;
   }
 
-input {
-  border: none;
-  border-radius: 5px;
-  height: 1.4rem;
-}
+  input {
+    border: none;
+    border-radius: 5px;
+    height: 1.4rem;
+  }
 }
 
-.btnLogin, #btnRegister, .btnAdd {
+/* Buttons */
+.btnContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4rem 0 2.5rem 0;
+}
+
+.btnProduct,
+.btnCart,
+.btnUser,
+.cardButton,
+#btnUser,
+#btnGitHub {
   color: #fef8f4;
   background-color: rgb(10, 106, 10);
   padding: 0.5rem;
@@ -104,4 +84,7 @@ input {
   border-radius: 10px;
   text-decoration: none;
   cursor: pointer;
+}
+#btnGitHub {
+  width: 20rem;
 }

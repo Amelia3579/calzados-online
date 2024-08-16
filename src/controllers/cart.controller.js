@@ -2,14 +2,12 @@ const {
   cartRepository,
   productRepository,
   ticketRepository,
-  userRepository,
 } = require("../services/index.js");
 const mongoose = require("mongoose");
 const totalPurchase = require("../utils/ticket.js");
 const { generateUniqueCode } = require("../models/ticket.model.js");
-const UserModel = require("../models/user.model.js");
 
-class CartManager {
+class CartController {
   //Método para crear carrito
   async createCart(req, res) {
     try {
@@ -36,10 +34,10 @@ class CartManager {
 
   //Método para listar los carritos creados
   async getCart(req, res) {
-    const searchedCart = await cartRepository.find();
+    const cart = await cartRepository.find();
 
     try {
-      if (!searchedCart) {
+      if (!cart) {
         res.status(404).send({
           success: false,
           message:
@@ -50,7 +48,7 @@ class CartManager {
         return res.status(200).json({
           success: true,
           message: "The available carts are: ",
-          carts: JSON.parse(JSON.stringify(searchedCart, null, 2)),
+          carts: JSON.parse(JSON.stringify(cart, null, 2)),
         });
       }
     } catch (error) {
@@ -58,31 +56,24 @@ class CartManager {
     }
   }
 
-  //Método para listar productos del carrito según el ID especificado, con renderizado de cart.handlebars
+  //Método para listar carrito según el ID especificado
   async getCartById(req, res) {
     try {
       const cartId = req.params.cid;
       const cart = await cartRepository.findById(cartId);
+
       if (!cart) {
         return res.status(404).send({
           success: false,
           message: `The cart with the ID ${cartId} cannot be displayed because it was not found.`,
         });
-      } else {
-        const products = await Promise.all(
-          cart.products.map(async (elem) => {
-            const product = await productRepository.findById(elem.product);
-            return { ...elem, product, quantity: elem.quantity };
-          })
-        );
-        const totalAmount = totalPurchase(products);
-
-        res.render("cart", {
-          products,
-          cart,
-          totalPurchase: totalAmount,
-        });
       }
+
+      return res.status(200).json({
+        success: true,
+        message: "The available carts are: ",
+        carts: JSON.parse(JSON.stringify(cart, null, 2)),
+      });
     } catch (error) {
       return res.status(500).send({ message: error.message });
     }
@@ -242,9 +233,9 @@ class CartManager {
       const quantity = req.body.quantity;
 
       // Validación para verificar si existe el carrito con el ID especificado
-      const searchedCart = await cartRepository.findById(cartId);
+      const cart = await cartRepository.findById(cartId);
 
-      if (!searchedCart) {
+      if (!cart) {
         res.status(404).send({
           success: false,
           message: `The cart with the ID ${cartId} was not found.`,
@@ -253,25 +244,25 @@ class CartManager {
       }
 
       // Validación para verificar si existe el producto con el ID especificado
-      const searchedProduct = searchedCart.products.findIndex(
+      const productIndex = cart.products.findIndex(
         (item) => item.product._id.toString() === prodId
       );
 
-      if (searchedProduct !== -1) {
+      if (productIndex !== -1) {
         // Si el producto existe, actualizo su cantidad
-        searchedCart.products[searchedProduct].quantity = quantity;
+        cart.products[productIndex].quantity = quantity;
       } else {
         // Si el producto no existe, lo agrego al carrito
-        searchedCart.products.push({ prodId, quantity });
+        cart.products.push({ prodId, quantity });
       }
 
-      searchedCart.markModified("products");
-      await searchedCart.save();
+      cart.markModified("products");
+      await cart.save();
 
       return res.status(200).json({
         success: true,
         message: `The product quantity was updated successfully.`,
-        products: JSON.parse(JSON.stringify(searchedCart.products, null, 2)),
+        products: JSON.parse(JSON.stringify(cart.products, null, 2)),
       });
     } catch (error) {
       return res.status(500).send({ message: error.message });
@@ -387,4 +378,4 @@ class CartManager {
     }
   }
 }
-module.exports = CartManager;
+module.exports = CartController;

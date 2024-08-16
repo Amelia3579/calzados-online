@@ -35,7 +35,7 @@ const { initializePassport } = require("./config/passport.config.js");
 const cors = require("cors");
 
 //Importo Socket
-const SocketManager = require("./controllersSockets/socket.controller.js");
+const SocketController = require("./controllersSockets/socket.controller.js");
 
 //Importo Logger
 const addLogger = require("./utils/loggers.js");
@@ -45,7 +45,6 @@ const productsRouter = require("./routes/products.router.js");
 const cartsRouter = require("./routes/carts.router.js");
 const viewsRouter = require("./routes/views.router.js");
 const usersRouter = require("./routes/users.router.js");
-const sessionsRouter = require("./routes/sessions.router.js");
 
 //Importo Middleware handleError
 const handleError = require("./middleware/handleError.js");
@@ -73,7 +72,6 @@ app.use("/api/products", productsRouter);
 app.use("/api/carts", cartsRouter);
 app.use("/", viewsRouter);
 app.use("/api/users", usersRouter);
-app.use("/api/sessions", sessionsRouter);
 
 //Middleware para manejo de errores
 app.use(handleError);
@@ -84,7 +82,7 @@ const httpServer = app.listen(port, () => {
 });
 
 //Configuro instancia de Socket.io del lado del servidor (desafío 4)
-new SocketManager(httpServer);
+new SocketController(httpServer);
 
 //Me conecto a MongoDB usando Commander
 mongoose

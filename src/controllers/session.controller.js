@@ -116,6 +116,7 @@ class SessionManager {
   }
 
   //Método para admin.handlebars
+  
   async getAdmin(req, res) {
     try {
       const searchedUser = await userRepository.findById(req.user._id);

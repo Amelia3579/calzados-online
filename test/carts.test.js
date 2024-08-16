@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const CartManager = require("../src/controllers/cart.controller.js");
+const CartController = require("../src/controllers/cart.controller.js");
 const assert = require("assert");
 const { expect } = require("chai");
 const supertest = require("supertest");
@@ -14,7 +14,7 @@ describe("Testing Cart Functionality", () => {
   let testCartId;
 
   before(function () {
-    this.cartManager = new CartManager();
+    this.cartManager = new CartController();
   });
 
   //Limpio la base de datos cada vez que testeo

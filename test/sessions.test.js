@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const UserManager = require("../src/controllers/user.controller.js");
+const UserController = require("../src/controllers/user.controller.js");
 const { userRepository } = require("../src/services/index.js");
 const assert = require("assert");
 const { expect } = require("chai");
@@ -15,7 +15,7 @@ describe("Testing Sessions Functionality", () => {
   let cookie;
 
   before(function () {
-    this.userManager = new UserManager();
+    this.userController = new UserController();
   });
 
   // ------Lógica Test Unitario para router.post("/", userTest.registerUser)------
@@ -59,7 +59,7 @@ describe("Testing Sessions Functionality", () => {
           return this;
         },
       };
-      await this.userManager.registerUser(req, res);
+      await this.userController.registerUser(req, res);
 
       const registeredUser = await userRepository.findOne({
         email: user.email,
@@ -94,7 +94,7 @@ describe("Testing Sessions Functionality", () => {
       };
 
       const result = await requester
-        .post("/api/sessions/login")
+        .post("/api/users/login")
         .send(loginUser);
 
       //Result es la respuesta que me da "requester"; de la misma, busco los headers de la petición:
@@ -118,7 +118,7 @@ describe("Testing Sessions Functionality", () => {
     it("You must send the cookie that contains the user", async () => {
       //Ingreso a la ruta current enviando la cookie
       const response = await requester
-        .get("/api/sessions/profile")
+        .get("/api/users/profile")
         .set("Cookie", [`${cookie.name}=${cookie.value}`])
         .set("Content-Type", "application/json");
 

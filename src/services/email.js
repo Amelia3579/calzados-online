@@ -2,7 +2,7 @@
 const nodemailer = require("nodemailer");
 
 //Creo clase para gestionar el envío de los emails
-class EmailManager {
+class EmailController {
   constructor() {
     this.transporter = nodemailer.createTransport({
       service: "gmail",
@@ -67,4 +67,4 @@ class EmailManager {
   }
 }
 
-module.exports = EmailManager;
+module.exports = EmailController;

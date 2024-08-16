@@ -1,7 +1,7 @@
 //------Lógica para los botones "removeProduct" y "emptyCart en cart.handlebars------
 
 function removeProduct(cartId, productId) {
-  fetch(`/api/carts/${cart._id}/product/${productId}`, {
+  fetch(`/api/carts/${cartId}/product/${productId}`, {
     method: "DELETE",
   })
     .then((response) => {

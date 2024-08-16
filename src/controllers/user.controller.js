@@ -3,14 +3,14 @@ const mongoose = require("mongoose");
 const { createHash, isValidPassword } = require("../utils/hashbcrypt.js");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
-
+const UserDto = require("../dtos/user.dto.js");
 const { generateResetToken } = require("../utils/tokenreset.js");
-const UserModel = require("../models/user.model.js");
-const EmailManager = require("../services/email.js");
-const emailManager = new EmailManager();
+
+const EmailController = require("../services/email.js");
+const emailTest = new EmailController();
 const upload = require("../middleware/multer.js");
 
-class UserManager {
+class UserController {
   //------Lógica para Logger------
 
   //Método para registro de un usuario
@@ -29,7 +29,7 @@ class UserManager {
         return res.status(200).send({
           success: true,
           message: "The user entered already exists.",
-          redirect: "/api/sessions/profile",
+          redirect: "/api/users/profile",
         });
       }
       req.logger.info(
@@ -84,7 +84,7 @@ class UserManager {
           maxAge: 3600000,
           httpOnly: true,
         });
-        res.redirect("/api/sessions/profile");
+        res.redirect("/api/users/profile");
       } else {
         return response;
       }
@@ -92,6 +92,133 @@ class UserManager {
       req.logger.error("Error in the registration process:", error);
       return res.status(500).send({ message: error.message });
     }
+  }
+
+  //------Lógica para Logger------
+
+  //Método para logueo de un usuario
+  async loginUser(req, res) {
+    const { email, password } = req.body;
+
+    try {
+      const user = await userRepository.findOne({ email });
+
+      if (!user) {
+        return res.status(401).send({
+          success: false,
+          message: "The user was not found. Please check the email entered..",
+        });
+      }
+
+      //Si el usuario fue encontrado, verifico la contraseña
+      if (!isValidPassword(password, user)) {
+        return res
+          .status(401)
+          .send({ success: false, message: "The password is invalid." });
+      }
+
+      //Si la contraseña es correcta, genero el token
+      const token = jwt.sign(
+        {
+          id: user._id,
+          email: user.email,
+          role: user.role,
+        },
+        "secretWord",
+        {
+          expiresIn: "1h",
+        }
+      );
+
+      //------Lógica para la propiedad last_connection (4° Práctica Integradora)------
+      user.last_connection = new Date();
+      await user.save();
+
+      //Establezco ese token como cookie
+      res.cookie("cookieToken", token, {
+        maxAge: 3600000,
+        httpOnly: true,
+        sameSite: "strict",
+      });
+
+      //Cuando termina la validación, verifico el rol
+      if (user.role !== "Admin") {
+        return res.redirect("/products");
+      }
+
+      return res.redirect("./admin");
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
+    }
+  }
+
+  //Método para profile.handlebars
+  async getProfile(req, res) {
+    try {
+      // Verifico si el usuario está autenticado
+      if (!req.user) {
+        // Si no está autenticado, redirijo a Login
+        res.status(401).send({
+          success: false,
+          message: `The user was not found..`,
+        });
+
+        return res.render("login");
+      } else {
+        //Si es un usuario registrado, guardo su información
+        const user = await userRepository.findById(req.user._id);
+
+        //Creo un DTO del usuario
+        const userDto = new UserDto(user);
+
+        if (req.headers["content-type"] === "application/json") {
+          return res.status(200).send({
+            success: true,
+            payload: userDto,
+          });
+        } else {
+          return res.render("profile", { userDto });
+        }
+      }
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
+    }
+  }
+
+  //Método para admin.handlebars
+  async getAdmin(req, res) {
+    try {
+      const user = await userRepository.findById(req.user._id);
+
+      if (user.role === "Admin") {
+        return res.render("admin", { user });
+      } else {
+        return res.status(403).send({
+          success: false,
+          message: "You are missing the corresponding permissions for access.",
+        });
+      }
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
+    }
+  }
+
+  //------Lógica para la propiedad last_connection (4° Práctica Integradora)------
+
+  //Método para deslogueo
+  async logoutUser(req, res) {
+    if (req.user) {
+      try {
+        req.user.last_connection = new Date();
+        await req.user.save();
+      } catch (error) {
+        res.status(500).send({ message: error.message });
+      }
+    }
+    //Limpio la cookie del Token
+    res.clearCookie("cookieToken");
+    //Redirijo a Login
+    return res.redirect("/");
   }
 
   //------Lógica para envío de emails y cambio de rol (3° Práctica Integradora)------
@@ -114,12 +241,12 @@ class UserManager {
       //Agrego el token al usuario
       user.resetToken = {
         token: token,
-        expire: new Date(Date.now() + 3600000), //Le doy 1 hora de duración
+        expire: new Date(Date.now() + 3600000),
       };
       await user.save();
 
       //Luego de guardar los cambios, envío el email
-      await emailManager.sendEmailReset(user.first_name, token);
+      await emailTest.sendEmailReset(user.first_name, token);
 
       res.redirect("/shippingconfirmation");
     } catch (error) {
@@ -181,7 +308,7 @@ class UserManager {
     }
   }
 
-  //Método para subir documentos
+  //Método para que el usuario suba documentos
   async uploadDocuments(req, res) {
     const { uid } = req.params;
     const uploadedFiles = req.files;
@@ -248,49 +375,69 @@ class UserManager {
     try {
       //Busco al usuario
       const user = await userRepository.findById(uid);
-
       if (!user) {
         return res.status(404).send("The user not found.");
       }
 
-      ////////////////////////////////////
-      // Verifico si el usuario envió la documentación requerida:
-      const documentacionRequerida = [
-        "Identificacion",
-        "Comprobante de domicilio",
-        "Comprobante de estado de cuenta",
+      // Inicializo user.documents
+      if (!user.documents) {
+        user.documents = [];
+      }
+
+      // Verifico si el usuario envió toda la documentación:
+      const requiredDocumentation = [
+        "identificacion",
+        "comprobanteDeDomicilio",
+        "comprobanteEstadoDeCuenta",
       ];
 
-      const userDocuments = user.documents.map((doc) => doc.name);
-
-      const tieneDocumentacion = documentacionRequerida.every((doc) =>
-        userDocuments.includes(doc)
+      const userDocuments = user.documents.map((doc) =>
+        doc.name.split(".").slice(0, -1).join(".")
       );
 
-      if (!tieneDocumentacion) {
+      const completeDocumentation = requiredDocumentation.every((doc) =>
+        userDocuments.includes(doc)
+      );
+      if (!completeDocumentation) {
+        return res
+          .status(400)
+          .send("The user must complete all the required documentation.");
+      }
+
+      //Verifico el tiempo en que fue enviada la documentación
+      const maxUploadAgeInDays = 30;
+      const currentDate = new Date();
+
+      const oldDocuments = user.documents.filter((doc) => {
+        // Uso la fecha del ObjectId del documento
+        const uploadDate = new Date(doc._id.getTimestamp());
+        const ageInDays = (currentDate - uploadDate) / (1000 * 60 * 60 * 24);
+        return ageInDays > maxUploadAgeInDays;
+      });
+
+      if (oldDocuments.length > 0) {
         return res
           .status(400)
           .send(
-            "El usuario tiene que completar toda la documentacion requerida o no tendra feriados la proxima semana"
+            "One or more documents are too old and need to be re-uploaded."
           );
       }
-      /////////////////////////////////////////////
 
-      //Si lo encuentro,le cambio el rol
+      //Si fue enviada toda la documentación y dentro de los últimos 30 días, cambio el rol
       const newRole = user.role === "User" ? "Premium" : "User";
 
       const updateRole = await userRepository.findByIdAndUpdate(uid, {
         role: newRole,
       });
 
-      return res.status(200).json({
+      return res.status(200).send({
         success: true,
         message: "The role was successfully updated.",
-        user: JSON.parse(JSON.stringify(updateRole, null, 2)),
+        user: updateRole,
       });
     } catch (error) {
       return res.status(500).send({ message: error.message });
     }
   }
 }
-module.exports = UserManager;
+module.exports = UserController;

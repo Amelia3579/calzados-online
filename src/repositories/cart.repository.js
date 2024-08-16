@@ -24,15 +24,27 @@ class CartRepository {
     }
   }
 
+
   //Método para listar productos del carrito según el ID especificado, con renderizado de cart.handlebars
+  // async findById(cartId) {
+  //   try {
+  //     return await CartModel.findById(cartId).populate("products.product");
+  //   } catch (error) {
+  //     console.error(`Error displaying products
+  //       : ${error.message}`);
+  //     throw new Error("Error displaying products.");
+  //   }
+  // }
+  
+ //Método para listar productos del carrito según el ID especificado
   async findById(cartId) {
-    try {
-      return await CartModel.findById(cartId).populate("products.product");
-    } catch (error) {
-      console.error(`Error displaying products
+try {
+  return await CartModel.findById(cartId)
+} catch (error) {
+  console.error(`Error displaying products
         : ${error.message}`);
-      throw new Error("Error displaying products.");
-    }
+    throw new Error("Error displaying products.");
+}
   }
 }
 

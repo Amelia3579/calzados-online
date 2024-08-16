@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const ProductManager = require("../src/controllers/product.controller.js");
+const ProductController = require("../src/controllers/product.controller.js");
 const assert = require("assert");
 const { expect } = require("chai");
 const supertest = require("supertest");
@@ -14,7 +14,7 @@ describe("Testing Product Functionality", () => {
   let testProductId;
 
   before(function () {
-    this.productManager = new ProductManager();
+    this.productController = new ProductController();
   });
 
   //Limpio la base de datos cada vez que testeo
@@ -40,7 +40,7 @@ describe("Testing Product Functionality", () => {
         status: true,
       };
 
-      const result = await this.productManager.addProduct(newProduct);
+      const result = await this.productController.addProduct(newProduct);
       testProductId = result._id;
 
       assert.ok(result._id, "Product should have an _id");

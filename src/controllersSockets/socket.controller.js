@@ -5,7 +5,7 @@ const productRepository = new ProductRepository();
 
 const MessageModel = require("../models/message.model.js");
 
-class SocketManager {
+class SocketController {
   constructor(httpServer) {
     this.io = socket(httpServer);
     this.productRepository = productRepository;
@@ -69,4 +69,4 @@ class SocketManager {
     this.io.emit("products", await this.productRepository.find());
   }
 }
-module.exports = SocketManager;
+module.exports = SocketController;
