@@ -62,9 +62,15 @@ passport.use(
   "github",
   new GitHubStrategy(
     {
-      clientID: "Iv23licrAjJXehMHsWyb",
-      clientSecret: "e2f9c742ad7fdf4bf5ccc11c192e8a8ed5312d17",
-      callbackURL: "http://localhost:8080/api/users/githubcallback",
+      // clientID: "Iv23licrAjJXehMHsWyb",
+      // clientSecret: "e2f9c742ad7fdf4bf5ccc11c192e8a8ed5312d17",
+      // callbackURL: "http://localhost:8080/api/users/githubcallback",
+
+      clientID: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      callbackURL: process.env.GITHUB_CALLBACK_URL,
+
+
     },
     async (accessToken, refreshToken, profile, done) => {
       //Datos del perfil

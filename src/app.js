@@ -87,5 +87,5 @@ new SocketController(httpServer);
 //Me conecto a MongoDB usando Commander
 mongoose
   .connect(mongo_url)
-  .then(() => console.log("Connecting to MongoDB"))
+  .then(() => console.log("MongoDB Connection"))
   .catch((error) => console.log("Connection error", error));

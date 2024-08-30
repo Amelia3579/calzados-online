@@ -2,6 +2,7 @@ const {
   cartRepository,
   productRepository,
   ticketRepository,
+  userRepository,
 } = require("../services/index.js");
 const mongoose = require("mongoose");
 const totalPurchase = require("../utils/ticket.js");
@@ -32,7 +33,7 @@ class CartController {
     }
   }
 
-  //Método para listar los carritos creados
+  //Método para obtener los carritos creados
   async getCart(req, res) {
     const cart = await cartRepository.find();
 
@@ -56,7 +57,7 @@ class CartController {
     }
   }
 
-  //Método para listar carrito según el ID especificado
+  //Método para obtener carrito según el ID especificado
   async getCartById(req, res) {
     try {
       const cartId = req.params.cid;
@@ -88,7 +89,7 @@ class CartController {
       const user = req.user;
 
       const cart = await cartRepository.findById(cartId);
-      // Verifico si el carrito existe
+
       if (!cart) {
         return res.status(404).send({
           success: false,
@@ -141,7 +142,6 @@ class CartController {
 
       const cart = await cartRepository.findById(cartId);
 
-      // Validación para verificar si existe el carrito con el ID especificado
       if (!cart) {
         res.status(404).send({
           success: false,
@@ -171,7 +171,6 @@ class CartController {
         cart.products.splice(productIndex, 1);
       }
 
-      // Guardo los cambios en MongoDB
       await cart.save();
       return res.status(200).json({
         message: `The product with the ID ${prodId} was successfully deleted at the cart${cartId}`,
@@ -189,8 +188,6 @@ class CartController {
       const updatedProduct = req.body;
 
       const cart = await cartRepository.findById(cartId);
-
-      // Validación para verificar si existe el carrito con el ID especificado
       if (!cart) {
         res.status(404).send({
           success: false,
@@ -212,9 +209,7 @@ class CartController {
         cart.products.push({ product, quantity });
       }
 
-      // Guardo los cambios en MongoDB
       await cart.save();
-
       return res.status(200).json({
         success: true,
         message: `The cart ${cartId} was successfully updated.`,
@@ -232,9 +227,7 @@ class CartController {
       const prodId = req.params.pid;
       const quantity = req.body.quantity;
 
-      // Validación para verificar si existe el carrito con el ID especificado
       const cart = await cartRepository.findById(cartId);
-
       if (!cart) {
         res.status(404).send({
           success: false,
@@ -273,22 +266,7 @@ class CartController {
   async emptyCart(req, res) {
     try {
       const cartId = req.params.cid;
-      const cart = await cartRepository.findById(cartId);
-
-      // Validación para verificar si existe el carrito con el ID especificado
-      if (!cart) {
-        res.status(404).send({
-          success: false,
-          message: `The cart with the ID ${cartId} was not found.`,
-        });
-        return null;
-      } else {
-        // Vacío el carrito especificado
-        cart.products = [];
-      }
-
-      // Guardo los cambios en MongoDB
-      await cart.save();
+      const cart = await cartRepository.emptyCart(cartId);
 
       return res.status(200).json({
         message: `The cart with ID: ${cartId} was emptied.`,
@@ -298,20 +276,15 @@ class CartController {
       return res.status(500).send({ message: error.message });
     }
   }
+
   //------Actividad 3° pre-entrega y lógica para Logger------
 
-  //Método para verificar el stock del producto, antes de confirmar la compra
-  async purchaseCart(req, res) {
+  //Método para verificar el stock del producto, y confirmar la compra
+  async completePurchase(req, res) {
     const cartId = req.params.cid;
-    const purchaserEmail = req.body.email;
 
     try {
-      //Busco el carrito por su ID
       const cart = await cartRepository.findById(cartId);
-
-      //Array para almacenar los productos no disponibles
-      const productsNotAvailable = [];
-
       if (!cart) {
         req.logger.warning(`The cart with the ID ${cartId} was not found.`);
         return res
@@ -319,63 +292,86 @@ class CartController {
           .json({ success: false, message: "The cart was not found." });
       }
 
+      //Array para almacenar los productos no disponibles
+      const productsNotAvailable = [];
+
+      // Array para almacenar los productos que se van a comprar
+      const productsToPurchase = [];
+
       // Verifico el stock de cada producto en el carrito
       for (const item of cart.products) {
-        const product = item.product;
-        const productId = await productRepository.findById(product);
+        const product = await productRepository.findByIdP(item.product);
 
         // Verifico si hay suficiente stock
-        if (productId && productId.toObject) {
-          if (productId.stock >= item.quantity) {
+        if (product) {
+          if (product.stock >= item.quantity) {
             // Resto la cantidad del stock del producto
-            productId.stock -= item.quantity;
-            await productId.save();
+            product.stock -= item.quantity;
 
-            req.logger.info(`The product ${product} was successfully updated.`);
+            await product.save();
+
+            // Agrego el producto a productsToPurchase
+            productsToPurchase.push({
+              product: product,
+              quantity: item.quantity,
+            });
+
+            req.logger.info(
+              `The product ${item.product} was successfully updated.`
+            );
           } else {
-            // Si no hay suficiente stock, el producto, sea agrega a productsNotAvailable
-            productsNotAvailable.push(product);
+            console.log(
+              `Product ${product.title} does not have sufficient stock.`
+            );
+            // Si no hay suficiente stock, agrego el producto a productsNotAvailable
+            productsNotAvailable.push(item.product);
 
             req.logger.warning(
-              `The product ${product} is not available in sufficient quantity.`
+              `The product ${item.product} does not have sufficient stock.`
             );
           }
         }
       }
 
+      const userCart = await userRepository.findOne({ cart: cartId });
+
       //Creo un ticket con los datos de la compra realizada
       const uniqueCode = await generateUniqueCode();
-      const totalAmount = totalPurchase(cart.products); //Total de la compra usando función totalPurchase
-      const newTicket = await ticketRepository.createTicket({
+
+      const ticket = await ticketRepository.createTicket({
         code: uniqueCode,
         purchase_datetime: new Date(),
-        amount: totalAmount,
-        purchaser: purchaserEmail,
+        amount: totalPurchase(productsToPurchase), //Total de la compra usando función totalPurchase
+        purchaser: userCart._id,
       });
 
       req.logger.info(
-        `The ticket was generated with the code: ${uniqueCode} for the buyer: ${purchaserEmail}.`
+        `The ticket was generated with the code: ${uniqueCode} for the buyer: ${userCart.email}.`
       );
 
-      // Elimino del carrito los productos que se compraron
-      cart.products = cart.products.filter((item) =>
-        productsNotAvailable.some((product) => product.equals(item.productId))
-      );
+      //Vacío el carrito luego de generado el ticket
+      await cartRepository.emptyCart(cartId);
 
-      // Guardo el carrito actualizado en MongoDB
-      await cart.save();
-
-      return res.status(200).json({
-        success: true,
-        message:
-          "The ticket was generated successfully. The products that were not added to the purchase due to lack of stock are:",
-        cart: JSON.parse(JSON.stringify(productsNotAvailable, null, 2)),
-        ticket: newTicket,
+      return res.render("checkout", {
+        customer: userCart.first_name,
+        email: userCart.email,
+        ticketNumber: ticket._id,
+        amountTicket: ticket.amount
       });
+    
+      // return res.status(200).json({
+      //   success: true,
+      //   ticket: newTicket,
+      //   message:
+      //     "The ticket was generated successfully. The products that were not added to the purchase due to lack of stock are:",
+      //   cart: JSON.parse(JSON.stringify(productsNotAvailable, null, 2)),
+      // });
+      // }
     } catch (error) {
       req.logger.error("Error in the purchase process:", error);
       return res.status(500).send({ message: error.message });
     }
   }
 }
+
 module.exports = CartController;

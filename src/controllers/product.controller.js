@@ -67,7 +67,6 @@ class ProductController {
         return res.status(201).send({
           status: "success",
           message: "The product was successfully added.",
-          // payload: JSON.parse(JSON.stringify(newProduct, null, 2)),
           payload: newProduct,
         });
       } else {
@@ -78,7 +77,7 @@ class ProductController {
     }
   }
 
-  //Método para mostrar producto según limit, page, query y sort especificados
+  //Método para obtener productos según limit, page, query y sort especificados
   async getProducts(req, res) {
     try {
       const limit = req.query.limit || 10;
@@ -117,7 +116,7 @@ class ProductController {
       const user = req.user || {};
       const cartId = user.cart || null;
 
-      res.render("home", {
+      res.render("products", {
         products: availableProd.docs,
         user: user,
         cartId,
@@ -137,7 +136,7 @@ class ProductController {
     }
   }
 
-  //Método para mostrar producto por id
+  //Método para obtener producto según ID especificado
   async getProductById(req, res) {
     try {
       const prodId = req.params.pid;
@@ -234,9 +233,9 @@ class ProductController {
       const prodId = req.params.pid;
 
       // Validación para verificar si existe  el producto con el ID especificado
-      const deletedProduct = await productRepository.findByIdAndDelete(prodId);
+      const product = await productRepository.findByIdAndDelete(prodId);
 
-      if (!deletedProduct) {
+      if (!product) {
         return res.status(404).send({
           success: false,
           message: `The product with the ID: ${prodId} was not found.`,
@@ -247,21 +246,6 @@ class ProductController {
           message: "The product was successfully deleted",
         });
       }
-    } catch (error) {
-      return res.status(500).send({ message: error.message });
-    }
-  }
-
-  //------Lógica para realtimeproducts.handlebars con Websocket------
-
-  //Función para renderizar la plantilla
-  async getRealTimeProducts(req, res) {
-    const user = req.user;
-    try {
-      return res.render("realtimeproducts", {
-        role: user.role,
-        email: user.email,
-      });
     } catch (error) {
       return res.status(500).send({ message: error.message });
     }

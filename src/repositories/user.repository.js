@@ -2,7 +2,17 @@ const UserModel = require("../models/user.model.js");
 const mongoose = require("mongoose");
 
 class UserRepository {
-  //Método para verificar si el user ya existe en la base de datos
+  //Método para obtener todos los usuarios
+  async find() {
+    try {
+      return await UserModel.find().lean();
+    } catch (error) {
+      console.error(`Error displaying users: ${error.message}`);
+      throw new Error("Error displaying users.");
+    }
+  }
+
+  //Método para verificar si el usuario ya existe en la base de datos
   async findOne(dataBody) {
     try {
       return await UserModel.findOne(dataBody);
@@ -41,6 +51,16 @@ class UserRepository {
     } catch (error) {
       console.error(`Error updating role: ${error.message}`);
       throw new Error("Error updating role");
+    }
+  }
+
+  //Método para eliminar usuarios inactivos
+  async findByIdAndDelete(userId) {
+    try {
+      return await UserModel.findByIdAndDelete(userId);
+    } catch (error) {
+      console.error(`Error deleting user: ${error.message}`);
+      throw new Error("Error deleting user");
     }
   }
 }

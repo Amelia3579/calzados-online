@@ -19,7 +19,6 @@ const authenticateJWT = passport.authenticate("jwt", { session: false });
 //Middleware de Loggers
 const addLogger = require("../utils/loggers.js");
 
-
 router.get("/carts/:cid", viewsTest.renderCart);
 router.get(
   "/products",
@@ -28,11 +27,11 @@ router.get(
   productTest.getProducts
 );
 
-router.get("/chat", verifyRole(["User"]), viewsTest.renderChat);
+router.get("/chat", verifyRole(["User", "Premium"]), viewsTest.renderChat);
 router.get(
   "/realtimeproducts",
   verifyRole(["Admin", "Premium"]),
-  productTest.getRealTimeProducts
+  viewsTest.renderRealTimeProducts
 );
 //Ruta para que Login sea lo 1° que se renderize
 router.get("/", viewsTest.renderLogin);

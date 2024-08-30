@@ -11,31 +11,32 @@ socket.on("products", (data) => {
 });
 
 //Función para renderizar los productos disponibles
+
 const renderProductos = (products) => {
   const containerProducts = document.getElementById("containerProducts");
   containerProducts.innerHTML = "";
 
   const title = document.createElement("h1");
-  title.classList.add("mainTitle");
-  title.textContent = "List of Products";
+  title.textContent = "Products Available for Sale";
   containerProducts.appendChild(title);
 
   products.forEach((element) => {
     const card = document.createElement("div");
-    card.classList.add("cardContainer");
     card.innerHTML = `
-                          <div class = "card">
+                          <div class = "cardProduct">
                           <p> ID: ${element._id}</p>
-                          <p> Title : ${element.title} </p>
-                          <p> Price: $${element.price} </p>
-                          <button class = "cardButton"> Remove Product </button>
+                          <p> Title: ${element.title} </p>
+                          <p> Price: ${element.price} </p>
+                          <button class = "btnProduct"> Remove Product </button>
                           </div>
         `;
     containerProducts.appendChild(card);
 
     //Evento del botón eliminar producto
     card.querySelector("button").addEventListener("click", () => {
-      if (role === "Admin" || (role === "Premium" && element.owner === email)) {
+      if (role === "Premium" && element.owner === email) {
+        deleteProduct(element._id);
+      } else if (role === "Admin") {
         deleteProduct(element._id);
       } else {
         Swal.fire("Sorry! You can only delete products that belong to you..");
@@ -50,7 +51,7 @@ const deleteProduct = (_id) => {
 };
 
 //Evento del botón agregar producto
-document.getElementById("btnEnviar").addEventListener("click", () => {
+document.getElementById("btnProduct").addEventListener("click", () => {
   addProduct();
 });
 

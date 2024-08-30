@@ -1,20 +1,34 @@
 {{! Actividad desafío4 (Websockets) }}
-<div id="containerProducts"></div>
-<h2 class="secondaryTitle">Form to add Products to the Store</h2>
-<p id="role"> {{role}} </p>
-<p id="email"> {{email}} </p>
 
-<form>
-  <input type="text" id="title" placeholder="Product name" />
-  <input type="text" id="description" placeholder="Description" />
-  <input type="number" id="price" placeholder="Price" />
-  <input type="text" id="img" value="Without Image" />
-  <input type="text" id="code" placeholder="Code" />
-  <input type="number" id="stock" placeholder="Quantity" />
-  <input type="text" id="category" placeholder="Category" />
-  <select id="status">
+{{! Listo los productos disponibles para la venta }}
+<div id="containerProducts"></div>
+
+<h2>Form to add Products to the Store</h2>
+
+<form class="backgroundContainer">
+  <label for="text"> Title</label>
+  <input type="text" id="title" />
+  <label for="text"> Description </label>
+  <input type="text" id="description" />
+  <label for="text"> Price </label>
+  <input type="number" id="price" />
+  <label for="text"> Thumbnail </label>
+  <input
+    type="text"
+    id="img"
+    value="Without Image"
+    placeholder="Root image
+"
+  />
+  <label for="text"> Code </label>
+  <input type="text" id="code" />
+  <label for="text"> Stock </label>
+  <input type="number" id="stock" />
+  <label for="text"> Category </label>
+  <input type="text" id="category" />
+  <select id="status" class="btnProduct">
     <option value="true"> Active </option>
-    <option value="false"> Anactive </option>
+    <option value="false"> Inactive </option>
   </select>
   <button type="button" id="btnProduct"> Add Product </button>
 </form>

@@ -5,8 +5,8 @@ class TicketRepository {
   //Método para crear ticket
   async createTicket(dataTicket) {
     try {
-      const newTicket = new TicketModel(dataTicket);
-      return await newTicket.save();
+      const ticket = new TicketModel(dataTicket);
+      return await ticket.save();
     } catch (error) {
       console.error(`Error creating ticket: ${error.message}`);
       throw new Error("Error creating ticket");

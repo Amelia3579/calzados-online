@@ -1,22 +1,15 @@
-<div class="btnContainer">
-  <button id="btnGitHub"> Login with GitHub </button>
-  <script>
-    const buttonGitHub = document.getElementById("btnGitHub");
-    buttonGitHub.addEventListener("click", redirectGitHub); function
-    redirectGitHub(){ window.location.href = "/api/users/github" }
-  </script>
-</div>
-
-<div class="separator">
-  <span class="line"></span>
-  <span class="letter"> O </span>
-  <span class="line"></span>
-</div>
-
-<form class="form" action="/api/users/login" method="POST">
+<h1> User Login</h1>
+<form action="/api/users/login" method="POST" class="backgroundContainer">
 
   <label for="email"> Email </label>
-  <input type="email" id="email" name="email" required autocomplete="off" />
+  <input
+    type="email"
+    id="email"
+    name="email"
+    required
+    autocomplete="off"
+    placeholder="juan@gmail.com"
+  />
 
   <label for="password"> Password </label>
   <input
@@ -25,17 +18,30 @@
     name="password"
     required
     autocomplete="off"
+    placeholder="Clave Alfanumérica"
   />
 
   <button class="btnUser" type="submit"> Login </button>
-  <button id="btnUser"> Register </button>
 
-  <p>Forgot password?<a href="/changePassword">Reset it</a></p>
+  <h2> Or do you prefer? </h2>
 
+  <button id="btnGitHub"> Login with GitHub </button>
+  <script>
+    const buttonGitHub = document.getElementById("btnGitHub");
+    buttonGitHub.addEventListener("click", redirectGitHub); function
+    redirectGitHub(){ window.location.href = "/api/users/github" }
+  </script>
+
+  <div class="btnProfile">
+    <p> NEW USER? </p>
+    <a class="btnUser" href="/register"> Register </a>
+
+    <p> FORGOT PASS? </p>
+    <a class="btnUser" href="/changePassword"> Reset it </a>
+  </div>
   <script>
     const buttonRegister = document.getElementById("btnUser");
     buttonRegister.addEventListener("click", redirectRegister); function
     redirectRegister(){ window.location.href = "/register" }
   </script>
-
 </form>

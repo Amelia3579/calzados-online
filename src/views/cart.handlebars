@@ -1,24 +1,41 @@
-{{! Actividad 2° pre-entrega }}
 <h1>Shopping Cart</h1>
 
-<div class="cardContainer">
-  {{#each products}}
-    <div class="card">
-      <p> Product: {{this.product.title}}</p>
-      <p> Quantity: {{this.quantity}}</p>
-      <p> Price: ${{this.product.price}}</p>
+{{#if products.length}}
+  <div class="cardContainerP">
+    {{#each products}}
+      <div class="cardProduct">
+        <p>PRODUCT: {{this.product.title}}</p>
+        <p>QUANTITY: {{this.quantity}}</p>
+        <p>PRICE: ${{this.product.price}}</p>
+        <button
+          onclick="removeProduct(`{{this.cartId}}`, `{{this.product._id}}`)"
+          class="btnProduct"
+        >
+          Remove Product
+        </button>
+      </div>
+    {{/each}}
 
-     <button onclick="removeProduct(`{{this.cartId}}`, `{{this.product._id}}`)"
-                class="btnCart">Remove Product</button>  
+    <div class="cartStyles">
+      <div>
+        <a href="/products" class="btnCart">CONTINUE SHOPPING</a>
+      </div>
+      <form action="/api/carts/{{cartId}}/purchase" method="post">
+        <button type="submit" class="btnCart">Complete Purchase</button>
+      </form>
+      <p>Total Purchase:${{totalPurchase}}</p>
     </div>
-  {{/each}}
-
-  <div>
-    <button onclick="emptyCart(`{{cartId}}`)" class="btnCart"> Empty Cart </button>
-    <p> Total Purchase: ${{totalPurchase}} </p>
+<form action="" class="">
+    <button onclick="emptyCart(`{{this.cartId}}`)" class="btnCart">
+      Empty Cart
+    </button>
+    </form>
   </div>
-</div>
+{{else}}
+<div class="backgroundContainer">
+  <h2>Your cart is empty!</h2>
+  <a href="/products" class="btnCart">CONTINUE SHOPPING</a>
+  </div>
+{{/if}}
 
-<script src="/js/cart.js"></script> 
-
-
+<script src="/js/cart.js"></script>

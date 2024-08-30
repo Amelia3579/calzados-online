@@ -1,12 +1,15 @@
 <h1>Welcome to Customer Chat</h1>
 
-<div>
-    <input type="text" id="chatBox" placeholder="Write your message here">
-</div>
+<div class="backgroundContainer">
+ 
+    <label for="text"> Message </label>
+    <input type="text" id="chatBox" placeholder="Write your message here" />
 
-{{!-- Registo de mensajes de todos los usuarios conectados --}}
-<div class="boxMessages">
+
+  {{! Registro de mensajes de todos los usuarios conectados }}
+  <div class="boxMessages">
     <p id="logMessages"></p>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

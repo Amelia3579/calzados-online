@@ -1,0 +1,34 @@
+{{! Actividad desafío4 (Websockets) }}
+<h1>Products Available for Sale</h1>
+
+<div class="cardContainerP">
+  {{#each products}}
+    <div class="cardProduct">
+      <p> PRODUCT: {{this.title}}</p>
+      <p> DESCRIPTION: {{this.description}}</p>
+      <p> PRICE: ${{this.price}}</p>
+
+      <form action="/api/carts/{{../cartId}}/product/{{this._id}}" method="POST">
+        <button type="submit" class="btnProduct">
+          Add Product to Cart
+        </button></form>
+
+    </div>
+  {{/each}}
+</div>
+
+{{! Actividad 2° pre-entrega }}
+{{#if hasPrevPage}}
+  <a href="/products?page={{prevPage}}"> Previous </a>
+{{/if}}
+
+{{#if hasNextPage}}
+  <a href="/products?page={{nextPage}}"> Next </a>
+{{/if}}
+
+<div class="pContainer">
+<p class="pStyles"> Page {{currentPage}} of {{totalPages}} </p>
+</div>
+
+<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+<script src="js/main.js"></script>

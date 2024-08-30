@@ -22,6 +22,10 @@ router.get(
 );
 router.post("/", userTest.registerUser);
 router.post("/login", userTest.loginUser);
+//Ruta para obtener todos los usuarios
+router.get("/allUsers", userTest.getUsers);
+//Ruta para eliminar usuarios inactivos
+router.delete("/inactiveUsers/:id", userTest.deleteInactiveUsers);
 //Ruta para Profile(protegida por jwt)- Ruta Current
 router.get("/profile", authenticateJWT, userTest.getProfile);
 router.get("/admin", authenticateJWT, userTest.getAdmin);

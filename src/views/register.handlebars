@@ -1,6 +1,6 @@
 <h1> User Registration</h1>
 
-<form action="api/users" method="POST">
+<form action="api/users" method="POST" class="backgroundContainer">
   <label for="first_name"> First Name: </label>
   <input
     type="text"
@@ -20,7 +20,7 @@
   />
 
   <label for="email"> Email: </label>
-  <input type="email" id="email" name="email" required autocomplete="off" />
+  <input type="email" id="email" name="email" required autocomplete="off" placeholder="juan@gmail.com" />
 
   <label for="password "> Password: </label>
   <input
@@ -29,10 +29,11 @@
     name="password"
     required
     autocomplete="off"
+    placeholder="Clave Alfanumérica"
   />
 
   <label for="age"> Age: </label>
-  <input type="number" id="age" name="age" required autocomplete="off" />
+  <input type="number" id="age" name="age" required autocomplete="off" placeholder="Number" />
 
   <button type="submit" class="btnUser"> Register </button>
 </form>

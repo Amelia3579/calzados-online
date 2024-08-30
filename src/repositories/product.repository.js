@@ -25,7 +25,7 @@ class ProductRepository {
       throw new Error("Error searching product");
     }
   }
-  //Método para mostrar la paginación
+  //Método para obtener la paginación
   async getPaginate(query, options) {
     try {
       return await ProductModel.paginate(query, options);
@@ -36,7 +36,7 @@ class ProductRepository {
   }
 
   //Método para mostrar producto por id
-  async findById(productId) {
+  async findByIdP(productId) {
     try {
       return await ProductModel.findById(productId);
     } catch (error) {
@@ -89,7 +89,7 @@ class ProductRepository {
 
   //------Lógica para realtimeproducts.handlebars con Websocket------
 
-  //Método para mostrar productos
+  //Método para obtener productos
   async find() {
     try {
       return await ProductModel.find().lean();

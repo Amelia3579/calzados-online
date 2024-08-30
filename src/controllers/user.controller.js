@@ -84,7 +84,7 @@ class UserController {
           maxAge: 3600000,
           httpOnly: true,
         });
-        res.redirect("/api/users/profile");
+        return res.redirect("/api/users/profile");
       } else {
         return response;
       }
@@ -140,13 +140,78 @@ class UserController {
         httpOnly: true,
         sameSite: "strict",
       });
+      return res.redirect("/api/users/profile");
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
+    }
+  }
 
-      //Cuando termina la validación, verifico el rol
-      if (user.role !== "Admin") {
-        return res.redirect("/products");
+  //Método para obtener todos los usuarios
+  async getUsers(req, res) {
+    try {
+      const users = await userRepository.find();
+
+      //Creo DTO para los usuarios
+      const usersDto = users.map((user) => new UserDto(user));
+
+      if (!users) {
+        res.status(401).send({
+          success: false,
+          message: "Users cannot be displayed.",
+        });
       }
 
-      return res.redirect("./admin");
+      return res.status(200).send({
+        success: true,
+        message: "Registered users are:",
+        users: usersDto,
+      });
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
+    }
+  }
+
+  //Método para eliminar usuarios inactivos
+  async deleteInactiveUsers(req, res) {
+
+    const userId = req.params.id;
+  
+
+    // Establezco tiempo límite de inactividad
+    const lastConnectionLimit = new Date(Date.now() - 5 * 60 * 1000);
+
+    try {
+      
+      const user = await userRepository.findById(userId);
+
+      if (!user) {
+        return res.status(404).send({
+          success: false,
+          message: "User not found.",
+        });
+      }
+
+      if (new Date(user.last_connection) >= lastConnectionLimit) {
+        return res.status(400).send({
+          success: false,
+          message: "User has not been inactive for 5 minutes.",
+        });
+      }
+      const deletedUser = await userRepository.findByIdAndDelete(userId);
+
+      // Envio email al usuario eliminado
+      if (!deletedUser) {
+        return res.status(500).send({
+          success: false,
+          message: "Failed to delete the user.",
+        });
+      }
+
+      emailTest.sendEmailNotification(deletedUser.first_name);
+      res.status(200).send({
+        success: true,
+        message: "User successfully deleted.",
+      });
     } catch (error) {
       return res.status(500).send({ message: error.message });
     }
@@ -167,6 +232,8 @@ class UserController {
       } else {
         //Si es un usuario registrado, guardo su información
         const user = await userRepository.findById(req.user._id);
+        const isAdmin = req.user.role === "Admin";
+        const isPremium = req.user.role === "Premium";
 
         //Creo un DTO del usuario
         const userDto = new UserDto(user);
@@ -177,7 +244,7 @@ class UserController {
             payload: userDto,
           });
         } else {
-          return res.render("profile", { userDto });
+          return res.render("profile", { userDto, isAdmin, isPremium });
         }
       }
     } catch (error) {
@@ -191,7 +258,33 @@ class UserController {
       const user = await userRepository.findById(req.user._id);
 
       if (user.role === "Admin") {
-        return res.render("admin", { user });
+        const users = await userRepository.find();
+
+        const formattedUsers = users.map((user) => {
+          let formattedDate = "Not available"; // Valor por defecto en caso de que last_connection no esté disponible
+
+          if (user.last_connection) {
+            const date = new Date(user.last_connection);
+            if (!isNaN(date.getTime())) {
+              // Verifico si la fecha es válida
+              formattedDate = new Intl.DateTimeFormat("es-ES", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+              }).format(date);
+            }
+          }
+
+          // Retorno un nuevo objeto usuario con la fecha formateada
+          return {
+            ...user,
+            last_connection: formattedDate,
+          };
+        });
+
+        return res.render("admin", { users: formattedUsers });
       } else {
         return res.status(403).send({
           success: false,

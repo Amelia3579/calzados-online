@@ -5,16 +5,23 @@ const productRepository = new ProductRepository();
 
 const MessageModel = require("../models/message.model.js");
 
+const UserRepository = require("../repositories/user.repository.js");
+const userRepository = new UserRepository();
+
+const EmailController = require("../services/email.js");
+const emailTest = new EmailController();
+
 class SocketController {
   constructor(httpServer) {
     this.io = socket(httpServer);
     this.productRepository = productRepository;
+    this.userRepository = userRepository;
     this.initSocketConnection();
   }
 
   async initSocketConnection() {
     this.io.on("connection", async (socket) => {
-      console.log("Conección Socket");
+      console.log("Socket Connection");
 
       //Configuración para realtimeproducts.handlebar
       // Envío la lista de productos al cliente cuando se conecta
@@ -23,6 +30,30 @@ class SocketController {
       //Manejo el evento "eliminarProducto" desde el cliente
       socket.on("deleteProduct", async (_id) => {
         try {
+          const product = await this.productRepository.findById(_id);
+
+          if (!product) {
+            return socket.emit("error", {
+              message: "Product not found.",
+            });
+          }
+
+          // Obtengo el propietario del producto
+          const owner = await this.userRepository.findOne({
+            email: product.owner,
+          });
+          if (!owner) {
+            return socket.emit("error", {
+              message: "Owner not found.",
+            });
+          }
+
+          // Verifico si el propietario es un usuario premium
+          if (owner.role === "Premium") {
+            // Envío correo de notificación al propietario
+            await emailTest.sendEmailNotification(owner.first_name, product.title);
+          }
+
           await this.productRepository.findByIdAndDelete(_id);
           //Envío la lista de productos actualizada
           this.updatedProducts();

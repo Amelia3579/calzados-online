@@ -1,17 +1,17 @@
-//------Lógica para los botones "removeProduct" y "emptyCart en cart.handlebars------
+//------Lógica para los botones "removeProduct" "emptyCart" en cart.handlebars------
 
-function removeProduct(cartId, productId) {
-  fetch(`/api/carts/${cartId}/product/${productId}`, {
+function removeProduct(cartId, prodId) {
+  fetch(`/api/carts/${cartId}/product/${prodId}`, {
     method: "DELETE",
   })
     .then((response) => {
       if (!response.ok) {
-        throw new Error("Error removing product from cart.");
+        throw new Error("Error removing the product from cart.");
       }
       location.reload();
     })
     .catch((error) => {
-      console.error("Error removing de product:", error.message);
+      console.error(`Error removing the product from cart: ${error.message}`);
     });
 }
 
@@ -26,6 +26,6 @@ function emptyCart(cartId) {
       location.reload();
     })
     .catch((error) => {
-      console.error("Error emptying cart:", error.message);
+      console.error(`Error emptying cart: ${error.message}`);
     });
 }

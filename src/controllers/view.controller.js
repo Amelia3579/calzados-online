@@ -17,14 +17,14 @@ class ViewsController {
         const products = await Promise.all(
           cart.products.map(async (elem) => {
             const product = await productRepository.findById(elem.product);
-            return { ...elem, product, quantity: elem.quantity };
+            return { ...elem, product, quantity: elem.quantity, cartId };
           })
         );
         const totalAmount = totalPurchase(products);
 
         res.render("cart", {
           products,
-          cart,
+          cartId,
           totalPurchase: totalAmount,
         });
       }
@@ -46,6 +46,19 @@ class ViewsController {
   async renderLogin(req, res) {
     try {
       res.render("login");
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
+    }
+  }
+
+  //Método para renderizar realtimeproducts.handlebars
+  async renderRealTimeProducts(req, res) {
+    const user = req.user;
+    try {
+      return res.render("realtimeproducts", {
+        role: user.role,
+        email: user.email,
+      });
     } catch (error) {
       return res.status(500).send({ message: error.message });
     }
