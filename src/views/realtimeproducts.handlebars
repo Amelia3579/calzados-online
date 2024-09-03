@@ -5,7 +5,7 @@
 
 <h2>Form to add Products to the Store</h2>
 
-<form class="backgroundContainer">
+<form class="backgroundContainer" enctype="multipart/form-data">
   <label for="text"> Title</label>
   <input type="text" id="title" />
   <label for="text"> Description </label>
@@ -24,6 +24,11 @@
   <input type="text" id="code" />
   <label for="text"> Stock </label>
   <input type="number" id="stock" />
+  {{!-- <label for="image"> Image </label>
+  <input type="file" id="image" name="image" /> --}}
+   <label for="image">Image:</label>
+  <label for="image" class="custom-file-upload">Select Image</label>
+  <input type="file" name="image" id="image" multiple />
   <label for="text"> Category </label>
   <input type="text" id="category" />
   <select id="status" class="btnProduct">

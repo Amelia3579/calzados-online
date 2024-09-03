@@ -1,5 +1,4 @@
 const passport = require("passport");
-const local = require("passport-local");
 const jwt = require("passport-jwt");
 
 ////Extraigo algunos archivos de los módulos passport.jwt
@@ -12,9 +11,6 @@ const UserModel = require("../models/user.model.js");
 const CartModel = require("../models/cart.model.js");
 //Importo las funciones auxiliares para hashear las contraseñas
 const { createHash, isValidPassword } = require("../utils/hashbcrypt.js");
-
-//Creo la estrategia de Passport
-const LocalStrategy = local.Strategy;
 
 const initializePassport = () => {
   //Estrategia para jwt
@@ -58,23 +54,21 @@ const cookieExtractor = (req) => {
 };
 
 //Estrategia para Github
+
+const clientID = process.env.GITHUB_CLIENT_ID;
+const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+const callbackURL = process.env.GITHUB_CALLBACK_URL;
+
 passport.use(
   "github",
   new GitHubStrategy(
     {
-      // clientID: "Iv23licrAjJXehMHsWyb",
-      // clientSecret: "e2f9c742ad7fdf4bf5ccc11c192e8a8ed5312d17",
-      // callbackURL: "http://localhost:8080/api/users/githubcallback",
-
-      clientID: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: process.env.GITHUB_CALLBACK_URL,
-
-
+      clientID,
+      clientSecret,
+      callbackURL,
     },
     async (accessToken, refreshToken, profile, done) => {
       //Datos del perfil
-
       try {
         let userGith = await UserModel.findOne({
           email: profile._json.email,
@@ -84,7 +78,7 @@ passport.use(
           let newUser = {
             first_name: profile._json.name,
             last_name: "",
-            age: 47,
+            age: 40,
             email: profile._json.email,
             password: "",
           };
@@ -102,36 +96,7 @@ passport.use(
     }
   )
 );
-
-// Serialización y deserialización de usuario
-passport.serializeUser((user, done) => {
-  done(null, user._id);
-});
-
-passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await UserModel.findById(id).lean();
-    done(null, user);
-  } catch (error) {
-    done(error);
-  }
-});
-
 module.exports = { initializePassport };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // //Estrategia para registro
 // passport.use(

@@ -19,7 +19,6 @@ class ProductController {
         thumbnail,
         code,
         stock,
-        img,
         category,
         status,
       } = addProductBody;
@@ -32,7 +31,6 @@ class ProductController {
         !thumbnail ||
         !code ||
         !stock ||
-        !img ||
         !category ||
         status === undefined
       ) {

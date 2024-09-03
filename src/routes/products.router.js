@@ -10,7 +10,7 @@ const authenticateJWT = passport.authenticate("jwt", { session: false });
 router.get("/mockingproducts", productTest.getProductsFaker);
 router.get("/", productTest.getProducts);
 router.get("/:pid", productTest.getProductById);
-router.post("/", authenticateJWT, productTest.addProduct);
+router.post("/addproducts", authenticateJWT, productTest.addProduct);
 router.put("/:pid", productTest.updateProduct);
 router.delete("/:pid", productTest.deleteProduct);
 

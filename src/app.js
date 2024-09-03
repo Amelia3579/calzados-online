@@ -17,8 +17,8 @@ const swaggerOptions = {
   definition: {
     openapi: "3.0.1",
     info: {
-      title: "Succulent Store App Documentation",
-      description: "App dedicated to the sale of Succulents and Cacti",
+      title: "Shoes Store App Documentation",
+      description: "App dedicated to the sale of Shoes",
     },
   },
   apis: [`./src/docs/**/*.yaml`],
@@ -53,7 +53,7 @@ const handleError = require("./middleware/handleError.js");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
-app.use(cors());
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(cookieParser());
 //Middleware Logger
 app.use(addLogger);
@@ -89,3 +89,6 @@ mongoose
   .connect(mongo_url)
   .then(() => console.log("MongoDB Connection"))
   .catch((error) => console.log("Connection error", error));
+
+
+  

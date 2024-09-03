@@ -71,7 +71,8 @@ span {
 }
 
 .backgroundContainer,
-.profileContainer, .adminContainer {
+.profileContainer,
+.adminContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -89,7 +90,7 @@ span {
   text-align: left;
 }
 .adminContainer {
-  margin: 2rem 20rem;
+  margin: 2rem 8rem;
 }
 
 /* CARDS */
@@ -158,7 +159,7 @@ span {
   margin: 0 0 3rem 0;
 }
 .btnCart {
- margin: 1.5rem;
+  margin: .6rem;
 }
 .btnProfile {
   display: flex;
@@ -184,7 +185,7 @@ input {
   background-color: var(--primary);
   border: none;
   border-radius: 0.8rem;
-  font-size: small;
+  font-size: var(--text-sm);
 
   &:hover {
     background-color: var(--tertiary);
@@ -195,6 +196,29 @@ input {
     background-color: #99eb99;
     outline-color: var(--quaternary);
   }
+}
+
+/* FORM ADMIN.HANDLEBARS*/
+/* Oculto los inputs originales */
+input[type="file"] {
+  opacity: 0;
+  position: absolute;
+  z-index: -1;
+}
+
+/* Labels que actuarán como botones */
+.custom-file-upload {
+  display: inline-block;
+  padding: 0.5rem;
+  margin-top: 5px;
+  width: 25vw;
+  min-width: 10rem;
+  cursor: pointer;
+  color: var(--secondary);
+  background-color: var(--primary);
+  border-radius: 0.8rem;
+  text-align: center;
+  font-size: var(--text-sm);
 }
 
 /*PARTIALS*/
@@ -254,7 +278,6 @@ input {
 }
 .pStyles {
   width: 10rem;
-  text-transform: capitalize;
   border-bottom: none;
 }
 /* 

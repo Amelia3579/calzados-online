@@ -18,6 +18,7 @@ const verifyRole = require("../config/verifyRole.config.js");
 const authenticateJWT = passport.authenticate("jwt", { session: false });
 //Middleware de Loggers
 const addLogger = require("../utils/loggers.js");
+const upload = require("../middleware/multer.js");
 
 router.get("/carts/:cid", viewsTest.renderCart);
 router.get(
@@ -28,9 +29,22 @@ router.get(
 );
 
 router.get("/chat", verifyRole(["User", "Premium"]), viewsTest.renderChat);
+router.post("/upload", upload.single("image"), (req, res) => {
+ 
+  if (!req.file) {
+    return res.status(400).json({ error: "No file uploaded" });
+  }
+
+  // Aquí puedes manejar la lógica adicional, como guardar la URL en la base de datos
+  const imageUrl = `/uploads/${req.file.filename}`;
+  
+  res.json({ imageUrl: imageUrl });
+});
+
 router.get(
   "/realtimeproducts",
   verifyRole(["Admin", "Premium"]),
+  upload.single("image"),
   viewsTest.renderRealTimeProducts
 );
 //Ruta para que Login sea lo 1° que se renderize

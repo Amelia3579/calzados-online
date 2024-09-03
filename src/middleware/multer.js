@@ -5,10 +5,11 @@ const path = require("path");
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     let folder;
+
     if (file.fieldname === "profile") {
       folder = path.resolve(__dirname, "../uploads/profiles");
-    } else if (file.fieldname === "products") {
-      folder = path.resolve(__dirname, "../uploads/products");
+    } else if (file.fieldname === "image") {
+      folder = path.resolve(__dirname, "../public/img");
     } else {
       //Carpeta por default
       folder = path.resolve(__dirname, "../uploads/documents");

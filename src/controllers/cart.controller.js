@@ -7,6 +7,8 @@ const {
 const mongoose = require("mongoose");
 const totalPurchase = require("../utils/ticket.js");
 const { generateUniqueCode } = require("../models/ticket.model.js");
+const EmailController = require("../services/email.js");
+const emailTest = new EmailController();
 
 class CartController {
   //Método para crear carrito
@@ -349,24 +351,21 @@ class CartController {
         `The ticket was generated with the code: ${uniqueCode} for the buyer: ${userCart.email}.`
       );
 
-      //Vacío el carrito luego de generado el ticket
+      //Vacío el carrito después de generado el ticket
       await cartRepository.emptyCart(cartId);
+
+      await emailTest.sendEmailCheckOut(
+        userCart.email,
+        userCart.first_name,
+        ticket._id
+      );
 
       return res.render("checkout", {
         customer: userCart.first_name,
         email: userCart.email,
         ticketNumber: ticket._id,
-        amountTicket: ticket.amount
+        amountTicket: ticket.amount,
       });
-    
-      // return res.status(200).json({
-      //   success: true,
-      //   ticket: newTicket,
-      //   message:
-      //     "The ticket was generated successfully. The products that were not added to the purchase due to lack of stock are:",
-      //   cart: JSON.parse(JSON.stringify(productsNotAvailable, null, 2)),
-      // });
-      // }
     } catch (error) {
       req.logger.error("Error in the purchase process:", error);
       return res.status(500).send({ message: error.message });

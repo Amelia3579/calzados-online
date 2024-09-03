@@ -11,15 +11,45 @@ const authenticateJWT = passport.authenticate("jwt", { session: false });
 
 router.get(
   "/github",
-  passport.authenticate("github", { scope: ["user:email"] })
+  passport.authenticate("github", { scope: ["user:email"] }),
+  (req, res) => {}
 );
+
 router.get(
   "/githubcallback",
-  passport.authenticate("github", { failureRedirect: "./login" }),
+  passport.authenticate("github", { session: false }),
   async (req, res) => {
-    res.redirect("./profile");
+    try {
+      // El usuario autenticado estará en req.user
+      const user = req.user;
+
+      // Genero un token JWT
+      const token = jwt.sign(
+        {
+          id: user._id,
+          email: user.email,
+          role: user.role,
+        },
+        "secretWord",
+        {
+          expiresIn: "1h",
+        }
+      );
+
+      // Establezco el token en una cookie
+      res.cookie("cookieToken", token, {
+        maxAge: 3600000,
+        httpOnly: true,
+        sameSite: "strict",
+      });
+
+      res.redirect("./profile");
+    } catch (error) {
+      res.status(500).send({ message: error.message });
+    }
   }
 );
+
 router.post("/", userTest.registerUser);
 router.post("/login", userTest.loginUser);
 //Ruta para obtener todos los usuarios

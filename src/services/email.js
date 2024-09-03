@@ -1,7 +1,7 @@
 //------Lógica para Envío de Emails (3° Práctica Integradora)------
 const nodemailer = require("nodemailer");
 
-//Creo clase para gestionar el envío de los emails
+//Clase para gestionar el envío de los emails
 class EmailController {
   constructor() {
     this.transporter = nodemailer.createTransport({
@@ -18,11 +18,11 @@ class EmailController {
   }
 
   //Método para envío de mail con el ckeck out de la compra
-  async sendEmailCheckOut(first_name, ticket) {
+  async sendEmailCheckOut(email, first_name, ticket) {
     try {
       const mailOptions = {
         from: "Mail App Test<ameliaisabelgallegos@gmail.com>", //Remitente
-        to: "<meli_gallegos@yahoo.com.ar>", //Destinatario
+        to: email, //Destinatario
         subject: "Check Out Purchase",
         html: `
          <h1> Ckeck Out Purchase </h1>
@@ -85,7 +85,7 @@ class EmailController {
     }
   }
 
-  // //Método para envío de mail con la notificación a usuario premium de producto eliminado
+  //Método para envío de mail con la notificación a usuario premium de producto eliminado
   async sendEmailNotification(first_name, product_title) {
     try {
       const mailOptions = {
@@ -94,8 +94,7 @@ class EmailController {
         subject: "Product Removal Notification",
         html: `
            <h1> Product Removal Notice </h1>
-           <p> Hello ${
-            first_name}  </p>
+           <p> Hello ${first_name}  </p>
            <p> We wanted to inform you that your product titled "<strong>${product_title}</strong>" has been removed from our platform.</p>
            <p> If you believe this action was taken in error, please contact our support team. </p>
            <p> Thank you for using our service. </p>

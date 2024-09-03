@@ -51,7 +51,10 @@ class SocketController {
           // Verifico si el propietario es un usuario premium
           if (owner.role === "Premium") {
             // Envío correo de notificación al propietario
-            await emailTest.sendEmailNotification(owner.first_name, product.title);
+            await emailTest.sendEmailNotification(
+              owner.first_name,
+              product.title
+            );
           }
 
           await this.productRepository.findByIdAndDelete(_id);
@@ -70,6 +73,7 @@ class SocketController {
       socket.on("addProduct", async (product) => {
         try {
           await this.productRepository.addProduct(product);
+
           //Envío la lista de productos actualizada
           this.updatedProducts();
         } catch (error) {

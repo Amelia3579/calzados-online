@@ -173,15 +173,12 @@ class UserController {
 
   //Método para eliminar usuarios inactivos
   async deleteInactiveUsers(req, res) {
-
     const userId = req.params.id;
-  
 
     // Establezco tiempo límite de inactividad
     const lastConnectionLimit = new Date(Date.now() - 5 * 60 * 1000);
 
     try {
-      
       const user = await userRepository.findById(userId);
 
       if (!user) {
@@ -284,7 +281,10 @@ class UserController {
           };
         });
 
-        return res.render("admin", { users: formattedUsers });
+        return res.render("admin", {
+          users: formattedUsers,
+          userId: req.user._id,
+        });
       } else {
         return res.status(403).send({
           success: false,
@@ -405,7 +405,7 @@ class UserController {
   async uploadDocuments(req, res) {
     const { uid } = req.params;
     const uploadedFiles = req.files;
-
+    
     try {
       const user = await userRepository.findOne({ _id: uid });
 
@@ -480,13 +480,14 @@ class UserController {
       // Verifico si el usuario envió toda la documentación:
       const requiredDocumentation = [
         "identificacion",
-        "comprobanteDeDomicilio",
+        "comprobanteDomicilio",
         "comprobanteEstadoDeCuenta",
       ];
 
       const userDocuments = user.documents.map((doc) =>
         doc.name.split(".").slice(0, -1).join(".")
       );
+      
 
       const completeDocumentation = requiredDocumentation.every((doc) =>
         userDocuments.includes(doc)
@@ -522,7 +523,7 @@ class UserController {
       const updateRole = await userRepository.findByIdAndUpdate(uid, {
         role: newRole,
       });
-
+      
       return res.status(200).send({
         success: true,
         message: "The role was successfully updated.",

@@ -7,7 +7,6 @@ const userSchema = new mongoose.Schema({
   },
   last_name: {
     type: String,
-    required: true,
   },
   email: {
     type: String,
@@ -20,7 +19,6 @@ const userSchema = new mongoose.Schema({
   },
   age: {
     type: Number,
-    required: true,
   },
   cart: {
     type: mongoose.Schema.Types.ObjectId,
