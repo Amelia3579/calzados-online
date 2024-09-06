@@ -405,7 +405,7 @@ class UserController {
   async uploadDocuments(req, res) {
     const { uid } = req.params;
     const uploadedFiles = req.files;
-    
+
     try {
       const user = await userRepository.findOne({ _id: uid });
 
@@ -487,7 +487,6 @@ class UserController {
       const userDocuments = user.documents.map((doc) =>
         doc.name.split(".").slice(0, -1).join(".")
       );
-      
 
       const completeDocumentation = requiredDocumentation.every((doc) =>
         userDocuments.includes(doc)
@@ -523,7 +522,7 @@ class UserController {
       const updateRole = await userRepository.findByIdAndUpdate(uid, {
         role: newRole,
       });
-      
+
       return res.status(200).send({
         success: true,
         message: "The role was successfully updated.",

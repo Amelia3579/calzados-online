@@ -3,6 +3,15 @@ const { cartRepository, productRepository } = require("../services/index.js");
 const totalPurchase = require("../utils/ticket.js");
 
 class ViewsController {
+  //Método para renderizar register.handlebars
+  async renderHome(req, res) {
+    try {
+      res.render("home");
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
+    }
+  }
+
   //Método para renderizar cart.handlebars
   async renderCart(req, res) {
     try {

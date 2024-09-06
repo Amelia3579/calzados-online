@@ -70,9 +70,11 @@ class SocketController {
       });
 
       //Manejo el evento "agregarProducto" desde el cliente
-      socket.on("addProduct", async (product) => {
+      socket.on("addProduct", async (product, callback) => {
         try {
-          await this.productRepository.addProduct(product);
+          const newProduct = await this.productRepository.addProduct(product);
+
+          callback(newProduct._id);
 
           //Envío la lista de productos actualizada
           this.updatedProducts();
@@ -84,6 +86,38 @@ class SocketController {
           });
         }
       });
+
+      socket.on("updateProductImage", async ({ pid, imageUrl }) => {
+        try {
+          // Actualizar el producto con la URL de la imagen
+          await this.productRepository.findByIdAndUpdate(pid, {
+            img: imageUrl,
+          });
+
+          // Enviar la lista actualizada de productos
+          this.updatedProducts();
+        } catch (error) {
+          socket.emit("error", {
+            message: "Failed to update product image.",
+            details: error.message,
+          });
+        }
+      });
+
+      // socket.on("addProduct", async (product) => {
+      //   try {
+      //     await this.productRepository.addProduct(product);
+
+      //     //Envío la lista de productos actualizada
+      //     this.updatedProducts();
+      //   } catch (error) {
+      //     socket.emit("error", {
+      //       message:
+      //         "You do not have the necessary permissions to add products from the store.",
+      //       details: error.message,
+      //     });
+      //   }
+      // });
 
       //Configuración para chat.handlebars
       //Empiezo a escuchar los mensajes

@@ -16,19 +16,12 @@ const renderProductos = (products) => {
   const containerProducts = document.getElementById("containerProducts");
   containerProducts.innerHTML = "";
 
-  const title = document.createElement("h1");
-  title.textContent = "Products Available for Sale";
-  containerProducts.appendChild(title);
-
   products.forEach((element) => {
-    console.log("Product image URL:", element.img); // Verifica la ruta de la imagen
-
     const card = document.createElement("div");
+
     card.innerHTML = `
                           <div class = "cardProduct">
-                          <img src="${
-                          element.img || "/img/default.png"
-                          }" alt="${element.title}" class="cardImage"/>
+                          <img src="${element.img}" alt="${element.title}" class="cardImage"/>
                           <p> ID: ${element._id}</p>
                           <p> Title: ${element.title} </p>
                           <p> Price: ${element.price} </p>
@@ -55,7 +48,7 @@ const deleteProduct = (_id) => {
   socket.emit("deleteProduct", _id);
 };
 
-// Evento del botón agregar producto
+//Evento del botón agregar producto
 document.getElementById("btnProduct").addEventListener("click", () => {
   addProduct();
 });
@@ -74,40 +67,35 @@ const addProduct = () => {
     owner: owner,
   };
 
-  socket.emit("addProduct", product, (productId) => {
-    // Después de enviar los datos, subimos la imagen
-    uploadImage(productId);
-  });
-
-  const form = document.querySelector("form");
-  form.reset();
-};
-
-// Función para subir la imagen a través de una solicitud HTTP
-function uploadImage(productId) {
-  const imgInput = document.getElementById("image");
-  if (imgInput && imgInput.files && imgInput.files.length > 0) {
+  socket.emit("addProduct", product, (pid) => {
+    // Luego de que el producto es creado, subo la imagen
+    const inputFile = document.getElementById("image");
     const formData = new FormData();
-    formData.append("image", imgInput.files[0]);
-    formData.append("productId", productId);
 
-    fetch('/upload', {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log('Imagen subida correctamente:', data.imageUrl);
-      // Aquí podrías renderizar la imagen junto con el producto si lo deseas
-    })
-    .catch(error => {
-      console.error('Error subiendo la imagen:', error);
-    });
-  }
-}
+    if (inputFile.files.length > 0) {
+      formData.append("image", inputFile.files[0]);
 
-
-
+      fetch(`/${pid}/uploadimage`, {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.error("Error uploading image:", data);
+        })
+        .catch((error) => {
+          console.error("Error uploading image:", error);
+        });
+    } else {
+      console.log("No image selected");
+    }
+  });
+};
 
 // document.getElementById("btnProduct").addEventListener("click", () => {
 //   addProduct();

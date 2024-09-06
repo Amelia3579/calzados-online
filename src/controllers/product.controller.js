@@ -249,6 +249,33 @@ class ProductController {
     }
   }
 
+  //Método para subir imágenes de los productos
+  async uploadImages(req, res) {
+    try {
+      const prodId = req.params.pid;
+      const image = req.file;
+
+      if (!image) {
+        return res.status(400).send("No image file uploaded.");
+      }
+
+      const product = await productRepository.findOne({ _id: prodId });
+      if (!product) {
+        return res.status(404).send("Product not found.");
+      }
+
+      product.img = `/img/${image.filename}`;
+      await product.save();
+
+      res.status(200).json({
+        message: "Image uploaded successfully",
+        imageUrl: product.img,
+      });
+    } catch (error) {
+      res.status(500).send({ message: error.message });
+    }
+  }
+
   //------Lógica para Faker------
   async getProductsFaker(req, res) {
     try {

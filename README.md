@@ -1,4 +1,4 @@
-# Online Shoes Store
+# Urban Steps Store
 
 ## Description
 

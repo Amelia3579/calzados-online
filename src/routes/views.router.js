@@ -29,26 +29,15 @@ router.get(
 );
 
 router.get("/chat", verifyRole(["User", "Premium"]), viewsTest.renderChat);
-router.post("/upload", upload.single("image"), (req, res) => {
- 
-  if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" });
-  }
-
-  // Aquí puedes manejar la lógica adicional, como guardar la URL en la base de datos
-  const imageUrl = `/uploads/${req.file.filename}`;
-  
-  res.json({ imageUrl: imageUrl });
-});
 
 router.get(
   "/realtimeproducts",
   verifyRole(["Admin", "Premium"]),
-  upload.single("image"),
   viewsTest.renderRealTimeProducts
 );
 //Ruta para que Login sea lo 1° que se renderize
-router.get("/", viewsTest.renderLogin);
+router.get("/", viewsTest.renderHome);
+router.get("/login", viewsTest.renderLogin);
 router.get("/register", viewsTest.renderRegister);
 
 //Ruta para mostrar logs
