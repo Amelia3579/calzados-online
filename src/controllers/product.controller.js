@@ -11,6 +11,7 @@ class ProductController {
     try {
       //Capturo datos que vienen del body
       const addProductBody = req.body || req;
+      console.log(window.innerWidth);
 
       const {
         title,

@@ -1,21 +1,21 @@
 <h1> Registered Users</h1>
 
-<div class="backgroundContainer adminContainer">
+<div class="background__container admin__container">
   {{#each users}}
 
-    <ul class="ul">
-      <li class="li">
-        <p class="pStyles">{{this.first_name}} {{this.last_name}}</p>
-        <p class="pStyles"> {{this.email}} </p>
-        <p class="pStyles" id="role-{{this._id}}">{{this.role}}</p>
-        <p class="pStyles">{{this.last_connection}}</p>
+    <ul class="admin__list">
+      <li class="admin__list-item">
+        <p class="admin__list-text">{{this.first_name}} {{this.last_name}}</p>
+        <p class="admin__list-text"> {{this.email}} </p>
+        <p class="admin__list-text" id="role-{{this._id}}">{{this.role}}</p>
+        <p class="admin__list-text">{{this.last_connection}}</p>
 
-        <div class="btnProfile">
+        <div class="btn__profile">
           <button
             onclick="changeUserRole(`{{this._id}}`)"
-            class="btnCart"
+            class="btn__cart"
           >Change Role</button>
-          <button onclick="removeUser(`{{this._id}}`)" class="btnCart">Remove
+          <button onclick="removeUser(`{{this._id}}`)" class="btn__cart">Remove
             User</button>
         </div>
       </li>
@@ -28,22 +28,22 @@
   id="uploadForm"
   enctype="multipart/form-data"
   method="POST"
-  class="backgroundContainer"
+  class="background__container"
 >
 
   <label for="documents">Documents:</label>
-  <label for="documents" class="custom-file-upload">Select Documents</label>
+  <label for="documents" class="custom__file-upload">Select Documents</label>
   <input type="file" name="documents" id="documents" multiple />
 
   <label for="products">Products:</label>
-  <label for="products" class="custom-file-upload">Select Products</label>
+  <label for="products" class="custom__file-upload">Select Products</label>
   <input type="file" name="products" id="products" multiple />
 
   <label for="profile">Profile:</label>
-  <label for="profile" class="custom-file-upload">Select Profile</label>
+  <label for="profile" class="custom__file-upload">Select Profile</label>
   <input type="file" name="profile" id="profile" multiple />
 
-  <button type="submit" class="btnUser">Upload Documents</button>
+  <button type="submit" class="btn__user">Upload Documents</button>
 </form>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

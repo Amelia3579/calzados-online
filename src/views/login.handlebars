@@ -1,5 +1,5 @@
 <h1> User Login</h1>
-<form action="/api/users/login" method="POST" class="backgroundContainer">
+<form action="/api/users/login" method="POST" class="background__container">
 
   <label for="email"> Email </label>
   <input
@@ -21,7 +21,7 @@
     placeholder="Clave Alfanumérica"
   />
 
-  <button class="btnUser" type="submit"> Login </button>
+  <button class="btn__user" type="submit"> Login </button>
 
   {{!-- <h2> Or do you prefer? </h2>
 
@@ -32,11 +32,11 @@
     redirectGitHub(){ window.location.href = "/api/users/github" }
   </script> --}}
 
-  <div class="btnProfile">
-    <p> NEW USER? </p>
-    <a class="btnUser" href="/register"> Register </a>
+  <div class="btn__profile">
+    <p> New user? </p>
+    <a class="btn__user" href="/register"> Register </a>
 
-    <p> FORGOT PASS? </p>
-    <a class="btnUser" href="/changePassword"> Reset it </a>
+    <p> Forgot pass? </p>
+    <a class="btn__user" href="/changePassword"> Reset it </a>
   </div>
 </form>

@@ -20,12 +20,12 @@ const renderProductos = (products) => {
     const card = document.createElement("div");
 
     card.innerHTML = `
-                          <div class = "cardProduct">
-                          <img src="${element.img}" alt="${element.title}" class="cardImage"/>
+                          <div class = "card__product">
+                          <img src="${element.img}" alt="${element.title}"/>
                           <p> ID: ${element._id}</p>
                           <p> Title: ${element.title} </p>
                           <p> Price: ${element.price} </p>
-                          <button class = "btnProduct"> Remove Product </button>
+                          <button class = "btn__product"> Remove Product </button>
                           </div>
         `;
     containerProducts.appendChild(card);
@@ -97,27 +97,3 @@ const addProduct = () => {
   });
 };
 
-// document.getElementById("btnProduct").addEventListener("click", () => {
-//   addProduct();
-// });
-
-// //Agrego producto
-// const addProduct = () => {
-//   const owner = role === "Premium" ? email : "Admin";
-
-//   const product = {
-//     title: document.getElementById("title").value,
-//     description: document.getElementById("description").value,
-//     price: document.getElementById("price").value,
-//     img: document.getElementById("img").value,
-//     code: document.getElementById("code").value,
-//     stock: document.getElementById("stock").value,
-//     category: document.getElementById("category").value,
-//     status: document.getElementById("status").value === "true",
-//     owner: owner,
-//   };
-//   socket.emit("addProduct", product);
-
-//   const form = document.querySelector("form");
-//   form.reset();
-// };

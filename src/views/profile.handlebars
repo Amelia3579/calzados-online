@@ -1,31 +1,31 @@
 <h1> Welcome {{userDto.first_name}} to your Profile</h1>
 
-<div class="backgroundContainer, profileContainer">
+<div class="background__container, profile__container">
   <p> <span>First_name: </span> {{userDto.first_name}} </p>
   <p> <span>Your email: </span> {{userDto.email}}</p>
   <p> <span>Your role: </span> {{userDto.role}}</p>
 
-<div class="btnProfile">
+<div class="btn__profile">
   {{! Show this link for Admin role }}
   {{#if this.isAdmin}}
-    <a class="btnUser" href="/realtimeproducts">Modify Products</a>
-    <a class="btnUser" href="/api/users/admin">Admin Panel</a>
+    <a class="btn__user" href="/realtimeproducts">Modify Products</a>
+    <a class="btn__user" href="/api/users/admin">Admin Panel</a>
 
   {{else}}
     {{! Premium role specific link }}
     {{#if this.isPremium}}
-      <a class="btnUser" href="/realtimeproducts">Modify Products</a>
+      <a class="btn__user" href="/realtimeproducts">Modify Products</a>
     {{/if}}
 
     {{! Redirect user based on role }}
-    <a class="btnUser" href="/products">View Products</a>
-    <a class="btnUser" href="/chat">Go to Chat</a>
+    <a class="btn__user" href="/products">View Products</a>
+    <a class="btn__user" href="/chat">Go to Chat</a>
   {{/if}}
   </div>
 </div>
 
 <div>
   <form action="/api/users/logout" method="POST">
-    <button type="submit" class="btnUser"> Log Out </button>
+    <button type="submit" class="btn__user"> Log Out </button>
   </form>
 </div>

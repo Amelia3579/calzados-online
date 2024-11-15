@@ -1,40 +1,40 @@
 <h1>Shopping Cart</h1>
 
 {{#if products.length}}
-  <div class="cardContainerP">
+  <div class="card__container">
     {{#each products}}
-      <div class="cardProduct">
+      <div class="card__product">
         <p>PRODUCT: {{this.product.title}}</p>
         <p>QUANTITY: {{this.quantity}}</p>
         <p>PRICE: ${{this.product.price}}</p>
         <button
           onclick="removeProduct(`{{this.cartId}}`, `{{this.product._id}}`)"
-          class="btnProduct"
+          class="btn__product"
         >
           Remove Product
         </button>
       </div>
     {{/each}}
 
-    <div class="cartStyles">
+    <div class="cart__container">
       <div>
-        <a href="/products" class="btnCart">CONTINUE SHOPPING</a>
+        <a href="/products" class="btn__cart">CONTINUE SHOPPING</a>
       </div>
       <form action="/api/carts/{{cartId}}/purchase" method="post">
-        <button type="submit" class="btnCart">Complete Purchase</button>
+        <button type="submit" class="btn__cart">Complete Purchase</button>
       </form>
       <p>Total Purchase:${{totalPurchase}}</p>
     </div>
-<form action="" class="">
-    <button onclick="emptyCart(`{{this.cartId}}`)" class="btnCart">
+<form action="">
+    <button onclick="emptyCart(`{{this.cartId}}`)" class="btn__cart">
       Empty Cart
     </button>
     </form>
   </div>
 {{else}}
-<div class="backgroundContainer">
+<div class="background__container">
   <h2>Your cart is empty!</h2>
-  <a href="/products" class="btnCart">CONTINUE SHOPPING</a>
+  <a href="/products" class="btn__cart">CONTINUE SHOPPING</a>
   </div>
 {{/if}}
 
