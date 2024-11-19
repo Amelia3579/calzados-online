@@ -35,7 +35,7 @@ router.get(
   verifyRole(["Admin", "Premium"]),
   viewsTest.renderRealTimeProducts
 );
-//Ruta para que Login sea lo 1° que se renderize
+
 router.get("/", viewsTest.renderHome);
 router.get("/login", viewsTest.renderLogin);
 router.get("/register", viewsTest.renderRegister);

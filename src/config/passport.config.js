@@ -76,8 +76,7 @@ passport.use(
 
         if (!userGith) {
           let newUser = {
-            first_name: profile._json.name,
-            last_name: "",
+            full_name: profile._json.name,
             age: 40,
             email: profile._json.email,
             password: "",

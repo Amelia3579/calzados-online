@@ -5,7 +5,7 @@
 :root {
   /* Typography */
   font-family: "Roboto", sans-serif;
-  font-weight: bold;
+  font-size: 62.5%;
   color: var(--secondary);
 
   /* Color Palette */
@@ -17,15 +17,10 @@
   --sextenary: #99eb99;
 
   /* Text Sizes */
-  /* --text-lg: 2.4em;
-  --text-md: 1.6em;
-  --text-sm: 1.4em;
-  --text-xsm: 1.2em; */
-
-  --text-lg: 28px;
-  --text-md: 23px;
-  --text-sm: 16px;
-  --text-xsm: 8px;
+  --text-lg: 2.4rem;
+  --text-md: 1.8rem;
+  --text-sm: 1.6rem;
+  --text-xsm: 1.4rem;
 }
 
 /* RESET */
@@ -40,7 +35,6 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  font-size: 62.5%;
   background-color: var(--primary);
 }
 
@@ -75,11 +69,11 @@ h4 {
 
 p {
   margin: 0.3rem;
-  font-size: var(--text-sm);
+  font-size: var(--text-xsm);
 }
 
-span {
-  font-size: var(--text-sm);
+::placeholder {
+  font-size: var(--text-xsm);
 }
 
 /* Containers */
@@ -92,8 +86,7 @@ span {
   justify-content: center;
   text-align: left;
   padding: 1rem;
-  /* margin: 2rem 28rem; */
-  margin: 0 28vw;
+  margin: 2vw 30vw;
   background-color: var(--quaternary);
   border: none;
   border-radius: 10px;
@@ -133,11 +126,27 @@ span {
   justify-content: center;
   width: 50%;
   color: var(--quintenary);
+  text-shadow: 4px 4px 6px var(--tertiary);
+}
+
+.home__texts h2 {
+  letter-spacing: 0.7rem;
+  color: var(--secondary);
+}
+
+.home__texts h3 {
+  letter-spacing: 0.9rem;
+  color: var(--quintenary);
+}
+
+.home__texts h4 {
+  letter-spacing: 0.1rem;
 }
 
 .home__slider {
-  width: 50%;
+  width: 50vw;
   overflow: hidden;
+  margin-top: 3rem;
 }
 
 .home__slider ul {
@@ -157,7 +166,7 @@ span {
 }
 .home__slider img {
   width: 100%;
-  height: 65vh;
+  height: 50vh;
 }
 
 /* Animation */
@@ -227,18 +236,22 @@ span {
   display: flex;
   justify-content: center;
   text-align: center;
-  margin-top: 1rem;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 4rem auto 0 auto;
   padding: 0.5rem;
-  width: 6rem;
-  font-size: var(--text-sm);
+  min-width: 6vw;
+  font-size: var(--text-xsm);
   color: var(--secondary);
   background-color: var(--quintenary);
   border: none;
   border-radius: 0.5rem;
   text-decoration: none;
   cursor: pointer;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    color: var(--primary);
+    transform: scale(1.1);
+  }
 }
 
 #btnGitHub {
@@ -246,33 +259,38 @@ span {
   margin: 0 0 3rem 0;
 }
 .btn__cart {
+  font-weight: 900;
   margin: 0.6rem;
 }
 .btn__profile {
   display: flex;
   align-items: center;
-  margin: 3rem 0 2rem 0;
+  justify-content: center;
+  margin: 6rem 0 2rem 0;
 }
 
+.btn__profile p {
+  font-weight: 900;
+}
 /* FORM */
 label {
   display: inline-block;
   width: 15rem;
   padding: 0.3rem;
-  text-align: left;
-  font-size: medium;
-  margin: 0.5rem 0.5rem 0.1rem 0.5rem;
+  font-size: var(--text-sm);
+  font-weight: bold;
+  margin: 1.5rem 0.5rem 0.1rem 0.5rem;
 }
 
 input {
-  width: 25vw;
+  width: 30vw;
   min-width: 10rem;
-  height: 2rem;
+  height: 3rem;
   padding: 0.5rem;
   background-color: var(--primary);
   border: none;
   border-radius: 0.8rem;
-  font-size: var(--text-sm);
+  font-size: var(--text-xsm);
 
   &:hover {
     background-color: var(--tertiary);
@@ -309,18 +327,19 @@ input[type="file"] {
 }
 
 /* PARTIALS - HEADER */
-.header__nav,
+.header__section,
 .pContainer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
   min-height: 13vh;
-  padding: 0 10px;
-  margin-bottom: 15px;
+  margin-bottom: 2rem;
+  padding: 2rem;
   border-bottom: 1px solid var(--quaternary);
   background-color: var(--tertiary);
 }
+
 .pContainer {
   border-bottom: none;
   background-color: var(--primary);
@@ -328,18 +347,16 @@ input[type="file"] {
 
 .header__logo {
   display: flex;
-  width: 6rem;
+  width: 8rem;
 }
 
 .header__nav-list,
 .admin__list {
   display: flex;
   justify-content: space-between;
-  margin-right: 4rem;
-  gap: .8rem;
-  flex-wrap: wrap;
+  gap: 1rem;
   list-style: none;
-  transition: background-color 0.3s ease-in-out;
+  transition: background-color 0.5s;
 }
 
 .header__nav-list :hover {
@@ -360,19 +377,35 @@ input[type="file"] {
   display: flex;
   justify-content: center;
   align-items: center;
- flex-grow: 1;
- flex-basis: 20rem;
-  font-size: clamp(.5rem, 3vw, 1rem);
+  font-size: clamp(1rem, 2vw, 1.6rem);
+  font-weight: 900;
+  margin: 0 1rem 0.5rem 1rem;
   padding: 0.7rem;
-  margin: 0 1rem .5rem 1rem;
   text-decoration: none;
-  text-transform: uppercase;
   color: var(--secondary);
   border-bottom: 3px solid var(--quaternary);
 }
+
 .admin__list-text {
   width: 10rem;
   border-bottom: none;
+}
+
+/* MENU HAMBURGUESA */
+.btn__openMenu,
+.btn__closeMenu {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.btn__openMenu,
+.btn__closeMenu,
+svg {
+  stroke: var(--quintenary);
+  width: 40px;
+  height: 40px;
 }
 
 /*FOOTER*/
@@ -382,4 +415,63 @@ footer {
   background-color: var(--tertiary);
   border-top: 1px solid var(--quaternary);
   text-align: center;
+}
+
+@media screen and (max-width: 550px) {
+  :root {
+    font-size: 50%;
+  }
+  .background__container {
+    margin: 12vw 10vw;
+  }
+
+  .header__nav {
+    opacity: 0;
+    visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 65%;
+    padding: 3.5rem;
+    gap: 1rem;
+    background-color: var(--tertiary);
+    box-shadow: 0 0 0 100vmax rgb(0, 0, 0, 0.6);
+  }
+
+  .header__nav.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+  .header__nav-list {
+    flex-direction: column;
+    align-items: end;
+  }
+
+  .btn__openMenu,
+  .btn__closeMenu {
+    display: block;
+  }
+
+  .home__container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .home__slider,
+  .home__texts {
+    text-align: center;
+    width: 70vw;
+    margin: 0;
+  }
+
+  .home__texts {
+    width: 90%;
+  }
+
+  input {
+    width: 60vw;
+  }
 }

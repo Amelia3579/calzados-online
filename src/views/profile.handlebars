@@ -1,7 +1,7 @@
-<h1> Welcome {{userDto.first_name}} to your Profile</h1>
+{{!-- <h2> Welcome {{userDto.full_name}} to your Profile</h2>
 
 <div class="background__container, profile__container">
-  <p> <span>First_name: </span> {{userDto.first_name}} </p>
+  <p> <span>Full_name: </span> {{userDto.full_name}} </p>
   <p> <span>Your email: </span> {{userDto.email}}</p>
   <p> <span>Your role: </span> {{userDto.role}}</p>
 
@@ -19,7 +19,7 @@
 
     {{! Redirect user based on role }}
     <a class="btn__user" href="/products">View Products</a>
-    <a class="btn__user" href="/chat">Go to Chat</a>
+    <a class="btn__user" href="/chat">Chat Comunity</a>
   {{/if}}
   </div>
 </div>
@@ -29,3 +29,47 @@
     <button type="submit" class="btn__user"> Log Out </button>
   </form>
 </div>
+
+
+
+{{else}}
+  <h2>Unauthorized Access</h2>
+  <p>You need to log in to access this page.</p>
+  <a href="/login" class="btn__user">Go to Login</a>
+{{/if}} --}}
+
+
+
+
+
+{{#if isAuthenticated}}
+  <h2>Welcome {{userDto.full_name}} to your Profile</h2>
+
+  <div class="background__container profile__container">
+    <p><span>Full name:</span> {{userDto.full_name}}</p>
+    <p><span>Your email:</span> {{userDto.email}}</p>
+    <p><span>Your role:</span> {{userDto.role}}</p>
+
+    <div class="btn__profile">
+      {{#if isAdmin}}
+        <a class="btn__user" href="/realtimeproducts">Modify Products</a>
+        <a class="btn__user" href="/api/users/admin">Admin Panel</a>
+      {{else if isPremium}}
+        <a class="btn__user" href="/realtimeproducts">Modify Products</a>
+      {{/if}}
+
+      <a class="btn__user" href="/products">View Products</a>
+      <a class="btn__user" href="/chat">Chat Community</a>
+    </div>
+  </div>
+
+  <div>
+    <form action="/api/users/logout" method="POST">
+      <button type="submit" class="btn__user">Log Out</button>
+    </form>
+  </div>
+{{else}}
+  <h2>Unauthorized Access</h2>
+  <p>You need to log in to access this page.</p>
+  <a href="/login" class="btn__user">Go to Login</a>
+{{/if}}
