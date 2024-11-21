@@ -7,7 +7,24 @@ const userTest = new UserController();
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 //Middleware de autenticación con JWT
-const authenticateJWT = passport.authenticate("jwt", { session: false });
+
+const authenticateJWT = (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user) => {
+    if (err) {
+      // Si ocurre un error interno
+      return res
+        .status(500)
+        .json({ error: "Error interno en la autenticación" });
+    }
+    if (!user) {
+      // Si no se encuentra el usuario o el token no es válido
+      return res.redirect("/login");
+    }
+    // Si el usuario es válido, lo agregamos a req.user
+    req.user = user;
+    next();
+  })(req, res, next);
+};
 
 router.get(
   "/github",
@@ -57,7 +74,7 @@ router.get("/allUsers", userTest.getUsers);
 //Ruta para eliminar usuarios inactivos
 router.delete("/inactiveUsers/:id", userTest.deleteInactiveUsers);
 //Ruta para Profile(protegida por jwt)- Ruta Current
-router.get("/profile",  userTest.getProfile);
+router.get("/profile", authenticateJWT, userTest.getProfile);
 router.get("/admin", authenticateJWT, userTest.getAdmin);
 router.post("/logout", userTest.logoutUser);
 

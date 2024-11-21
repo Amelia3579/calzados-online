@@ -214,86 +214,35 @@ class UserController {
   }
 
   //Método para profile.handlebars
-  // async getProfile(req, res) {
-  
-  //   try {
-  //     // Si el usuario no está autenticado
-     
-  //     if (!req.user ) {
-  //       console.log("No user authenticated");
-  //     return res.render("profile", { 
-  //       userDto: null, 
-  //       isAdmin: false, 
-  //       isPremium: false,
-  //       message: "Unauthorized. Please log in."
-  //     });
-
-
-  
-  //     } else {
-  //       //Si es un usuario registrado, guardo su información
-  //       const user = await userRepository.findById(req.user._id);
-  //       const isAdmin = req.user.role === "Admin";
-  //       const isPremium = req.user.role === "Premium";
-
-  //       //Creo un DTO del usuario
-  //       const userDto = new UserDto(user);
-
-  //       if (req.headers["content-type"] === "application/json") {
-  //         return res.status(200).send({
-  //           success: true,
-  //           payload: userDto,
-  //         });
-  //       } else {
-  //         return res.render("profile", { userDto, isAdmin, isPremium });
-  //       }
-  //     }
-  //   } catch (error) {
-  //     return res.status(500).send({ message: error.message });
-  //   }
-  // }
-
-
   async getProfile(req, res) {
     try {
-      // Verifico si el usuario está autenticado a través de cookies 
-      const isAuthenticated = req.user !== undefined;
-  
-      if (!isAuthenticated) {
-        // Si no está autenticado
-        return res.render("profile", {
-          userDto: null,
-          isAuthenticated: false,
-          isAdmin: false,
-          isPremium: false,
-          message: "Unauthorized. Please log in."
-        });
+      // Si el usuario no está autenticado
+      if (!req.user) {
+        return res
+          .status(401)
+          .json({ error: req.authInfo || "Acceso denegado." });
+      } else {
+        //Si es un usuario registrado, guardo su información
+        const user = await userRepository.findById(req.user._id);
+        const isAdmin = req.user.role === "Admin";
+        const isPremium = req.user.role === "Premium";
+
+        //Creo un DTO del usuario
+        const userDto = new UserDto(user);
+
+        if (req.headers["content-type"] === "application/json") {
+          return res.status(200).send({
+            success: true,
+            payload: userDto,
+          });
+        } else {
+          return res.render("profile", { userDto, isAdmin, isPremium });
+        }
       }
-  
-      // Si está autenticado, obtener los datos del usuario
-      const user = await UserModel.findById(req.user._id).lean();
-      const isAdmin = user.role === "Admin";
-      const isPremium = user.role === "Premium";
-      const userDto = new UserDto(user);
-  
-      
-      return res.render("profile", {
-        userDto,
-        isAuthenticated: true,
-        isAdmin,
-        isPremium
-      });
     } catch (error) {
-      console.error("Error in getProfile:", error);
       return res.status(500).send({ message: error.message });
     }
   }
-  
-  
-
-
-
-
 
   //Método para admin.handlebars
   async getAdmin(req, res) {

@@ -102,13 +102,21 @@ p {
 
 .cart__container {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  width: 35vw;
+  font-weight: bold;
+  width: clamp(200px, 20vw, 500px);
   padding: 0.5rem;
   margin: auto;
   background-color: var(--tertiary);
   border-radius: 0.8rem;
   box-shadow: 0px 1px 10px #2b413a;
+}
+
+.cart__actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem; 
 }
 
 /* HOME */
@@ -130,12 +138,12 @@ p {
 }
 
 .home__texts h2 {
-  letter-spacing: 0.7rem;
+  letter-spacing: 0.9rem;
   color: var(--secondary);
 }
 
 .home__texts h3 {
-  letter-spacing: 0.9rem;
+  letter-spacing: 1.4rem;
   color: var(--quintenary);
 }
 
@@ -204,9 +212,10 @@ p {
 .card__product {
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: space-between;
-  width: 17vw;
-  min-width: 8rem;
+  width: clamp(150px, 20vw, 250px); 
+  min-height: clamp(150px, 50vh, 250px);
   padding: 1rem;
   margin: 2rem;
   background-color: var(--quaternary);
@@ -217,13 +226,15 @@ p {
 .card__product p {
   display: flex;
   text-align: left;
+  max-width: 90%;
 }
 
 .card__product img {
-  width: 200px;
-  height: 140px;
+  width: clamp(100px, 12vw, 500px);
+  height: 18vh;
   margin: 1rem 0;
   border-radius: 0.8rem;
+ 
 }
 
 /* BUTTONS */
@@ -258,10 +269,6 @@ p {
   width: 11rem;
   margin: 0 0 3rem 0;
 }
-.btn__cart {
-  font-weight: 900;
-  margin: 0.6rem;
-}
 .btn__profile {
   display: flex;
   align-items: center;
@@ -270,8 +277,14 @@ p {
 }
 
 .btn__profile p {
-  font-weight: 900;
+  font-weight: bold;
 }
+.btn__cart {
+  margin: 0.6rem;
+}
+
+
+
 /* FORM */
 label {
   display: inline-block;
@@ -332,6 +345,8 @@ input[type="file"] {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  font-weight: 900;
   width: 100%;
   min-height: 13vh;
   margin-bottom: 2rem;
@@ -378,7 +393,6 @@ input[type="file"] {
   justify-content: center;
   align-items: center;
   font-size: clamp(1rem, 2vw, 1.6rem);
-  font-weight: 900;
   margin: 0 1rem 0.5rem 1rem;
   padding: 0.7rem;
   text-decoration: none;

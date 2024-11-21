@@ -1,42 +1,49 @@
-{{! <header>
-  <nav class="header__nav">
-
-    <a href="/" class="header__logo">
-      <img src="/img/logo.svg" alt="Logo" />
-    </a>
-
-
-    <ul class="header__nav-list" id="nav-list">
-      <li><a href="/" class="header__nav-link">Home</a></li>
-      <li><a href="/login" class="header__nav-link">Login</a></li>
-      <li><a href="/register" class="header__nav-link">Register</a></li>
-      <li><a href="/api/users/profile" class="header__nav-link">Profile</a></li>
-    </ul>
-  </nav>
-</header>
-
-<script src="/js/menu.js"></script> }}
-
 <header>
- <section class="header__section">
+  <section class="header__section">
     <a href="/" class="header__logo">
       <img src="/img/logo.svg" alt="Logo" />
     </a>
 
     <button id="open" class="btn__openMenu">
-      <svg xmlns="http://www.w3.org/2000/svg" x-bind:width="size" x-bind:height="size" viewBox="0 0 24 24" fill="none" stroke="currentColor" x-bind:stroke-width="stroke" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
-  <path d="M4 6l16 0"></path>
-  <path d="M4 12l16 0"></path>
-  <path d="M4 18l16 0"></path>
-</svg>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        x-bind:width="size"
+        x-bind:height="size"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        x-bind:stroke-width="stroke"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        width="24"
+        height="24"
+        stroke-width="2"
+      >
+        <path d="M4 6l16 0"></path>
+        <path d="M4 12l16 0"></path>
+        <path d="M4 18l16 0"></path>
+      </svg>
     </button>
 
     <nav id="nav" class="header__nav">
       <button id="close" class="btn__closeMenu">
-      <svg xmlns="http://www.w3.org/2000/svg" x-bind:width="size" x-bind:height="size" viewBox="0 0 24 24" fill="none" stroke="currentColor" x-bind:stroke-width="stroke" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
-  <path d="M18 6l-12 12"></path>
-  <path d="M6 6l12 12"></path>
-</svg>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          x-bind:width="size"
+          x-bind:height="size"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          x-bind:stroke-width="stroke"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          width="24"
+          height="24"
+          stroke-width="2"
+        >
+          <path d="M18 6l-12 12"></path>
+          <path d="M6 6l12 12"></path>
+        </svg>
       </button>
 
       <ul class="header__nav-list">
@@ -50,9 +57,8 @@
       </ul>
     </nav>
 
- </section>
+  </section>
 
-  
 </header>
 
 <script src="/js/menu.js"></script>
